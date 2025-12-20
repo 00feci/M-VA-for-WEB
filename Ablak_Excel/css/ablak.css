@@ -60,36 +60,37 @@ select.op-nev {
   --header1-h: 0px;          /* JS fogja kitölteni valós értékkel */
 }
 
-/* Gombok (legfelül) */
+/* --- STABILIZÁLT STICKY FEJLÉC --- */
 .sticky-gombok {
   position: sticky;
   top: 0;
   background: #fff;
   padding: 8px 10px;
-  z-index: 1000;
+  z-index: 1001; /* Legfelül a gombok */
   border-bottom: 1px solid #ccc;
 }
 
-/* 1. ragasztott sor: Dátumfejlécek */
+/* 1. sor: Dátumok */
 table.munkaido thead tr.fejlec-datumok th {
   position: sticky;
   top: var(--sticky-toolbar-h);
   background: #fff;
-  z-index: 5;              /* 1. sor legyen feljebb */
+  z-index: 1000;
+  box-shadow: 0 1px 0 #999; /* Vizuális elválasztás */
   height: var(--header1-h);
   padding: 4px 6px;
 }
 
-/* 2. ragasztott sor: Napok típusa */
+/* 2. sor: Napok típusa (M/Ü/-) */
 table.munkaido thead tr.fejlec-napok-tipusa th {
   position: sticky;
   top: calc(var(--sticky-toolbar-h) + var(--header1-h));
   background: #f2f2f2;
-  z-index: 4;              /* 2. sor ez alatt */
+  z-index: 999;
   border-top: 1px solid #aaa;
+  box-shadow: 0 1px 0 #999;
   padding: 6px 6px;
 }
-
 /* Slider kijelző fix szélességgel */
 #sliderValue {
   display: inline-block;
@@ -99,7 +100,12 @@ table.munkaido thead tr.fejlec-napok-tipusa th {
   font-size: 14px;
 }
 
-/* forgatott címek ne tolódjanak szét */
+/* forgatott címek stabil magassággal */
+.forgatott-fejlec {
+  height: 120px; 
+  white-space: nowrap;
+}
+
 .forgatott-fejlec div {
   line-height: 1;
   writing-mode: vertical-rl;

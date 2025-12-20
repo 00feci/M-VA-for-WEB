@@ -55,21 +55,70 @@ window.onload = frissitKijelzo;
 function beirErtek(cell) {
   const ertek = ertekek[aktualisIndex]; // "🖱", "Ü", "-", "M"
   
-  // Csak a fejléc cellájára engedjük
   if (!cell.classList.contains('napok-tipusa') || ertek === '🖱') {
     return;
   }
   
-  // 1. CSAK a fejléc cellájába írjuk bele az értéket
+  // 1. Fejléc frissítése
   cell.innerText = ertek;
   
-  // 2. Elmentjük az adatbázisba (hogy frissítés után is ott maradjon)
+  // 2. AZONNALI VETÍTÉS: Frissítjük az oszlopot a táblázatban
+  vetitOszlopra(cell.cellIndex, ertek);
+  
+  // 3. Elmentjük az adatbázisba
   naptarFejlecMentese(cell, ertek);
   
-  // 3. Újraszámoljuk az összesítőt
+  // 4. Újraszámoljuk az összesítőt
   frissitOsszesOszlop();
 }
+function vetitOszlopra(colIndex, tipus) {
+    const tbody = document.getElementById('tabla-body');
+    if (!tbody) return;
 
+    Array.from(tbody.rows).forEach(sor => {
+        const adatCella = sor.cells[colIndex];
+        if (adatCella && !adatCella.classList.contains('inaktiv-nap')) {
+            const tartalom = adatCella.innerText.trim();
+            
+            if (tipus === 'M') {
+                // Munkanap (M) esetén töröljük a korábbi Ü/- jeleket, de nem írunk be semmit
+                if (tartalom === 'Ü' || tartalom === '-') {
+                    adatCella.innerText = '';
+                }
+            } else if (tipus === 'Ü' || tipus === '-') {
+                // Ünnep vagy Hétvége esetén beírjuk, ha a cella üres
+                if (tartalom === '') {
+                    adatCella.innerText = tipus;
+                }
+            }
+        }
+    });
+}
+function alkalmazNaptarAdatok(adatok) {
+    const fejlecSor = document.querySelector('tr.fejlec-napok-tipusa');
+    if (!fejlecSor) return;
+
+    const cellak = fejlecSor.cells;
+    const ev = window.AblakCfg.ev;
+    const honap = window.AblakCfg.honap;
+
+    for (let i = 2; i < cellak.length; i++) {
+        const nap = i - 1; 
+        const datumStr = `${ev}-${String(honap).padStart(2, '0')}-${String(nap).padStart(2, '0')}`;
+        
+        if (adatok[datumStr]) {
+            const tipus = adatok[datumStr]; 
+            
+            // 1. Fejléc frissítése
+            cellak[i].innerText = tipus;
+
+            // 2. Oszlop frissítése a közös szabállyal (M nem szalad végig)
+            vetitOszlopra(i, tipus);
+        }
+    }
+    console.log("✅ Naptár fejléc és oszlopok frissítve.");
+    frissitOsszesOszlop(); 
+}
 
 
 function valasztottFelhasznalo(selectElem) {
