@@ -52,6 +52,7 @@ function valtMinusz() {
 // Alapállapot beállítása
 window.onload = frissitKijelzo;
 
+// --- 1. Fejléc kattintás kezelése (Azonnali vetítéssel) ---
 function beirErtek(cell) {
   const ertek = ertekek[aktualisIndex]; // "🖱", "Ü", "-", "M"
   
@@ -59,18 +60,20 @@ function beirErtek(cell) {
     return;
   }
   
-  // 1. Fejléc frissítése
+  // Fejléc frissítése
   cell.innerText = ertek;
   
-  // 2. AZONNALI VETÍTÉS: Frissítjük az oszlopot a táblázatban
+  // AZONNALI VETÍTÉS: Frissítjük az oszlopot a táblázatban
   vetitOszlopra(cell.cellIndex, ertek);
   
-  // 3. Elmentjük az adatbázisba
+  // Elmentjük az adatbázisba
   naptarFejlecMentese(cell, ertek);
   
-  // 4. Újraszámoljuk az összesítőt
+  // Újraszámoljuk az összesítőt
   frissitOsszesOszlop();
 }
+
+// --- 2. Az oszlopfrissítő motor (Ez akadályozza meg az "M" szaladását) ---
 function vetitOszlopra(colIndex, tipus) {
     const tbody = document.getElementById('tabla-body');
     if (!tbody) return;
@@ -81,7 +84,7 @@ function vetitOszlopra(colIndex, tipus) {
             const tartalom = adatCella.innerText.trim();
             
             if (tipus === 'M') {
-                // Munkanap (M) esetén töröljük a korábbi Ü/- jeleket, de nem írunk be semmit
+                // Munkanap (M) esetén CSAK TÖRÖLJÜK az Ü/- jeleket, de nem írunk be semmit
                 if (tartalom === 'Ü' || tartalom === '-') {
                     adatCella.innerText = '';
                 }
@@ -94,6 +97,8 @@ function vetitOszlopra(colIndex, tipus) {
         }
     });
 }
+
+// --- 3. Betöltéskori logika (Frissítés után ez fut le) ---
 function alkalmazNaptarAdatok(adatok) {
     const fejlecSor = document.querySelector('tr.fejlec-napok-tipusa');
     if (!fejlecSor) return;
@@ -108,11 +113,9 @@ function alkalmazNaptarAdatok(adatok) {
         
         if (adatok[datumStr]) {
             const tipus = adatok[datumStr]; 
-            
-            // 1. Fejléc frissítése
+            // Fejléc beállítása
             cellak[i].innerText = tipus;
-
-            // 2. Oszlop frissítése a közös szabállyal (M nem szalad végig)
+            // Oszlop frissítése a fenti szabályrendszerrel
             vetitOszlopra(i, tipus);
         }
     }
@@ -1038,58 +1041,6 @@ function naptarFejlecBetoltese() {
         })
         .catch(err => console.error("Hiba a naptár betöltésekor:", err));
 }
-
-// Segédfüggvény: A kapott adatok (pl. "2025-12-24": "Ü") felrajzolása
-function alkalmazNaptarAdatok(adatok) {
-    const fejlecSor = document.querySelector('tr.fejlec-napok-tipusa');
-    if (!fejlecSor) return;
-
-    const cellak = fejlecSor.cells;
-    const ev = window.AblakCfg.ev;
-    const honap = window.AblakCfg.honap;
-    const tabla = document.querySelector("table.munkaido"); // Kell a táblázat is!
-
-    for (let i = 2; i < cellak.length; i++) {
-        const nap = i - 1; 
-        const datumStr = `${ev}-${String(honap).padStart(2, '0')}-${String(nap).padStart(2, '0')}`;
-        
-        if (adatok[datumStr]) {
-            const tipus = adatok[datumStr]; // "Ü" vagy "-"
-            
-            // 1. Fejléc frissítése
-            cellak[i].innerText = tipus;
-
-            // 2. Oszlop frissítése ("Vetítés" a sorokra) 📽️
-            // Végigmegyünk az összes soron, és ahol üres a cella, oda beírjuk!
-            if (tabla && tabla.rows) {
-                for (let r = 2; r < tabla.rows.length; r++) { // 2. sortól kezdődik az adat
-                    const sor = tabla.rows[r];
-                    if (sor.cells[i]) {
-                        const adatCella = sor.cells[i];
-                        // Csak akkor írjuk felül, ha üres, vagy ha frissíteni kell a vizuális megjelenést
-                        // (Itt használhatjuk ugyanazt a logikát, mint a beirErtek-nél, 
-                        //  de egyszerűsítve: ha nincs benne "A" vagy "TP", akkor megjelenítjük a típust)
-                        
-                        const tartalom = adatCella.innerText.trim();
-                        
-                        // Ha üres a cella, mehet bele a típus
-                        if (tartalom === '') {
-                            adatCella.innerText = tipus;
-                        }
-                        // Ha már van benne valami (pl. A|TP), és nincs benne a típus, hozzáfűzhetjük
-                        else if (!tartalom.includes(tipus) && tipus !== 'M') {
-                            // Opcionális: összefésülés, ha szeretnéd látni az A mellett az Ü-t is
-                            // adatCella.innerText = tartalom + ' | ' + tipus;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    console.log("✅ Naptár fejléc és oszlopok frissítve.");
-    frissitOsszesOszlop(); 
-}
-
 // 2. MENTÉS: Amikor kattintasz, elküldi az új értéket
 function naptarFejlecMentese(cella, ujErtek) {
     if (!window.AblakCfg) return;
