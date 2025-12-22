@@ -735,64 +735,60 @@ function frissitOsszesOszlop() {
     const tbody = document.getElementById('tabla-body');
     if (!tbody || !window.AblakCfg) return;
 
-    // Biztonsági öv: Ha véletlenül nincs meg a napokValos, akkor legyen 31
-    const napokValos = window.AblakCfg.napokValos || window.AblakCfg.napokSzama || 31; 
-    const maxNapok = window.AblakCfg.napokSzama || 31;
+    let osszesHiba = 0; // Ebben számoljuk a sárga háromszögeket
 
-    console.log("Statisztika frissítése indul...");
-
-    // Végigmegyünk minden soron
-    Array.from(tbody.rows).forEach((tr, index) => {
-        let szabi = 0;
-        let tappenz = 0;
-        let fizNelkuli = 0;
-
-        // 1. Megkeressük az összes nap-cellát a sorban (data-nap attribútum alapján)
-        // Ez a legbiztosabb módszer, nem függ az oszlop sorszámától!
+    Array.from(tbody.rows).forEach((tr) => {
+        let szabi = 0, tappenz = 0, fizNelkuli = 0;
         const cellak = tr.querySelectorAll('td[data-nap]');
 
-        // ablak.js ~448. sor
-cellak.forEach(td => {
-    if (td.classList.contains('inaktiv-nap')) return;
+        cellak.forEach(td => {
+            if (td.classList.contains('inaktiv-nap')) return;
 
-    const tartalom = td.textContent.trim(); 
-    if (!tartalom) return;
+            // Számoljuk a hibás cellákat
+            if (td.classList.contains('hibas-nap-jelzo')) {
+                osszesHiba++;
+            }
 
-// SZABADSÁG: Ha a cella SZ, vagy tartalmaz SZ-t (pl. "A | SZ" vagy "A | SZ | -")
-if (tartalom.includes('SZ') || tartalom.includes('Rendes szabadság')) {
-    szabi++;
-} 
-// TÁPPÉNZ
-else if (tartalom.includes('TP') || tartalom.includes('Táppénz')) {
-    tappenz++;
-} 
-// FIZETÉS NÉLKÜLI
-else if (tartalom.includes('fn')) {
-    fizNelkuli++;
-}
-});
+            const tartalom = td.textContent.trim(); 
+            if (!tartalom) return;
 
-        // 2. Kiírás a sor végére
-        // Megkeressük az összesítő cellákat osztálynév alapján (ha van)
-        // Ha nincs osztálynév, akkor a sor végéről számolunk visszafele
-        
+            if (tartalom.includes('SZ') || tartalom.includes('Rendes szabadság')) szabi++;
+            else if (tartalom.includes('TP') || tartalom.includes('Táppénz')) tappenz++;
+            else if (tartalom.includes('fn')) fizNelkuli++;
+        });
+
         let cellaSzabi = tr.querySelector('.osszeg-szabi');
         let cellaTp    = tr.querySelector('.osszeg-tp');
         let cellaFn    = tr.querySelector('.osszeg-fn');
-
-        // Ha az osztályok nincsenek meg, próbáljuk pozíció alapján (utolsó 3 cella)
-        if (!cellaSzabi && tr.cells.length > 3) {
-            cellaFn    = tr.cells[tr.cells.length - 1];
-            cellaTp    = tr.cells[tr.cells.length - 2];
-            cellaSzabi = tr.cells[tr.cells.length - 3];
-        }
-
         if (cellaSzabi) cellaSzabi.textContent = szabi;
         if (cellaTp)    cellaTp.textContent    = tappenz;
         if (cellaFn)    cellaFn.textContent    = fizNelkuli;
     });
-}
 
+    // MEGJELENÍTÉS A FELSŐ SÁVBAN (Sticky toolbar)
+    let hibaKontener = document.getElementById('globalis-hiba-szamlalo');
+    
+    if (!hibaKontener) {
+        const toolbar = document.querySelector('.sticky-gombok');
+        if (toolbar) {
+            hibaKontener = document.createElement('span');
+            hibaKontener.id = 'globalis-hiba-szamlalo';
+            // Diszkrét stílus, ami illeszkedik a gombok mellé
+            hibaKontener.style.cssText = "margin-left:20px; font-weight:bold; vertical-align:middle; display:none;";
+            toolbar.appendChild(hibaKontener);
+        }
+    }
+
+    if (hibaKontener) {
+        if (osszesHiba > 0) {
+            hibaKontener.style.display = 'inline-block';
+            // Kicsit nagyobb sárga háromszög és a kért szöveg
+            hibaKontener.innerHTML = `<span style="color:#ffc107; font-size:22px; vertical-align:middle; margin-right:5px;">⚠️</span> Hibák száma: ${osszesHiba} Rendszer Adat`;
+        } else {
+            hibaKontener.style.display = 'none';
+        }
+    }
+}
 
 
 // --- JELENLÉTI ADATOK LEKÉRÉSE EGY ADOTT OPERÁTORRA ---
@@ -855,107 +851,47 @@ function removeAccents(str) {
 
 
 
-// --- ÓVATOS MEGJELENÍTŐ (Javított szövegek + "M" elrejtése) ---
+// --- ÓVATOS MEGJELENÍTŐ (Javított szövegek + "M" elrejtése + Sárga háromszög) ---
 function megjelenitoFugveny(adatok, opSzam, kellFrissites = true) {
     if (!adatok || !opSzam) return;
 
-    if (opSzam.includes('0057') && adatok.length > 0) {
-        console.log("🔍 ADATBÁZIS BETÖLTVE:", adatok.length, "sor");
-    }
-
     adatok.forEach(function(rekord) {
-        
-        // 1. ADAT KINYERÉSE
         let nyers = rekord.dokumentum_típusa || rekord.státusz || '';
         if (!nyers) return; 
 
-        // 2. SZÖVEG CSERE ÉS TISZTÍTÁS 🧹
         let statuszKod = nyers;
-
-        // --- A) Hosszú szövegek cseréje rövidre (SZ) ---
-        // Rendes szabadság
-        if (statuszKod.includes('Rendes szabadság') || statuszKod.includes('Szabadság')) {
-            statuszKod = statuszKod.replace(/Rendes szabadság/gi, 'SZ');
-            statuszKod = statuszKod.replace(/Szabadság/gi, 'SZ');
-        }
-        // Tanulmányi szabadság -> SZ
-        if (statuszKod.toLowerCase().includes('tanulmányi')) {
-             statuszKod = 'SZ'; 
-        }
-        // Temetési szabadság (Közeli hozzátartozó...) -> SZ
-        if (statuszKod.toLowerCase().includes('hozzátartozó') || statuszKod.toLowerCase().includes('halála')) {
-             statuszKod = 'SZ';
-        }
-
-        // --- B) Táppénz tisztítás ---
+        // ... (itt maradnak a meglévő SZ/TP/fn tisztítások) ...
+        if (statuszKod.includes('Rendes szabadság') || statuszKod.includes('Szabadság')) statuszKod = 'SZ';
+        if (statuszKod.toLowerCase().includes('tanulmányi')) statuszKod = 'SZ'; 
+        if (statuszKod.toLowerCase().includes('hozzátartozó') || statuszKod.toLowerCase().includes('halála')) statuszKod = 'SZ';
         if (statuszKod.includes('Táppénz') || statuszKod.includes('tappenz')) {
-            statuszKod = statuszKod.replace(/Táppénz/gi, 'TP');
-            statuszKod = statuszKod.replace(/tappenz/gi, 'TP');
+            statuszKod = 'TP';
             statuszKod = statuszKod.replace(/ \(GYÁP\)/gi, ''); 
         }
-
-        // --- C) Fizetés nélküli ---
-        if (statuszKod.includes('Fizetés nélküli')) {
-            statuszKod = statuszKod.replace(/Fizetés nélküli.*$/gi, 'fn');
-        }
-
-        // --- D) "M" betű és "Munkanap" irtása 🔫 ---
-        // Ha a tisztítás után "M" vagy "Munkanap" maradt, azt töröljük!
-        if (statuszKod === 'M' || statuszKod === 'Munkanap') {
-            statuszKod = '';
-        }
-
+        if (statuszKod.includes('Fizetés nélküli')) statuszKod = 'fn';
+        if (statuszKod === 'M' || statuszKod === 'Munkanap') statuszKod = '';
         statuszKod = statuszKod.replace(/ és /g, ' | ');
         
-        // Ha a tisztítás után üres lett a kód (pl. mert "M" volt), akkor lépjünk a következőre
-        // KIVÉVE, ha törölni akarjuk a cella tartalmát. De a Busz logika miatt inkább írjuk be az üreset.
-        
-        // --- 3. SZÍNEZÉS ---
         const vizsgalt = statuszKod.toLowerCase(); 
         let tipusClass = 'egyeb';
+        if (vizsgalt.indexOf('fn') > -1) tipusClass = 'fizetes-nelkuli-szabadsag';
+        else if (vizsgalt.indexOf('tp') > -1) tipusClass = 'tappenz';
+        else if (vizsgalt.indexOf('sz') > -1) tipusClass = 'rendes-szabadsag';
+        else if (vizsgalt.indexOf('a') > -1) tipusClass = 'rendszer-adat'; 
 
-        if (vizsgalt.indexOf('fn') > -1) {
-            tipusClass = 'fizetes-nelkuli-szabadsag';
-        } 
-        else if (vizsgalt.indexOf('tp') > -1) {
-            tipusClass = 'tappenz';
-        } 
-        else if (vizsgalt.indexOf('sz') > -1) {
-            tipusClass = 'rendes-szabadsag';
-        }
-        else if (vizsgalt.indexOf('a') > -1) {
-             tipusClass = 'rendszer-adat'; 
-        }
+        if (rekord.javitott === true) tipusClass += ' javitott-adat'; 
 
-        if (rekord.javitott === true) {
-            tipusClass += ' javitott-adat'; 
-        }
-
-        // --- 4. RAJZOLÁS ---
         if (!rekord.sz_tp_kezdet || !rekord.sz_tp_végzet) return; 
 
         const kezdetStr = String(rekord.sz_tp_kezdet);
         const vegzetStr = String(rekord.sz_tp_végzet);
-
         const kezdet = new Date(kezdetStr.indexOf('T') === -1 ? kezdetStr + 'T12:00:00' : kezdetStr);
-const vegzet = new Date(vegzetStr.indexOf('T') === -1 ? vegzetStr + 'T12:00:00' : vegzetStr);
-
-// KÖZVETLENÜL EZUTÁN add hozzá a számítást:
-const szamitottNapok = Math.round((vegzet - kezdet) / (1000 * 60 * 60 * 24)) + 1;
-
-// Majd a ciklusban (while) belül, ahol a cellákat rajzoljuk (~630. sor):
-if (cella && !cella.classList.contains('inaktiv-nap')) {
-    // ... meglévő kódod (cella.textContent = ujKod stb.) ...
-    
-    // Sárga háromszög, ha eltér a napok száma
-    if (rekord.sz_tp_napok && parseInt(rekord.sz_tp_napok) !== szamitottNapok) {
-        cella.classList.add('hibas-nap-jelzo');
-        cella.title = `Eltérés! Adatbázis: ${rekord.sz_tp_napok} nap, Naptár: ${szamitottNapok} nap!`;
-    }
-}
+        const vegzet = new Date(vegzetStr.indexOf('T') === -1 ? vegzetStr + 'T12:00:00' : vegzetStr);
         
-        let aktualisNap = new Date(kezdet);
+        // ITT SZÁMOLUNK: Hány napos az időszak a naptár szerint
+        const szamitottNapok = Math.round((vegzet - kezdet) / (1000 * 60 * 60 * 24)) + 1;
 
+        let aktualisNap = new Date(kezdet);
         while (aktualisNap <= vegzet) {
             const ev = aktualisNap.getFullYear();
             const honap = aktualisNap.getMonth() + 1;
@@ -965,57 +901,51 @@ if (cella && !cella.classList.contains('inaktiv-nap')) {
                 let cella = document.querySelector(`td[data-op="${opSzam}"][data-nap="${nap}"]`);
                 if (!cella) cella = document.querySelector(`td[data-op="${opSzam}"][data-nap="0${nap}"]`);
 
-// ablak.js ~536. sor a megjelenitoFugveny-ben
-if (cella && !cella.classList.contains('inaktiv-nap')) {
-    let jelenlegi = cella.textContent.trim();
-    let ujKod = statuszKod;
+                if (cella && !cella.classList.contains('inaktiv-nap')) {
+                    // ... (meglévő összefűzési logika A | SZ | - marad) ...
+                    let jelenlegi = cella.textContent.trim();
+                    let ujKod = statuszKod;
 
-    // CSAK AKKOR FŰZÜNK ÖSSZE, HA NEM KÉZI A MENTÉS
-    if (rekord.jelentkezés_forrása !== 'Kézi') {
-        if (jelenlegi !== '' && statuszKod !== '' && statuszKod !== 'A') {
-            // Ha már van benne valami (pl. "A" vagy "A | -"), akkor közéjük rakjuk az SZ-t
-            if (jelenlegi.includes(' | ')) {
-                // Példa: "A | -" -> "A | SZ | -"
-                let reszek = jelenlegi.split(' | ');
-                ujKod = reszek[0] + ' | ' + statuszKod + ' | ' + reszek[1];
-            } else if (jelenlegi === 'A') {
-                // Példa: "A" -> "A | SZ"
-                ujKod = 'A | ' + statuszKod;
-            } else if (jelenlegi === '-' || jelenlegi === 'Ü') {
-                // Példa: "-" -> "SZ | -"
-                ujKod = statuszKod + ' | ' + jelenlegi;
-            }
-        }
-    } else {
-        // Ha "Kézi", akkor törlünk mindent és csak a szerkesztett érték marad
-        ujKod = statuszKod;
-    }
+                    if (rekord.jelentkezés_forrása !== 'Kézi') {
+                        if (jelenlegi !== '' && statuszKod !== '' && statuszKod !== 'A') {
+                            if (jelenlegi.includes(' | ')) {
+                                let reszek = jelenlegi.split(' | ');
+                                ujKod = reszek[0] + ' | ' + statuszKod + ' | ' + reszek[1];
+                            } else if (jelenlegi === 'A') {
+                                ujKod = 'A | ' + statuszKod;
+                            } else if (jelenlegi === '-' || jelenlegi === 'Ü') {
+                                ujKod = statuszKod + ' | ' + jelenlegi;
+                            }
+                        }
+                    } else { ujKod = statuszKod; }
 
-    cella.textContent = ujKod; 
-    if (statuszKod && statuszKod !== 'A') {
-    cella.dataset.kezdet = rekord.sz_tp_kezdet;
-    cella.dataset.vegzet = rekord.sz_tp_végzet;
-}
-    
-    // Színezés (osztályok kezelése)
-    if (statuszKod !== '' && tipusClass !== 'egyeb') {
-        cella.classList.add(...tipusClass.split(' '));
-    }
-}
+                    cella.textContent = ujKod; 
+                    
+                    // SÁRGA HÁROMSZÖG HOZZÁADÁSA: Csak ha eltérés van
+                    if (statuszKod && statuszKod !== 'A' && rekord.sz_tp_napok && parseInt(rekord.sz_tp_napok) !== szamitottNapok) {
+                        cella.classList.add('hibas-nap-jelzo');
+                        cella.title = `Eltérés! Adatbázis: ${rekord.sz_tp_napok} nap, Naptár: ${szamitottNapok} nap!`;
+                    }
+
+                    // Adatok mentése a popup-hoz
+                    if (statuszKod && statuszKod !== 'A') {
+                        cella.dataset.kezdet = rekord.sz_tp_kezdet;
+                        cella.dataset.vegzet = rekord.sz_tp_végzet;
+                    }
+
+                    if (statuszKod !== '' && tipusClass !== 'egyeb') {
+                        cella.classList.add(...tipusClass.split(' '));
+                    }
+                }
             }
             aktualisNap.setDate(aktualisNap.getDate() + 1);
         }
     });
 
     if (kellFrissites) {
-        setTimeout(function() {
-            frissitOsszesOszlop();
-        }, 500);
+        setTimeout(function() { frissitOsszesOszlop(); }, 500);
     }
 }
-
-
-
 
 
 
@@ -1124,7 +1054,6 @@ let szerkesztoModAktiv = false;
 function toggleSzerkesztoMod() {
     szerkesztoModAktiv = !szerkesztoModAktiv;
     document.body.classList.toggle('szerkeszto-mod-aktiv', szerkesztoModAktiv);
-    
     const btn = document.getElementById('btnSzerkesztoMod');
     if(btn) {
         btn.innerHTML = szerkesztoModAktiv ? '✏️ Szerkesztés: BE' : '👁️ Csak olvasás';
@@ -1134,21 +1063,17 @@ function toggleSzerkesztoMod() {
 
 document.addEventListener('click', function(e) {
     if (!szerkesztoModAktiv) return;
-
     const td = e.target.closest('td');
     if (!td || !td.dataset.nap || !td.dataset.op) return;
     if (td.classList.contains('inaktiv-nap')) return;
-
     nyisdMegAPopupot(td);
 });
 
-// ablak.js -> nyisdMegAPopupot függvény JAVÍTOTT verziója
 function nyisdMegAPopupot(cella) {
     const opKod = cella.dataset.op;
     const nap = parseInt(cella.dataset.nap);
     const napokSzama = window.AblakCfg ? (window.AblakCfg.napokValos || 31) : 31;
 
-    // Segéd a cella megkereséséhez (kezeli a "1" és "01" típusú nap jelölést is)
     const getCell = (n) => {
         let c = document.querySelector(`td[data-op="${opKod}"][data-nap="${n}"]`);
         if (!c) c = document.querySelector(`td[data-op="${opKod}"][data-nap="${String(n).padStart(2, '0')}"]`);
@@ -1158,7 +1083,6 @@ function nyisdMegAPopupot(cella) {
     let startLimit = 1;
     let endLimit = napokSzama;
 
-    // SZAKÍTÓ NAP LOGIKA: 
     if (cella.textContent.includes('A')) {
         startLimit = nap;
         endLimit = nap;
@@ -1213,19 +1137,14 @@ function nyisdMegAPopupot(cella) {
         document.body.appendChild(overlay);
     }
     
-   // most/js/ablak.js - kb. 815. sor környékén a nyisdMegAPopupot függvényben
-document.getElementById('popupCim').innerText = `Szerkesztés: ${nev}`;
+    document.getElementById('popupCim').innerText = `Szerkesztés: ${nev}`;
+    const eredetiSzoveg = cella.innerText; 
+    const kezdet = cella.dataset.kezdet ? cella.dataset.kezdet.replaceAll('-', '.') : '';
+    const vegzet = cella.dataset.vegzet ? cella.dataset.vegzet.replaceAll('-', '.') : '';
+    const datumKiiras = kezdet ? ` (${kezdet} - ${vegzet})` : '';
 
-const eredetiSzoveg = cella.innerText; 
-const kezdet = cella.dataset.kezdet ? cella.dataset.kezdet.replaceAll('-', '.') : '';
-const vegzet = cella.dataset.vegzet ? cella.dataset.vegzet.replaceAll('-', '.') : '';
-const datumKiiras = kezdet ? ` (${kezdet} - ${vegzet})` : '';
+    document.getElementById('popupEredetiAdatok').innerHTML = 'Jelenleg: ' + (eredetiSzoveg ? `<b>${eredetiSzoveg}${datumKiiras}</b>` : '<i>(Üres)</i>');
 
-const eredetiKontener = document.getElementById('popupEredetiAdatok');
-// Itt jelenik meg az "fn (2025.12.01 - 2025.12.05)" formátum
-eredetiKontener.innerHTML = 'Jelenleg: ' + (eredetiSzoveg ? `<b>${eredetiSzoveg}${datumKiiras}</b>` : '<i>(Üres)</i>');
-
-    // !!! FONTOS: Itt átadjuk az opKod-ot is, hogy a naptár ki tudja olvasni a betűket !!!
     generaldMiniNaptarat(nap, startLimit, endLimit, opKod);
 
     kivalasztottTipus = '';
@@ -1233,6 +1152,7 @@ eredetiKontener.innerHTML = 'Jelenleg: ' + (eredetiSzoveg ? `<b>${eredetiSzoveg}
     overlay.style.display = 'flex';
     overlay.querySelector('.btn-save').dataset.op = opKod;
 }
+
 function bezardAPopupot() {
     const popup = document.getElementById('szerkesztoPopup');
     if (popup) popup.style.display = 'none';
@@ -1242,10 +1162,7 @@ function generaldMiniNaptarat(fokuszNap, startLimit, endLimit, opKod) {
     const kontener = document.getElementById('popupMiniNaptar');
     if (!kontener) return;
     kontener.innerHTML = '';
-    
     const fejlecRow = document.querySelector('tr.fejlec-napok-tipusa');
-
-    // Segéd a cella tartalmának lekéréséhez
     const getCellContent = (n) => {
         let c = document.querySelector(`td[data-op="${opKod}"][data-nap="${n}"]`);
         if (!c) c = document.querySelector(`td[data-op="${opKod}"][data-nap="${String(n).padStart(2, '0')}"]`);
@@ -1256,30 +1173,16 @@ function generaldMiniNaptarat(fokuszNap, startLimit, endLimit, opKod) {
         const div = document.createElement('div');
         div.className = 'nap-box';
         div.dataset.nap = i;
-        
-        const aktualisTartalom = getCellContent(i); // Lekérjük, mi van most a táblázatban
-
+        const aktualisTartalom = getCellContent(i);
         let napTipus = ''; 
         if(fejlecRow && fejlecRow.cells[i+1]) {
             const txt = fejlecRow.cells[i+1].innerText.trim();
             if(txt === 'Ü') { div.classList.add('unnep'); napTipus='Ü'; }
             if(txt === '-') { div.classList.add('hetvege'); napTipus='-'; }
         }
-
-        // ÚJ STRUKTÚRA: Szám + Aktuális kód + Nap típusa (Ü/-)
-        div.innerHTML = `
-            <div class="nap-szam">${i}</div>
-            <div class="nap-jelenlegi-kod" style="font-size: 18px; font-weight: bold; color: #333;">${aktualisTartalom}</div>
-            <div class="nap-tipus">${napTipus}</div>
-        `;
-
-        if (i === fokuszNap) {
-            div.classList.add('kivalasztva');
-        }
-
-        div.onclick = function() {
-            div.classList.toggle('kivalasztva');
-        };
+        div.innerHTML = `<div class="nap-szam">${i}</div><div class="nap-jelenlegi-kod" style="font-size: 18px; font-weight: bold; color: #333;">${aktualisTartalom}</div><div class="nap-tipus">${napTipus}</div>`;
+        if (i === fokuszNap) div.classList.add('kivalasztva');
+        div.onclick = function() { div.classList.toggle('kivalasztva'); };
         kontener.appendChild(div);
     }
 }
@@ -1297,11 +1200,9 @@ function frissitGombStilusok() {
     if (kivalasztottTipus === 'A')  document.querySelector('.btn-a').classList.add('aktiv');
 }
 
-// ablak.js -> popupMentese okosítása
 function popupMentese() {
     if (!kivalasztottTipus) { alert("Válassz típust!"); return; }
-    const saveBtn = document.querySelector('#szerkesztoPopup .btn-save');
-    const opKod = saveBtn.dataset.op;
+    const opKod = document.querySelector('#szerkesztoPopup .btn-save').dataset.op;
     const kijeloltNapok = Array.from(document.querySelectorAll('#popupMiniNaptar .nap-box.kivalasztva'))
                        .map(box => parseInt(box.dataset.nap)).sort((a, b) => a - b);
 
@@ -1311,30 +1212,22 @@ function popupMentese() {
     const honap = String(window.AblakCfg.honap).padStart(2, '0');
     const napokValos = window.AblakCfg.napokValos || 31;
 
-    // SZAKÍTÓ MOTOR: Összefüggő napok blokkosítása
     let blokkok = [];
     let aktualisBlokk = [kijeloltNapok[0]];
     for (let i = 1; i < kijeloltNapok.length; i++) {
-        if (kijeloltNapok[i] === kijeloltNapok[i-1] + 1) { 
-            aktualisBlokk.push(kijeloltNapok[i]); 
-        } else { 
-            blokkok.push(aktualisBlokk); 
-            aktualisBlokk = [kijeloltNapok[i]]; 
-        }
+        if (kijeloltNapok[i] === kijeloltNapok[i-1] + 1) aktualisBlokk.push(kijeloltNapok[i]); 
+        else { blokkok.push(aktualisBlokk); aktualisBlokk = [kijeloltNapok[i]]; }
     }
     blokkok.push(aktualisBlokk);
 
     const igeretek = blokkok.map(blokk => {
         const start = blokk[0];
         const veg = blokk[blokk.length - 1];
-        
-        // VISSZATÉRÉS LEOLVASÁSA: Megkeressük az első munkanapot az OPerátor sorában
         let visszateres = "";
         for (let j = veg + 1; j <= napokValos; j++) {
             let c = document.querySelector(`td[data-op="${opKod}"][data-nap="${j}"]`);
             if (!c) c = document.querySelector(`td[data-op="${opKod}"][data-nap="${String(j).padStart(2, '0')}"]`);
             let txt = c ? c.textContent.trim() : "";
-            // Ha nem hétvége és nem ünnep, akkor ez a visszatérés napja
             if (txt !== '-' && txt !== 'Ü') {
                 visszateres = `${ev}-${honap}-${String(j).padStart(2, '0')}`;
                 break;
@@ -1347,7 +1240,7 @@ function popupMentese() {
             body: JSON.stringify({
                 op_szam: opKod,
                 datum: `${ev}-${honap}-${String(start).padStart(2, '0')}`,
-                datum_veg: `${ev}-${honap}-${String(veg).padStart(2, '0')}`, // Range vége
+                datum_veg: `${ev}-${honap}-${String(veg).padStart(2, '0')}`,
                 visszateres_napja: visszateres,
                 ertek: kivalasztottTipus,
                 tipus: kivalasztottTipus === 'SZ' ? 'rendes-szabadsag' : (kivalasztottTipus === 'TP' ? 'tappenz' : 'fizetes-nelkuli-szabadsag'),
@@ -1359,36 +1252,25 @@ function popupMentese() {
     Promise.all(igeretek).then(() => {
         bezardAPopupot();
         adatokBetolteseANaptarba(opKod); 
-        alert("Sikeres mentés!");
     });
 }
 
-// most/js/ablak.js -> megjelenitoFugveny belsejében
-const szamitottNapok = Math.round((vegzet - kezdet) / (1000 * 60 * 60 * 24)) + 1;
-if (rekord.sz_tp_napok && parseInt(rekord.sz_tp_napok) !== szamitottNapok) {
-    cella.classList.add('hibas-nap-jelzo');
-    cella.title = `Eltérés! Adatbázis: ${rekord.sz_tp_napok} nap, Naptár: ${szamitottNapok} nap!`;
-}
 function popupTorles() {
     const kijeloltNapok = document.querySelectorAll('#popupMiniNaptar .nap-box.kivalasztva');
     if(kijeloltNapok.length === 0) { alert("Jelölj ki legalább egy napot a törléshez!"); return; }
-    
     if(!confirm("Biztosan törlöd a kijelölt napok bejegyzéseit?")) return;
-
     const opKod = document.querySelector('#szerkesztoPopup .btn-save').dataset.op;
     const ev = window.AblakCfg.ev;
     const honap = String(window.AblakCfg.honap).padStart(2, '0');
 
     const igéretek = Array.from(kijeloltNapok).map(box => {
         const nap = box.dataset.nap;
-        const datumStr = `${ev}-${honap}-${String(nap).padStart(2, '0')}`;
-
         return fetch(`${window.AblakCfg.apiBase}munkaido_mentes.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 op_szam: opKod,
-                datum: datumStr,
+                datum: `${ev}-${honap}-${String(nap).padStart(2, '0')}`,
                 ertek: 'A',
                 tipus: '',
                 nap_tipus: 'M'
@@ -1399,6 +1281,5 @@ function popupTorles() {
     Promise.all(igéretek).then(() => {
         bezardAPopupot();
         adatokBetolteseANaptarba(opKod);
-        alert("Bejegyzések törölve.");
     });
 }

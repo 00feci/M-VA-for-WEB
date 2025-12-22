@@ -22,8 +22,8 @@ if (!$URLAP) {
 // 3. BEJÖVŐ ADATOK KINYERÉSE
 $bejovo_op        = isset($URLAP['op_szam']) ? trim($URLAP['op_szam']) : '';
 $bejovo_datum     = isset($URLAP['datum'])   ? trim($URLAP['datum'])   : date('Y-m-d');
-$bejovo_datum_veg = isset($URLAP['datum_veg']) ? trim($URLAP['datum_veg']) : $bejovo_datum; // Időszak vége
-$bejovo_visszater = isset($URLAP['visszateres_napja']) ? trim($URLAP['visszateres_napja']) : ''; // Leolvasott visszatérés
+$bejovo_datum_veg = isset($URLAP['datum_veg']) ? trim($URLAP['datum_veg']) : $bejovo_datum; 
+$bejovo_visszater = isset($URLAP['visszateres_napja']) ? trim($URLAP['visszateres_napja']) : '';
 $bejovo_ertek     = isset($URLAP['ertek'])   ? trim($URLAP['ertek'])   : ''; 
 $bejovo_tipus     = isset($URLAP['tipus'])   ? trim($URLAP['tipus'])   : '';
 $bejovo_nap_tipus = isset($URLAP['nap_tipus']) ? trim($URLAP['nap_tipus']) : 'M';
@@ -156,7 +156,6 @@ $sz_tp_napok = round($diff) + 1;
 if (!empty($bejovo_visszater)) {
     $sz_tp_utani_nap = $bejovo_visszater;
 } else {
-    // Tartalék logika, ha nem jött adat
     $kovetkezo_ts = strtotime($sz_tp_vegzet . ' +1 day');
     while (date('N', $kovetkezo_ts) >= 6) { 
         $kovetkezo_ts = strtotime(date('Y-m-d', $kovetkezo_ts) . ' +1 day');
@@ -164,17 +163,15 @@ if (!empty($bejovo_visszater)) {
     $sz_tp_utani_nap = date('Y-m-d', $kovetkezo_ts);
 }
 // Napok száma kalkuláció a tól-ig tartomány alapján
-$start_ts = strtotime($sz_tp_kezdet);
-$end_ts   = strtotime($sz_tp_vegzet);
-$diff     = ($end_ts - $start_ts) / (60 * 60 * 24);
-$sz_tp_napok = round($diff) + 1; // Inclusive napok száma
-
-// Visszatérés napja becslése (maradhat a régi logika az utolsó nap +1 nap alapján)
-$kovetkezo_ts = strtotime($sz_tp_vegzet . ' +1 day');
-while (date('N', $kovetkezo_ts) >= 6) { 
-    $kovetkezo_ts = strtotime(date('Y-m-d', $kovetkezo_ts) . ' +1 day');
+if (!empty($bejovo_visszater)) {
+    $sz_tp_utani_nap = $bejovo_visszater;
+} else {
+    $kovetkezo_ts = strtotime($sz_tp_vegzet . ' +1 day');
+    while (date('N', $kovetkezo_ts) >= 6) { 
+        $kovetkezo_ts = strtotime(date('Y-m-d', $kovetkezo_ts) . ' +1 day');
+    }
+    $sz_tp_utani_nap = date('Y-m-d', $kovetkezo_ts);
 }
-$sz_tp_utani_nap = date('Y-m-d', $kovetkezo_ts);
 
 
 // 2. Darabszám (sz_tp_napok):
