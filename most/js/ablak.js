@@ -769,21 +769,34 @@ function frissitOsszesOszlop() {
     let hibaKontener = document.getElementById('globalis-hiba-szamlalo');
     
     if (!hibaKontener) {
-        const toolbar = document.querySelector('.sticky-gombok');
-        if (toolbar) {
+        // Megkeressük a "Rendszer Adat:" feliratot tartalmazó span-t
+        const spanok = document.querySelectorAll('.sticky-gombok span');
+        let rendszerAdatLabel = null;
+        for (let s of spanok) {
+            if (s.textContent.includes('Rendszer Adat:')) {
+                rendszerAdatLabel = s;
+                break;
+            }
+        }
+
+        if (rendszerAdatLabel) {
             hibaKontener = document.createElement('span');
             hibaKontener.id = 'globalis-hiba-szamlalo';
-            // Diszkrét stílus, ami illeszkedik a gombok mellé
-            hibaKontener.style.cssText = "margin-left:20px; font-weight:bold; vertical-align:middle; display:none;";
-            toolbar.appendChild(hibaKontener);
+            // Stílus: pirosas szín a figyelemfelkeltéshez, margó a távolsághoz
+            hibaKontener.style.cssText = "margin-right:15px; font-weight:bold; cursor:help; font-size:18px; color:#d32f2f; display:none;";
+            
+            // Beszúrjuk közvetlenül a "Rendszer Adat:" felirat elé
+            rendszerAdatLabel.parentNode.insertBefore(hibaKontener, rendszerAdatLabel);
         }
     }
 
     if (hibaKontener) {
         if (osszesHiba > 0) {
             hibaKontener.style.display = 'inline-block';
-            // Kicsit nagyobb sárga háromszög és a kért szöveg
-            hibaKontener.innerHTML = `<span style="color:#ffc107; font-size:22px; vertical-align:middle; margin-right:5px;">⚠️</span> Hibák száma: ${osszesHiba} Rendszer Adat`;
+            // Tömör formátum: ⚠️ és a szám
+            hibaKontener.innerHTML = `⚠️${osszesHiba}`;
+            // Buboréksúgó beállítása
+            hibaKontener.title = "Hibás rekordok száma:";
         } else {
             hibaKontener.style.display = 'none';
         }
@@ -1234,7 +1247,7 @@ function popupMentese() {
             }
         }
 
-        return fetch(`${window.AblakCfg.apiBase}munkaido_mentes.php`, {
+     return fetch(`${window.AblakCfg.apiBase}munkaido_mentes.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1243,7 +1256,10 @@ function popupMentese() {
                 datum_veg: `${ev}-${honap}-${String(veg).padStart(2, '0')}`,
                 visszateres_napja: visszateres,
                 ertek: kivalasztottTipus,
-                tipus: kivalasztottTipus === 'SZ' ? 'rendes-szabadsag' : (kivalasztottTipus === 'TP' ? 'tappenz' : 'fizetes-nelkuli-szabadsag'),
+                // JAVÍTÁS: 'A' (Jelenlét) mentésekor ne legyen FN (Zöld) az alapértelmezett
+                tipus: kivalasztottTipus === 'SZ' ? 'rendes-szabadsag' : 
+                       (kivalasztottTipus === 'TP' ? 'tappenz' : 
+                       (kivalasztottTipus === 'fn' ? 'fizetes-nelkuli-szabadsag' : '')),
                 nap_tipus: 'M'
             })
         }).then(r => r.json());
