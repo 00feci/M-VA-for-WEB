@@ -22,7 +22,8 @@ if (!$URLAP) {
 // 3. BEJÖVŐ ADATOK KINYERÉSE
 $bejovo_op        = isset($URLAP['op_szam']) ? trim($URLAP['op_szam']) : '';
 $bejovo_datum     = isset($URLAP['datum'])   ? trim($URLAP['datum'])   : date('Y-m-d');
-$bejovo_datum_veg = isset($URLAP['datum_veg']) ? trim($URLAP['datum_veg']) : $bejovo_datum; 
+// Az Ablak_Excel/munkaido_mentes.php elején (kb. 30. sor) legyen benne:
+$bejovo_datum_veg = isset($URLAP['datum_veg']) ? trim($URLAP['datum_veg']) : $bejovo_datum;
 $bejovo_visszater = isset($URLAP['visszateres_napja']) ? trim($URLAP['visszateres_napja']) : '';
 $bejovo_ertek     = isset($URLAP['ertek'])   ? trim($URLAP['ertek'])   : ''; 
 $bejovo_tipus     = isset($URLAP['tipus'])   ? trim($URLAP['tipus'])   : '';
@@ -143,40 +144,40 @@ $magyar_dok_tipus = $tipus_szotar[$bejovo_tipus] ?? '';
 // --- SZ/TP KALKULÁCIÓ (Javított: Nap típusa és naptár alapján) ---
 
 
-$sz_tp_napok = 0;
-// 1. Dátumok: Mivel cellánként mentünk, a tól-ig az adott nap.
-$sz_tp_kezdet = $bejovo_datum;
-$sz_tp_vegzet = $bejovo_datum_veg;
+// --- SZ/TP KALKULÁCIÓ (Egyszerűsített és hiba biztos verzió) ---
 
-$start_ts = strtotime($sz_tp_kezdet);
-$end_ts   = strtotime($sz_tp_vegzet);
+// 1. Inicializálás: Alapból 0, hogy elkerüljük az SQL NULL hibát!
+$sz_tp_napok = 0; 
+
+// 2. Tényleges napok számának kiszámítása a kijelölt tartomány alapján
+$start_ts = strtotime($bejovo_datum);
+$end_ts   = strtotime($bejovo_datum_veg);
 
 if ($start_ts && $end_ts) {
-    // Kiszámoljuk a napok számát (tól-ig, mindkét napot beleértve)
-    $kalkulalt_darab = round(($end_ts - $start_ts) / (60 * 60 * 24)) + 1;
+    $diff = ($end_ts - $start_ts) / (60 * 60 * 24);
+    $kalkulalt_hossz = (int)round($diff) + 1;
 } else {
-    $kalkulalt_darab = 1; // Biztonsági minimum
+    $kalkulalt_hossz = 1; 
 }
 
-// 3. Mentendő érték eldöntése: Csak távollétnél (SZ, TP, fn) számolunk napokat
+// 3. Darabszám véglegesítése
 $ertek_tiszta = trim($bejovo_ertek);
-$mentendo_kodok = ['SZ', 'TP', 'fn'];
+$tavollet_kodok = ['SZ', 'TP', 'fn'];
 
-if (in_array($ertek_tiszta, $mentendo_kodok)) {
-    // Ha távollétet mentünk, akkor a kijelölt napok számát használjuk
-    $sz_tp_napok = (int)$kalkulalt_darab;
+// Csak akkor számolunk napokat, ha távolléti kódot mentünk
+if (in_array($ertek_tiszta, $tavollet_kodok)) {
+    $sz_tp_napok = $kalkulalt_hossz;
 } else {
-    // Ha munkanap (M), ünnep vagy pihenőnap, akkor a távollét 0 nap
+    // Minden más esetben (A, M, -, Ü) a távollét hossza 0
     $sz_tp_napok = 0;
 }
 
-// 4. Visszatérés napja meghatározása
+// 4. Visszatérés napja (ha a JS küldi, azt használjuk, ha nem, számoljuk)
 if (!empty($bejovo_visszater)) {
     $sz_tp_utani_nap = $bejovo_visszater;
 } else {
-    // Ha nincs küldve, megkeressük a következő hétköznapot a tartomány vége után
-    $kovetkezo_ts = strtotime($sz_tp_vegzet . ' +1 day');
-    while (date('N', $kovetkezo_ts) >= 6) { // 6=Szombat, 7=Vasárnap
+    $kovetkezo_ts = strtotime($bejovo_datum_veg . ' +1 day');
+    while (date('N', $kovetkezo_ts) >= 6) { // Hétvégék átugrása
         $kovetkezo_ts = strtotime(date('Y-m-d', $kovetkezo_ts) . ' +1 day');
     }
     $sz_tp_utani_nap = date('Y-m-d', $kovetkezo_ts);
