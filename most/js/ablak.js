@@ -865,6 +865,7 @@ function removeAccents(str) {
 
 
 // --- ÓVATOS MEGJELENÍTŐ (Javított szövegek + "M" elrejtése + Sárga háromszög) ---
+// --- ÓVATOS MEGJELENÍTŐ (Javított szövegek + "M" elrejtése + Sárga háromszög) ---
 function megjelenitoFugveny(adatok, opSzam, kellFrissites = true) {
     if (!adatok || !opSzam) return;
 
@@ -873,7 +874,6 @@ function megjelenitoFugveny(adatok, opSzam, kellFrissites = true) {
         if (!nyers) return; 
 
         let statuszKod = nyers;
-        // ... (itt maradnak a meglévő SZ/TP/fn tisztítások) ...
         if (statuszKod.includes('Rendes szabadság') || statuszKod.includes('Szabadság')) statuszKod = 'SZ';
         if (statuszKod.toLowerCase().includes('tanulmányi')) statuszKod = 'SZ'; 
         if (statuszKod.toLowerCase().includes('hozzátartozó') || statuszKod.toLowerCase().includes('halála')) statuszKod = 'SZ';
@@ -901,7 +901,6 @@ function megjelenitoFugveny(adatok, opSzam, kellFrissites = true) {
         const kezdet = new Date(kezdetStr.indexOf('T') === -1 ? kezdetStr + 'T12:00:00' : kezdetStr);
         const vegzet = new Date(vegzetStr.indexOf('T') === -1 ? vegzetStr + 'T12:00:00' : vegzetStr);
         
-        // ITT SZÁMOLUNK: Hány napos az időszak a naptár szerint
         const szamitottNapok = Math.round((vegzet - kezdet) / (1000 * 60 * 60 * 24)) + 1;
 
         let aktualisNap = new Date(kezdet);
@@ -915,7 +914,6 @@ function megjelenitoFugveny(adatok, opSzam, kellFrissites = true) {
                 if (!cella) cella = document.querySelector(`td[data-op="${opSzam}"][data-nap="0${nap}"]`);
 
                 if (cella && !cella.classList.contains('inaktiv-nap')) {
-                    // ... (meglévő összefűzési logika A | SZ | - marad) ...
                     let jelenlegi = cella.textContent.trim();
                     let ujKod = statuszKod;
 
@@ -932,15 +930,21 @@ function megjelenitoFugveny(adatok, opSzam, kellFrissites = true) {
                         }
                     } else { ujKod = statuszKod; }
 
+                   cella.innerHTML = ujKod; // Előbb a betűjelet írjuk be
+
+                    if (aktualisNap.getTime() === vegzet.getTime() && rekord.sz_tp_napok > 1) {
+                        // Nem a szöveghez fűzzük, hanem egy badge-et szúrunk be a bal felső sarokba
+                        const badge = `<span class="nap-szamlalo-badge">${rekord.sz_tp_napok}</span>`;
+                        cella.insertAdjacentHTML('afterbegin', badge);
+                    }
+
                     cella.textContent = ujKod; 
                     
-                    // SÁRGA HÁROMSZÖG HOZZÁADÁSA: Csak ha eltérés van
                     if (statuszKod && statuszKod !== 'A' && rekord.sz_tp_napok && parseInt(rekord.sz_tp_napok) !== szamitottNapok) {
                         cella.classList.add('hibas-nap-jelzo');
                         cella.title = `Eltérés! Adatbázis: ${rekord.sz_tp_napok} nap, Naptár: ${szamitottNapok} nap!`;
                     }
 
-                    // Adatok mentése a popup-hoz
                     if (statuszKod && statuszKod !== 'A') {
                         cella.dataset.kezdet = rekord.sz_tp_kezdet;
                         cella.dataset.vegzet = rekord.sz_tp_végzet;

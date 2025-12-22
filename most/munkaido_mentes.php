@@ -94,6 +94,8 @@ $magyar_dok_tipus = $tipus_szotar[$bejovo_tipus] ?? 'Szabadság és Táppénz';
 $sz_tp_kezdet = $bejovo_datum;
 $sz_tp_vegzet = $bejovo_datum_veg;
 $sz_tp_napok  = 0;
+$start_ts     = strtotime($sz_tp_kezdet);
+$end_ts       = strtotime($sz_tp_vegzet);
 
 // NAPTÁR ADATOK LEKÉRÉSE: Megnézzük, melyik nap milyen típusú a táblában
 $naptar_adatok = [];
