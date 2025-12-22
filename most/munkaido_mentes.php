@@ -142,32 +142,41 @@ $magyar_dok_tipus = $tipus_szotar[$bejovo_tipus] ?? '';
 
 // --- SZ/TP KALKULÁCIÓ (Javított: Nap típusa és naptár alapján) ---
 
+
+$sz_tp_napok = 0;
 // 1. Dátumok: Mivel cellánként mentünk, a tól-ig az adott nap.
 $sz_tp_kezdet = $bejovo_datum;
 $sz_tp_vegzet = $bejovo_datum_veg;
 
 $start_ts = strtotime($sz_tp_kezdet);
 $end_ts   = strtotime($sz_tp_vegzet);
-$diff     = ($end_ts - $start_ts) / (60 * 60 * 24);
-$sz_tp_napok = round($diff) + 1;
 
-
-// Visszatérés napja: Ha kaptunk a JS-től leolvasott adatot, azt használjuk
-if (!empty($bejovo_visszater)) {
-    $sz_tp_utani_nap = $bejovo_visszater;
+if ($start_ts && $end_ts) {
+    // Kiszámoljuk a napok számát (tól-ig, mindkét napot beleértve)
+    $kalkulalt_darab = round(($end_ts - $start_ts) / (60 * 60 * 24)) + 1;
 } else {
-    $kovetkezo_ts = strtotime($sz_tp_vegzet . ' +1 day');
-    while (date('N', $kovetkezo_ts) >= 6) { 
-        $kovetkezo_ts = strtotime(date('Y-m-d', $kovetkezo_ts) . ' +1 day');
-    }
-    $sz_tp_utani_nap = date('Y-m-d', $kovetkezo_ts);
+    $kalkulalt_darab = 1; // Biztonsági minimum
 }
-// Napok száma kalkuláció a tól-ig tartomány alapján
+
+// 3. Mentendő érték eldöntése: Csak távollétnél (SZ, TP, fn) számolunk napokat
+$ertek_tiszta = trim($bejovo_ertek);
+$mentendo_kodok = ['SZ', 'TP', 'fn'];
+
+if (in_array($ertek_tiszta, $mentendo_kodok)) {
+    // Ha távollétet mentünk, akkor a kijelölt napok számát használjuk
+    $sz_tp_napok = (int)$kalkulalt_darab;
+} else {
+    // Ha munkanap (M), ünnep vagy pihenőnap, akkor a távollét 0 nap
+    $sz_tp_napok = 0;
+}
+
+// 4. Visszatérés napja meghatározása
 if (!empty($bejovo_visszater)) {
     $sz_tp_utani_nap = $bejovo_visszater;
 } else {
+    // Ha nincs küldve, megkeressük a következő hétköznapot a tartomány vége után
     $kovetkezo_ts = strtotime($sz_tp_vegzet . ' +1 day');
-    while (date('N', $kovetkezo_ts) >= 6) { 
+    while (date('N', $kovetkezo_ts) >= 6) { // 6=Szombat, 7=Vasárnap
         $kovetkezo_ts = strtotime(date('Y-m-d', $kovetkezo_ts) . ' +1 day');
     }
     $sz_tp_utani_nap = date('Y-m-d', $kovetkezo_ts);
@@ -195,9 +204,9 @@ if (
     strpos($ertek_tiszta, 'fn') !== false ||
     in_array($bejovo_tipus, ['rendes-szabadsag', 'tappenz', 'tappenz-gyap', 'fizetes-nelkuli-szabadsag'])
 ) {
-    $sz_tp_napok = 1;
+   // FIX: Ne 1 legyen, hanem a kijelölt időszak hossza!
+    $sz_tp_napok = $sz_tp_napok_kalkulalt;
 } else {
-    // Ha csak sima pihenőnap (-) vagy ünnep (Ü), és nincs szabadság kivéve
     $sz_tp_napok = 0;
 }
 
