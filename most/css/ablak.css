@@ -290,3 +290,16 @@ td.osszeg-fn {
     min-height: 12px;
     margin: 2px 0;
 }
+
+/* Sárga háromszög a cella jobb felső sarkában */
+.hibas-nap-jelzo {
+    position: relative;
+}
+.hibas-nap-jelzo::after {
+    content: "⚠️";
+    position: absolute;
+    top: -2px;
+    right: 0px;
+    font-size: 10px;
+    cursor: help;
+}
