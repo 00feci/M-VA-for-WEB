@@ -295,3 +295,117 @@ function adatokBetolteseTomegesen() {
     })
     .catch(err => console.error("Hiba a tömeges letöltésnél:", err));
 }
+
+// 🎯 Betöltés
+fetch(`${window.AblakCfg.apiBase}felhasznalok_lista.php`)
+  .then(response => response.json())
+// ... (A fetch lekérte a felhasználó listát) ...
+.then(data => {
+    window.FelhasznaloLista = data;
+    const tbody = document.getElementById('tabla-body');
+    tbody.innerHTML = '';
+    
+    // 1. Táblázat felépítése (Üres sorok kirajzolása)
+    data.forEach(felhasznalo => {
+        const tr = letrehozTablaSort(felhasznalo);
+        tbody.appendChild(tr);
+    });
+
+    initTomSelect();
+    frissitStickyTopok();
+    
+    // Naptár fejléc betöltése (Alapzat)
+    naptarFejlecBetoltese(); 
+
+    // --- ITT A KAPCSOLÓ! ---
+    // false = ÉLES ÜZEM (Mindenki egyszerre, 1 kéréssel)
+    // true  = TESZT ÜZEM (Csak egy ember, vagy régi lassú módszer)
+    
+    const TESZT_UZEMMOD = true; // <--- EZT ÁLLÍTSD ÁT, HA KÉSZ VAGY!
+    const TESZT_ALANY   = '0057';
+
+    if (TESZT_UZEMMOD) {
+        console.warn("⚠️ TESZT MÓD AKTÍV: Csak egy felhasználó betöltése!");
+        adatokBetolteseANaptarba(TESZT_ALANY); 
+    } else {
+        console.log("🚀 ÉLES MÓD: Tömeges betöltés indítása...");
+        adatokBetolteseTomegesen(); // Ezt a függvényt mindjárt megírjuk!
+    }
+});
+function applyNapTipusToSingleCell(td) {
+  const ertek = ertekek[aktualisIndex]; // "🖱", "Ü", "-", "M"
+
+  if (ertek === '🖱') {
+    return; // Egér állapot: itt nem csinálunk semmit
+  }
+
+  // Cellatartalom TELJES felülírása
+  if (ertek === 'M') {
+    // M = munkanap → cella kiürítése
+    td.innerText = '';
+  } else if (ertek === 'Ü' || ertek === '-') {
+    // Ünnepnap / Hétvége → csak ez legyen benne
+    td.innerText = ertek;
+  }
+
+  // Bármilyen SZ/TP/fn szín / típus törlése
+  // Bármilyen SZ/TP/fn szín / típus törlése
+  if (typeof addCssClassToCell === 'function') {
+    td.dataset.tipus = '';
+    addCssClassToCell(td, null);
+  }
+
+  // Napok típusa jelölés: egyedi kattintásból jött
+  td.dataset.orokolt = 'egyedi';
+
+  frissitOsszesOszlop();
+
+  // 🔄 SQL-szinkron előkészítés: cella adatainak elküldése a szervernek
+  syncCellToServer(td);
+}
+
+// --- NAPTÁR FEJLÉC KEZELÉSE (SQL MENTÉS ÉS BETÖLTÉS) ---
+
+// 1. BETÖLTÉS: Induláskor lekéri a mentett M/Ü/- állapotokat
+function naptarFejlecBetoltese() {
+    if (!window.AblakCfg) return;
+
+    console.log("📅 Naptár fejléc betöltése az adatbázisból...");
+
+    const url = `${window.AblakCfg.apiBase}munkaido_naptar_kezelo.php?action=load&ev=${window.AblakCfg.ev}&honap=${window.AblakCfg.honap}`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(res => {
+            if (res.status === 'ok' && res.adatok) {
+                alkalmazNaptarAdatok(res.adatok);
+            }
+        })
+        .catch(err => console.error("Hiba a naptár betöltésekor:", err));
+}
+// 2. MENTÉS: Amikor kattintasz, elküldi az új értéket
+function naptarFejlecMentese(cella, ujErtek) {
+    if (!window.AblakCfg) return;
+
+    // Dátum kitalálása a cella pozíciójából
+    const nap = cella.cellIndex - 1; // 2. oszlop = 1. nap
+    const ev = window.AblakCfg.ev;
+    const honap = window.AblakCfg.honap;
+    const datumStr = `${ev}-${String(honap).padStart(2, '0')}-${String(nap).padStart(2, '0')}`;
+
+    const payload = {
+        datum: datumStr,
+        tipus: ujErtek // "M", "Ü", "-"
+    };
+
+    fetch(`${window.AblakCfg.apiBase}munkaido_naptar_kezelo.php?action=save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(res => {
+        console.log(`💾 Fejléc mentve (${datumStr} => ${ujErtek}):`, res.uzenet);
+    })
+    .catch(err => console.error("Mentési hiba:", err));
+}

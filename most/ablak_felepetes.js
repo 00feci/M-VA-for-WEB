@@ -172,3 +172,44 @@ function initTomSelect() {
     }
   });
 }
+
+// --- 3. Betöltéskori logika (Frissítés után ez fut le) ---
+function alkalmazNaptarAdatok(adatok) {
+    const fejlecSor = document.querySelector('tr.fejlec-napok-tipusa');
+    if (!fejlecSor) return;
+
+    const cellak = fejlecSor.cells;
+    const ev = window.AblakCfg.ev;
+    const honap = window.AblakCfg.honap;
+
+    for (let i = 2; i < cellak.length; i++) {
+        const nap = i - 1; 
+        const datumStr = `${ev}-${String(honap).padStart(2, '0')}-${String(nap).padStart(2, '0')}`;
+        
+        if (adatok[datumStr]) {
+            const tipus = adatok[datumStr]; 
+            // Fejléc beállítása
+            cellak[i].innerText = tipus;
+            // Oszlop frissítése a fenti szabályrendszerrel
+            vetitOszlopra(i, tipus);
+        }
+    }
+    console.log("✅ Naptár fejléc és oszlopok frissítve.");
+    frissitOsszesOszlop(); 
+}
+
+function valasztottFelhasznalo(selectElem) {
+  const opInput = selectElem.closest('tr').querySelector('input[name="op_szam[]"]');
+  const selectedOption = selectElem.selectedOptions[0];
+  if (!opInput || !selectedOption) return;
+  const opSzam = selectedOption.dataset.op;
+  if (opSzam === 'kulso') {
+    opInput.readOnly = false;
+    opInput.value = '';
+    opInput.placeholder = 'Külsős OP szám';
+  } else {
+    opInput.readOnly = true;
+    opInput.value = opSzam;
+    opInput.placeholder = '';
+  }
+}

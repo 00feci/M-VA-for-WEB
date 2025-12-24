@@ -145,4 +145,48 @@ function ujKulsoSorHozzaadasa() {
 
   tbody.appendChild(tr);
 }
+// Alapállapot beállítása
+window.onload = frissitKijelzo;
 
+
+function frissitStickyTopok() {
+  const toolbar = document.querySelector('.sticky-gombok');
+  const row1 = document.querySelector('table.munkaido thead tr.fejlec-datumok');
+  const hToolbar = toolbar ? toolbar.offsetHeight : 0;
+  const hRow1 = row1 ? row1.offsetHeight : 0;
+  document.documentElement.style.setProperty('--sticky-toolbar-h', hToolbar + 'px');
+  document.documentElement.style.setProperty('--header1-h', hRow1 + 'px');
+}
+window.addEventListener('resize', frissitStickyTopok);
+document.fonts && document.fonts.ready && document.fonts.ready.then(frissitStickyTopok);
+
+
+document.addEventListener("DOMContentLoaded", function() {
+  const select = document.getElementById("tipusSelect");
+  const preview = document.getElementById("tipusPreview");
+  if (!select || !preview) return; // védőkorlát, ha nincs még a DOM-ban
+
+const applyPreview = () => {
+  const opt = select.selectedOptions[0];
+  if (!opt) return;
+  const kod = opt.dataset.kod || ''; // "A" / "SZ" / "TP" / "fn" vagy üres (Egér)
+  const cssClass = opt.value;        // "eger", "rendes-szabadsag", stb.
+
+  if (cssClass === 'eger' || !kod) {
+    // Egér állapot: semmit nem írunk a cellákba, csak jelzés
+    preview.textContent = '🖱';
+    preview.className = 'kod-preview';
+  } else {
+    preview.textContent = kod;
+    preview.className = 'kod-preview ' + cssClass;
+
+    // ❗ Ha SZ/TP/fn van kiválasztva, a Napok típusa slider menjen "Egér"-re
+    aktualisIndex = 0;        // ertekek[0] = "🖱"
+    frissitKijelzo();
+  }
+};
+
+
+  select.addEventListener("change", applyPreview);
+  applyPreview(); // induláskor beállít
+});
