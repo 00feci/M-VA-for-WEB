@@ -1307,3 +1307,4 @@ function popupTorles() {
         adatokBetolteseANaptarba(opKod);
     });
 }
+//most ezz a legfrisebb.....
