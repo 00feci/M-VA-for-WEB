@@ -132,22 +132,6 @@ $API_BASE   = $MVA_EMBED ? 'Ablak_Excel/' : ''; // végén legyen /, vagy legyen
     📄 Bérszámfejtési Lista (Végleges)
 </button>
   </div>
-
-
-  <!-- Jobb oldali színes kódválasztó -->
-  <div class="tipus-valaszto">
-    <span id="tipusPreview" class="kod-preview">🖱</span>
-    <select id="tipusSelect">
-     <option value="eger">🖱 Egér</option>
-  <option value="rendszer-adat" data-kod="A">rendszerből Adat</option>
-  <option value="rendes-szabadsag" data-kod="SZ">Rendes szabadság</option>
-  <option value="tanulmanyi-szabadsag" data-kod="SZ">Tanulmányi szabadság</option>
-  <option value="kozeli-hozzatartozo-halala-miatt" data-kod="SZ">Közeli hozzátartozó halála miatt</option>
-  <option value="tappenz" data-kod="TP">Táppénz</option>
-  <option value="tappenz-gyap" data-kod="TP">Táppénz (GYÁP)</option>
-  <option value="fizetes-nelkuli-szabadsag" data-kod="fn">Fizetés nélküli szabadság</option>
-    </select>
-  </div>
 </div>
 
 <input type="file" id="ratoltesFile" name="ratoltes_file" accept=".txt" style="display:none;">
@@ -226,5 +210,4 @@ $API_BASE   = $MVA_EMBED ? 'Ablak_Excel/' : ''; // végén legyen /, vagy legyen
 <script src="js/ablak.js?v=<?php echo filemtime(__DIR__ . '/js/ablak.js'); ?>"></script>
 </body>
 </html>
-
-
+  <!-- 2 -->
