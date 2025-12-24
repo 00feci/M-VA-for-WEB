@@ -5,16 +5,6 @@
 let kivalasztottTipus = ''; 
 let szerkesztoModAktiv = false;
 
-function toggleSzerkesztoMod() {
-    szerkesztoModAktiv = !szerkesztoModAktiv;
-    document.body.classList.toggle('szerkeszto-mod-aktiv', szerkesztoModAktiv);
-    const btn = document.getElementById('btnSzerkesztoMod');
-    if(btn) {
-        btn.innerHTML = szerkesztoModAktiv ? '✏️ Szerkesztés: BE' : '👁️ Csak olvasás';
-        btn.style.background = szerkesztoModAktiv ? '#ff5722' : '#ccc'; 
-    }
-}
-
 document.addEventListener('click', function(e) {
     if (!szerkesztoModAktiv) return;
     const td = e.target.closest('td');
@@ -145,12 +135,6 @@ function generaldMiniNaptarat(fokuszNap, startLimit, endLimit, opKod) {
         kontener.appendChild(div);
     }
 }
-
-function valasszTipust(tipus) {
-    kivalasztottTipus = tipus;
-    frissitGombStilusok();
-}
-
 function frissitGombStilusok() {
     document.querySelectorAll('.tipus-btn').forEach(btn => btn.classList.remove('aktiv'));
     if (kivalasztottTipus === 'SZ') document.querySelector('.btn-sz').classList.add('aktiv');

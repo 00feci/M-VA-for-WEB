@@ -42,11 +42,6 @@ function adatokBetolteseANaptarba(opSzam) {
     .catch(err => console.error("Hiba:", opSzam, err));
 }
 
-// Ékezet-eltávolító segéd
-function removeAccents(str) {
-    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-}
-
 // 🔄 Egy cella adatainak elküldése a szervernek (SQL-szinkronhoz előkészítve)
 function syncCellToServer(td) {
   if (!window.AblakCfg) return;
@@ -163,4 +158,140 @@ function frissitOsszesOszlop() {
             hibaKontener.style.display = 'none';
         }
     }
+}
+
+// --- ÓVATOS MEGJELENÍTŐ (Javított szövegek + "M" elrejtése + Sárga háromszög) ---
+function megjelenitoFugveny(adatok, opSzam, kellFrissites = true) {
+    if (!adatok || !opSzam) return;
+
+    adatok.forEach(function(rekord) {
+        let nyers = rekord.dokumentum_típusa || rekord.státusz || '';
+        if (!nyers) return; 
+
+        let statuszKod = nyers;
+        if (statuszKod.includes('Rendes szabadság') || statuszKod.includes('Szabadság')) statuszKod = 'SZ';
+        if (statuszKod.toLowerCase().includes('tanulmányi')) statuszKod = 'SZ'; 
+        if (statuszKod.toLowerCase().includes('hozzátartozó') || statuszKod.toLowerCase().includes('halála')) statuszKod = 'SZ';
+        if (statuszKod.includes('Táppénz') || statuszKod.includes('tappenz')) {
+            statuszKod = 'TP';
+            statuszKod = statuszKod.replace(/ \(GYÁP\)/gi, ''); 
+        }
+        if (statuszKod.includes('Fizetés nélküli')) statuszKod = 'fn';
+        if (statuszKod === 'M' || statuszKod === 'Munkanap') statuszKod = '';
+        statuszKod = statuszKod.replace(/ és /g, ' | ');
+        
+        const vizsgalt = statuszKod.toLowerCase(); 
+        let tipusClass = 'egyeb';
+        if (vizsgalt.indexOf('fn') > -1) tipusClass = 'fizetes-nelkuli-szabadsag';
+        else if (vizsgalt.indexOf('tp') > -1) tipusClass = 'tappenz';
+        else if (vizsgalt.indexOf('sz') > -1) tipusClass = 'rendes-szabadsag';
+        else if (vizsgalt.indexOf('a') > -1) tipusClass = 'rendszer-adat'; 
+
+        if (rekord.javitott === true) tipusClass += ' javitott-adat'; 
+
+        if (!rekord.sz_tp_kezdet || !rekord.sz_tp_végzet) return; 
+
+        const kezdetStr = String(rekord.sz_tp_kezdet);
+        const vegzetStr = String(rekord.sz_tp_végzet);
+        const kezdet = new Date(kezdetStr.indexOf('T') === -1 ? kezdetStr + 'T12:00:00' : kezdetStr);
+        const vegzet = new Date(vegzetStr.indexOf('T') === -1 ? vegzetStr + 'T12:00:00' : vegzetStr);
+        
+        let aktualisNap = new Date(kezdet);
+        while (aktualisNap <= vegzet) {
+            const ev = aktualisNap.getFullYear();
+            const honap = aktualisNap.getMonth() + 1;
+            const nap = aktualisNap.getDate();
+
+            if (ev === window.AblakCfg.ev && honap === window.AblakCfg.honap) {
+                let cella = document.querySelector(`td[data-op="${opSzam}"][data-nap="${nap}"]`);
+                if (!cella) cella = document.querySelector(`td[data-op="${opSzam}"][data-nap="0${nap}"]`);
+
+                if (cella && !cella.classList.contains('inaktiv-nap')) {
+                    let jelenlegi = cella.textContent.trim();
+                    let ujKod = statuszKod;
+
+                    if (rekord.jelentkezés_forrása !== 'Kézi') {
+                        if (jelenlegi !== '' && statuszKod !== '' && statuszKod !== 'A') {
+                            if (jelenlegi.includes(' | ')) {
+                                let reszek = jelenlegi.split(' | ');
+                                ujKod = reszek[0] + ' | ' + statuszKod + ' | ' + reszek[1];
+                            } else if (jelenlegi === 'A') {
+                                ujKod = 'A | ' + statuszKod;
+                            } else if (jelenlegi === '-' || jelenlegi === 'Ü') {
+                                ujKod = statuszKod + ' | ' + jelenlegi;
+                            }
+                        }
+                    } else { ujKod = statuszKod; }
+
+                    cella.innerHTML = ujKod; 
+
+                    if (aktualisNap.getTime() === vegzet.getTime() && rekord.sz_tp_napok > 1) {
+                        const badge = `<span class="nap-szamlalo-badge">${rekord.sz_tp_napok}</span>`;
+                        cella.insertAdjacentHTML('afterbegin', badge);
+                    }
+                    
+                   // ÚJ LOGIKA: A sárga háromszög ezentúl a NEM KÉZI forrást jelzi (HR ellenőrzés szükséges)
+                    if (statuszKod && statuszKod !== 'A' && rekord.jelentkezés_forrása !== 'Kézi') {
+                        cella.classList.add('hibas-nap-jelzo');
+                        cella.title = `Importált adat (Forrás: ${rekord.jelentkezés_forrása}). HR ellenőrzés szükséges!`;
+                    }
+
+                    if (statuszKod && statuszKod !== 'A') {
+                        cella.dataset.kezdet = rekord.sz_tp_kezdet;
+                        cella.dataset.vegzet = rekord.sz_tp_végzet;
+                    }
+
+                    if (statuszKod !== '' && tipusClass !== 'egyeb') {
+                        cella.classList.add(...tipusClass.split(' '));
+                    }
+                }
+            }
+            aktualisNap.setDate(aktualisNap.getDate() + 1);
+        }
+    });
+
+    if (kellFrissites) {
+        setTimeout(function() { frissitOsszesOszlop(); }, 500);
+    }
+}
+
+
+// --- ÚJ: TÖMEGES BETÖLTÉS (BUSZ-ELV) ---
+function adatokBetolteseTomegesen() {
+    if (!window.AblakCfg) return;
+
+    const aktualisHonap = `${window.AblakCfg.ev}-${String(window.AblakCfg.honap).padStart(2,'0')}`;
+
+    // Egyetlen kérés 'MINDENKI' paraméterrel
+    fetch(`${window.AblakCfg.apiBase}munkaido_lekerezes.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            op_szam: 'MINDENKI',
+            honap: aktualisHonap
+        })
+    })
+    .then(r => r.json())
+    .then(valasz => {
+        if (valasz.status === 'ok' && valasz.adatok) {
+            console.log("📦 Tömeges adatcsomag megérkezett!");
+            
+            // A válasz egy objektum: { '0057': [...], '1234': [...] }
+            // Végigmegyünk a kulcsokon (OP számokon)
+            Object.keys(valasz.adatok).forEach(opSzam => {
+                const rekordok = valasz.adatok[opSzam];
+                // Meghívjuk a már jól működő megjelenítőt mindenkinél
+                // DE! Fontos, hogy ne frissítsen minden egyes embernél statisztikát, mert az lassú.
+                // Ezért a megjelenitoFugveny-t kicsit okosítani kell, vagy a végén frissítünk egyet.
+                megjelenitoFugveny(rekordok, opSzam, false); // false = ne frissíts statisztikát még
+            });
+
+            // A végén egyszerre frissítünk minden statisztikát
+            setTimeout(() => {
+                console.log("🔥 Statisztikák végső újraszámolása...");
+                frissitOsszesOszlop();
+            }, 500);
+        }
+    })
+    .catch(err => console.error("Hiba a tömeges letöltésnél:", err));
 }
