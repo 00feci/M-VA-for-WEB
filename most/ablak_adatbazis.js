@@ -564,3 +564,72 @@ function naptarFejlecMentese(cella, ujErtek) {
     })
     .catch(err => console.error("Mentési hiba:", err));
 }
+
+
+function exportMunkaido() {
+  const tabla = document.querySelector("table.munkaido");
+  let rows = [];
+
+  const maxNapok   = window.AblakCfg.napokSzama || 31;          // 31 napos tábla
+  const napokValos = window.AblakCfg.napokValos || maxNapok;    // tényleges napok száma
+
+  for (let i = 1; i < tabla.rows.length; i++) {
+    let cells = tabla.rows[i].cells;
+    let sor = [];
+
+    for (let c = 0; c < cells.length; c++) {
+      const inputElem = cells[c].querySelector('input, select');
+      let value = '';
+
+      // Nap-oszlopok: 0: OP, 1: Név, 2..(2+maxNapok-1): napok
+      // Ha a nap sorszáma nagyobb, mint napokValos (pl. 30, 31 februárban),
+      // akkor az exportban mindig üres legyen.
+      if (c >= 2 && c < 2 + maxNapok && c >= 2 + napokValos) {
+        value = '';
+      } else if (inputElem) {
+        value = inputElem.value.trim();
+      } else {
+        // Klónozzuk a cellát, hogy ne rontsuk el a naptárban lévőt
+        let cellClone = cells[c].cloneNode(true);
+        // Eltávolítjuk a számot (badge) a klónból, hogy ne kerüljön az Excelbe
+        let badges = cellClone.querySelectorAll('.nap-szamlalo-badge');
+        badges.forEach(b => b.remove());
+        // Így az Excelbe csak a tiszta betűjel (SZ, TP, stb.) kerül
+        value = cellClone.innerText.trim();
+      }
+
+      sor.push(value);
+    }
+
+    rows.push(sor);
+  }
+
+  fetch(`${window.AblakCfg.apiBase}export_munkaido.php?ev=${window.AblakCfg.ev}&honap=${window.AblakCfg.honap}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ rows })
+  })
+  .then(response => response.blob())
+  .then(blob => {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `munkaido_${String(window.AblakCfg.ev).padStart(4,'0')}.${String(window.AblakCfg.honap).padStart(2,'0')}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  });
+}
+function exportCallCenter() {
+  fetch(`${window.AblakCfg.apiBase}export_callcenter.php`)
+    .then(response => response.blob())
+    .then(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "call_center_hasznalat.xlsx";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    });
+}
