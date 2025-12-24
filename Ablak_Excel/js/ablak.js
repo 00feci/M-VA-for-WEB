@@ -945,6 +945,7 @@ function megjelenitoFugveny(adatok, opSzam, kellFrissites = true) {
                         cella.insertAdjacentHTML('afterbegin', badge);
                     }
                     
+                   // ÚJ LOGIKA: A sárga háromszög ezentúl a NEM KÉZI forrást jelzi (HR ellenőrzés szükséges)
                     if (statuszKod && statuszKod !== 'A' && rekord.jelentkezés_forrása !== 'Kézi') {
                         cella.classList.add('hibas-nap-jelzo');
                         cella.title = `Importált adat (Forrás: ${rekord.jelentkezés_forrása}). HR ellenőrzés szükséges!`;
@@ -1093,34 +1094,9 @@ function nyisdMegAPopupot(cella) {
     const nap = parseInt(cella.dataset.nap);
     const napokSzama = window.AblakCfg ? (window.AblakCfg.napokValos || 31) : 31;
 
-    const getCell = (n) => {
-        let c = document.querySelector(`td[data-op="${opKod}"][data-nap="${n}"]`);
-        if (!c) c = document.querySelector(`td[data-op="${opKod}"][data-nap="${String(n).padStart(2, '0')}"]`);
-        return c;
-    };
-
+    // 3. PONT: "A" korlát elengedése
     let startLimit = 1;
     let endLimit = napokSzama;
-
-    if (cella.textContent.includes('A')) {
-        startLimit = nap;
-        endLimit = nap;
-    } else {
-        for (let i = nap - 1; i >= 1; i--) {
-            let c = getCell(i);
-            if (c && c.textContent.includes('A')) {
-                startLimit = i + 1;
-                break;
-            }
-        }
-        for (let i = nap + 1; i <= napokSzama; i++) {
-            let c = getCell(i);
-            if (c && c.textContent.includes('A')) {
-                endLimit = i - 1;
-                break;
-            }
-        }
-    }
 
     let nev = opKod;
     if (window.FelhasznaloLista) {
@@ -1139,15 +1115,23 @@ function nyisdMegAPopupot(cella) {
                     <div class="popup-cim" id="popupCim"></div>
                     <div class="popup-bezars" onclick="bezardAPopupot()">×</div>
                 </div>
+                <div style="background: #fff3e0; border-left: 5px solid #ff9800; padding: 10px; margin-bottom: 15px; font-weight: bold; color: #e65100;">
+                    ⚠️ Egy popup = 1 dokumentum ⚠️
+                </div>
                 <div id="popupEredetiAdatok" style="margin-bottom:10px; color:#666; font-size:14px;"></div>
                 <div style="font-weight:bold; margin-top:10px;">📅 Időszak kijelölése:</div>
                 <div class="mini-naptar-kontener" id="popupMiniNaptar"></div>
-                <div class="tipus-valaszto">
-                    <button class="tipus-btn btn-sz" onclick="valasszTipust('SZ')">Szabadság</button>
-                    <button class="tipus-btn btn-tp" onclick="valasszTipust('TP')">Táppénz</button>
-                    <button class="tipus-btn btn-fn" onclick="valasszTipust('fn')">Fiz. Nélk.</button>
-                    <button class="tipus-btn btn-a" onclick="valasszTipust('A')">Jelenlét (A)</button>
+                
+                <div class="tipus-valaszto-kontener" style="margin-top:15px;">
+                    <select id="popupTipusSelect" onchange="kivalasztottTipus = this.value" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px;">
+                        <option value="">-- Válassz távollét típust --</option>
+                        <option value="SZ">Szabadság (SZ)</option>
+                        <option value="TP">Táppénz (TP)</option>
+                        <option value="fn">Fizetés nélküli (fn)</option>
+                        <option value="A">Jelenlét (A)</option>
+                    </select>
                 </div>
+
                 <div class="popup-footer">
                     <button class="btn-reset" onclick="popupTorles()" style="background:#d32f2f; color:white;">🗑️ TÖRLÉS</button>
                     <button class="btn-save" onclick="popupMentese()">💾 MENTÉS</button>
@@ -1157,7 +1141,7 @@ function nyisdMegAPopupot(cella) {
     }
     
     document.getElementById('popupCim').innerText = `Szerkesztés: ${nev}`;
-    const eredetiSzoveg = cella.innerText; 
+    const eredetiSzoveg = cella.innerText;
     const kezdet = cella.dataset.kezdet ? cella.dataset.kezdet.replaceAll('-', '.') : '';
     const vegzet = cella.dataset.vegzet ? cella.dataset.vegzet.replaceAll('-', '.') : '';
     const datumKiiras = kezdet ? ` (${kezdet} - ${vegzet})` : '';
@@ -1167,7 +1151,9 @@ function nyisdMegAPopupot(cella) {
     generaldMiniNaptarat(nap, startLimit, endLimit, opKod);
 
     kivalasztottTipus = '';
-    frissitGombStilusok();
+    const select = document.getElementById('popupTipusSelect');
+    if(select) select.value = '';
+
     overlay.style.display = 'flex';
     overlay.querySelector('.btn-save').dataset.op = opKod;
 }
@@ -1307,4 +1293,3 @@ function popupTorles() {
         adatokBetolteseANaptarba(opKod);
     });
 }
-//most ezz a legfrisebb.....
