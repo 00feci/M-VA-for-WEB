@@ -1144,37 +1144,33 @@ function nyisdMegAPopupot(cella) {
     
     document.getElementById('popupCim').innerText = `Szerkesztés: ${nev}`;
     
-    // xcxxx kód, ezt a blokot cseréld
+
     const select = document.getElementById('popupTipusSelect');
     
-    // 4. hiba javítása: Megkeressük a típus teljes nevét a dataset.tipus alapján
-    let teljesTipusNev = '';
+    // Hiba 4: Teljes név keresése (pl. "Táppénz" az "SZ" helyett)
+    let megjelenitendoNev = cella.innerText.replace(/[0-9]/g, '').trim(); 
     if (select && cella.dataset.tipus) {
         const option = Array.from(select.options).find(opt => opt.value === cella.dataset.tipus);
-        teljesTipusNev = option ? option.text : '';
+        if (option) megjelenitendoNev = option.text;
     }
     
     const badge = cella.querySelector('.nap-szamlalo-badge');
-    const napokSzamaAdat = badge ? badge.innerText : '1';
-    const tisztaKod = cella.innerText.replace(napokSzamaAdat, '').trim();
-    
-    // Ha van teljes nevünk, azt írjuk ki, ha nincs, akkor a cella rövid kódját
-    const megjelenitendoNev = teljesTipusNev || tisztaKod;
-    
+    const napokBadge = badge ? badge.innerText : '1'; // SyntaxError javítása: átnevezve
     const kezdet = cella.dataset.kezdet ? cella.dataset.kezdet.replaceAll('-', '.') : '';
     const vegzet = cella.dataset.vegzet ? cella.dataset.vegzet.replaceAll('-', '.') : '';
     const datumKiiras = kezdet ? ` (${kezdet} - ${vegzet})` : '';
 
-    document.getElementById('popupEredetiAdatok').innerHTML = 'Jelenleg: ' + (megjelenitendoNev && megjelenitendoNev !== '🖱' ? `<b>${megjelenitendoNev} (${napokSzamaAdat} nap)${datumKiiras}</b>` : '<i>(Üres)</i>');
+    document.getElementById('popupEredetiAdatok').innerHTML = 'Jelenleg: ' + (megjelenitendoNev && megjelenitendoNev !== '🖱' ? `<b>${megjelenitendoNev} (${napokBadge} nap)${datumKiiras}</b>` : '<i>(Üres)</i>');
 
     generaldMiniNaptarat(nap, startLimit, endLimit, opKod);
 
+    // Hiba 2: Alaphelyzetbe állításnál a választót és az ikont is reseteljük
     kivalasztottTipus = '';
     if(select) {
         select.value = '';
-        // 2. hiba javítása: Kényszerítjük a színes négyzetet az alaphelyzetre (🖱)
         updatePopupPreview(select); 
     }
+
 
 
     overlay.style.display = 'flex';
@@ -1337,4 +1333,4 @@ function updatePopupPreview(select) {
     // A css/ablak.css fájlban lévő osztályok használata (pl. .tappenz, .rendes-szabadsag)
     preview.className = 'kod-preview ' + cssClass;
 }
-//2
+//3
