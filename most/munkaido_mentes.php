@@ -208,4 +208,5 @@ try {
 
 echo json_encode(['status' => 'ok', 'sql_info' => $db_uzenet, 'debug_user' => $cel_user_id]);
 exit;
-///EZT
+///EZT itt
+
