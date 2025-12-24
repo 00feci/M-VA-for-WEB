@@ -1,0 +1,174 @@
+function letrehozTablaSort(felhasznalo) {
+  const napokSzama = window.AblakCfg.napokSzama;        // 31
+  const napokValos = window.AblakCfg.napokValos || 31;  // pl. 28, 30, 31
+  const tr = document.createElement('tr');
+
+  // OP select
+  const tdOp = document.createElement('td');
+  const selectOp = document.createElement('select');
+  selectOp.name = 'op_szam[]';
+  selectOp.className = 'op-nev opszam-select';
+  window.FelhasznaloLista.forEach(opt => {
+    const option = document.createElement('option');
+    option.value = opt.op_szam;
+    option.textContent = opt.op_szam;
+    option.dataset.nev = opt.nev;
+    if (opt.op_szam === felhasznalo.op_szam) option.selected = true;
+    selectOp.appendChild(option);
+  });
+  tdOp.appendChild(selectOp);
+  tr.appendChild(tdOp);
+
+  // Név select
+  const tdNev = document.createElement('td');
+  const selectNev = document.createElement('select');
+  selectNev.name = 'nev[]';
+  selectNev.className = 'op-nev nev-select';
+  window.FelhasznaloLista.forEach(opt => {
+    const option = document.createElement('option');
+    option.value = opt.nev;
+    option.textContent = opt.nev;
+    option.dataset.op = opt.op_szam;
+    if (opt.nev === felhasznalo.nev) option.selected = true;
+    selectNev.appendChild(option);
+  });
+  tdNev.appendChild(selectNev);
+  tr.appendChild(tdNev);
+
+  // Napok cellák (mind zárt, csak vezérlőkből módosítható)
+  const opKod = felhasznalo.op_szam; // pl. "0004", "0106", "0120"
+
+  for (let i = 0; i < napokSzama; i++) {
+    const nap = i + 1; // 1..31
+    const td = document.createElement('td');
+    td.className = 'ures-cella';
+
+    // 🔹 Metaadatok az SQL-szinkronhoz
+    td.dataset.nap = String(nap);
+    td.dataset.datum = `${window.AblakCfg.ev}-${String(window.AblakCfg.honap).padStart(2,'0')}-${String(nap).padStart(2,'0')}`;
+    td.dataset.op = opKod; // sorhoz tartozó OP kód (pl. "0004")
+
+    if (i >= napokValos) {
+      // Nem létező nap: szürke, inaktív
+      td.classList.add('inaktiv-nap');
+    } else {
+      // Eredeti érték beírása (pl. "A"), ha van
+      if (window.AJelolesek &&
+          window.AJelolesek[opKod] &&
+          window.AJelolesek[opKod][nap]) {
+        const ertek = window.AJelolesek[opKod][nap]; // pl. "A"
+        td.textContent = ertek;
+
+        if (ertek === 'A') {
+          td.dataset.tipus = 'rendszer-adat';
+          addCssClassToCell(td, 'rendszer-adat');
+        }
+      }
+    }
+
+    tr.appendChild(td);
+  }
+
+  // 3 összesítő (automatikus számolt értékek)
+  for (let i = 0; i < 3; i++) {
+    const td = document.createElement('td');
+    td.contentEditable = false;
+    td.classList.add('osszeg-cella');
+    if (i === 0) {
+      td.classList.add('osszeg-szabi');
+    } else if (i === 1) {
+      td.classList.add('osszeg-tp');
+    } else {
+      td.classList.add('osszeg-fn');
+    }
+    tr.appendChild(td);
+  }
+
+  return tr;
+}
+
+// --- 1. Fejléc kattintás kezelése (Azonnali vetítéssel) ---
+function beirErtek(cell) {
+  const ertek = ertekek[aktualisIndex]; // "🖱", "Ü", "-", "M"
+  
+  if (!cell.classList.contains('napok-tipusa') || ertek === '🖱') {
+    return;
+  }
+  
+  // Fejléc frissítése
+  cell.innerText = ertek;
+  
+  // AZONNALI VETÍTÉS: Frissítjük az oszlopot a táblázatban
+  vetitOszlopra(cell.cellIndex, ertek);
+  
+  // Elmentjük az adatbázisba
+  naptarFejlecMentese(cell, ertek);
+  
+  // Újraszámoljuk az összesítőt
+  frissitOsszesOszlop();
+}
+
+// --- 2. Az oszlopfrissítő motor (Ez akadályozza meg az "M" szaladását) ---
+function vetitOszlopra(colIndex, tipus) {
+    const tbody = document.getElementById('tabla-body');
+    if (!tbody) return;
+
+    Array.from(tbody.rows).forEach(sor => {
+        const adatCella = sor.cells[colIndex];
+        if (adatCella && !adatCella.classList.contains('inaktiv-nap')) {
+            const tartalom = adatCella.innerText.trim();
+            
+          if (tipus === 'M') {
+    // Munkanap (M) esetén töröljük az Ü/- jeleket a szövegből
+    if (tartalom.includes('Ü') || tartalom.includes('-')) {
+        adatCella.innerText = tartalom.replace(' | Ü', '').replace('Ü | ', '').replace('Ü', '')
+                                     .replace(' | -', '').replace('- | ', '').replace('-', '').trim();
+    }
+          } else if (tipus === 'Ü' || tipus === '-') {
+    // Ünnep vagy Hétvége esetén:
+    if (tartalom === '') {
+        adatCella.innerText = tipus; // Ha üres, beírjuk
+    } else if (tartalom === 'A' || tartalom.includes('A')) {
+        // SZ|A SZABÁLY: Ha van már benne rendszeradat, fűzzük hozzá a fejlécet
+        if (!tartalom.includes(tipus)) {
+            adatCella.innerText = tartalom + ' | ' + tipus;
+        }
+    }
+}
+        }
+    });
+}
+
+function initTomSelect() {
+  document.querySelectorAll('select.opszam-select').forEach(function(opSelect) {
+    if (opSelect.tomselect) return; // már inicializálva
+
+    const tsOp = new TomSelect(opSelect, { create: false });
+    const nevSelect = opSelect.closest('tr').querySelector('select.nev-select');
+
+    if (nevSelect && !nevSelect.tomselect) {
+      const tsNev = new TomSelect(nevSelect, { create: false });
+
+      // OP -> Név
+      tsOp.on('change', function(value) {
+        const selected = opSelect.querySelector(`option[value="${value}"]`);
+        if (selected) tsNev.setValue(selected.dataset.nev, true);
+      });
+
+      // Név -> OP
+      tsNev.on('change', function(value) {
+        const selected = nevSelect.querySelector(`option[value="${value}"]`);
+        if (selected) tsOp.setValue(selected.dataset.op, true);
+      });
+
+      // Kezdő értékek szinkronja
+      if (opSelect.value) {
+        const sel = opSelect.querySelector(`option[value="${opSelect.value}"]`);
+        if (sel) tsNev.setValue(sel.dataset.nev, true);
+      } else if (nevSelect.value) {
+        const sel = nevSelect.querySelector(`option[value="${nevSelect.value}"]`);
+        if (sel) tsOp.setValue(sel.dataset.op, true);
+      }
+    }
+  });
+}
