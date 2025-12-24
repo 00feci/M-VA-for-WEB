@@ -1290,6 +1290,7 @@ function popupTorles() {
    Promise.all(igéretek).then(() => {
         bezardAPopupot();
         // Törlés után is csak az adott embert frissítjük
-        adatokBetolteseANaptarba(opKod);
+       adatokBetolteseANaptarba(opKod);
     });
 }
+//1
