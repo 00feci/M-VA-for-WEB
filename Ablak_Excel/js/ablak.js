@@ -876,7 +876,6 @@ function removeAccents(str) {
 
 
 // --- ÓVATOS MEGJELENÍTŐ (Javított szövegek + "M" elrejtése + Sárga háromszög) ---
-// --- ÓVATOS MEGJELENÍTŐ (Javított szövegek + "M" elrejtése + Sárga háromszög) ---
 function megjelenitoFugveny(adatok, opSzam, kellFrissites = true) {
     if (!adatok || !opSzam) return;
 
@@ -911,8 +910,8 @@ function megjelenitoFugveny(adatok, opSzam, kellFrissites = true) {
         const vegzetStr = String(rekord.sz_tp_végzet);
         const kezdet = new Date(kezdetStr.indexOf('T') === -1 ? kezdetStr + 'T12:00:00' : kezdetStr);
         const vegzet = new Date(vegzetStr.indexOf('T') === -1 ? vegzetStr + 'T12:00:00' : vegzetStr);
-
-       let aktualisNap = new Date(kezdet);
+        
+        let aktualisNap = new Date(kezdet);
         while (aktualisNap <= vegzet) {
             const ev = aktualisNap.getFullYear();
             const honap = aktualisNap.getMonth() + 1;
@@ -942,17 +941,33 @@ function megjelenitoFugveny(adatok, opSzam, kellFrissites = true) {
                     cella.innerHTML = ujKod; 
 
                     if (aktualisNap.getTime() === vegzet.getTime() && rekord.sz_tp_napok > 1) {
-                        // Beszúrjuk a badge-et a bal felső sarokba
                         const badge = `<span class="nap-szamlalo-badge">${rekord.sz_tp_napok}</span>`;
                         cella.insertAdjacentHTML('afterbegin', badge);
                     }
                     
-                    // ÚJ LOGIKA: A sárga háromszög ezentúl a NEM KÉZI forrást jelzi (HR ellenőrzés szükséges)
                     if (statuszKod && statuszKod !== 'A' && rekord.jelentkezés_forrása !== 'Kézi') {
                         cella.classList.add('hibas-nap-jelzo');
                         cella.title = `Importált adat (Forrás: ${rekord.jelentkezés_forrása}). HR ellenőrzés szükséges!`;
                     }
 
+                    if (statuszKod && statuszKod !== 'A') {
+                        cella.dataset.kezdet = rekord.sz_tp_kezdet;
+                        cella.dataset.vegzet = rekord.sz_tp_végzet;
+                    }
+
+                    if (statuszKod !== '' && tipusClass !== 'egyeb') {
+                        cella.classList.add(...tipusClass.split(' '));
+                    }
+                }
+            }
+            aktualisNap.setDate(aktualisNap.getDate() + 1);
+        }
+    });
+
+    if (kellFrissites) {
+        setTimeout(function() { frissitOsszesOszlop(); }, 500);
+    }
+}
 
 
 // --- ÚJ: TÖMEGES BETÖLTÉS (BUSZ-ELV) ---
