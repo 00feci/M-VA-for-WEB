@@ -26,27 +26,27 @@ $bejovo_ertek     = isset($URLAP['ertek'])   ? trim($URLAP['ertek'])   : '';
 $bejovo_tipus     = isset($URLAP['tipus'])   ? trim($URLAP['tipus'])   : '';
 
 // 3. TÖRLÉS VAGY MENTÉS ELDÖNTÉSE
-$mentendo_kodok = ['SZ', 'TP', 'fn'];
+$mentendo_kodok = ['SZ', 'TP', 'fn', 'A'];
 
 // 1. ESET: TÖRLÉS (Ha nem a mentendők között van)
 if (!in_array($bejovo_ertek, $mentendo_kodok)) {
     try {
+       
+
+// 1. ESET: TÖRLÉS / Rendszer Adat (A) - Itt nem mentünk új rekordot, csak felszabadítjuk a helyet
+if (!in_array($bejovo_ertek, $mentendo_kodok)) {
+    try {
         if (!isset($pdo)) { $pdo = csatlakozasSzerver2(); }
         
-        // TARTOMÁNY TÖRLÉSE: Minden rekordot törölünk, ami beleesik vagy átfedi a kijelölt szakaszt
-        $sql_del = "DELETE FROM `m_va_adatbazis` 
-                    WHERE `operátor_szám` = ? 
-                    AND (
-                        (`sz_tp_kezdet` BETWEEN ? AND ?) OR 
-                        (`sz_tp_végzet` BETWEEN ? AND ?) OR
-                        (? BETWEEN `sz_tp_kezdet` AND `sz_tp_végzet`)
-                    )";
-        $stmt_del = $pdo->prepare($sql_del);
-        $stmt_del->execute([$bejovo_op, $bejovo_datum, $bejovo_datum_veg, $bejovo_datum, $bejovo_datum_veg, $bejovo_datum]);
+        // Hiba 1: Intelligens terület-felszabadítás (Shrink), hogy a szomszédos napok megmaradjanak
+        $pdo->prepare("UPDATE `m_va_adatbazis` SET `sz_tp_kezdet` = DATE_ADD(?, INTERVAL 1 DAY) WHERE `operátor_szám` = ? AND `sz_tp_végzet` > ? AND `sz_tp_kezdet` <= ?")->execute([$bejovo_datum_veg, $bejovo_op, $bejovo_datum_veg, $bejovo_datum_veg]);
+        $pdo->prepare("UPDATE `m_va_adatbazis` SET `sz_tp_végzet` = DATE_SUB(?, INTERVAL 1 DAY) WHERE `operátor_szám` = ? AND `sz_tp_kezdet` < ? AND `sz_tp_végzet` >= ?")->execute([$bejovo_datum, $bejovo_op, $bejovo_datum, $bejovo_datum]);
+        $pdo->prepare("DELETE FROM `m_va_adatbazis` WHERE `operátor_szám` = ? AND `sz_tp_kezdet` >= ? AND `sz_tp_végzet` <= ?")->execute([$bejovo_op, $bejovo_datum, $bejovo_datum_veg]);
         
-        echo json_encode(['status' => 'ok', 'uzenet' => 'Tartomány sikeresen tisztítva']);
+        echo json_encode(['status' => 'ok', 'uzenet' => 'Terület felszabadítva (Adat/Egér)']);
         exit;
     } catch (Exception $e) {
+        
         echo json_encode(['status' => 'error', 'uzenet' => 'Hiba a törlésnél: ' . $e->getMessage()]);
         exit;
     }
@@ -100,35 +100,15 @@ $end_ts       = strtotime($sz_tp_vegzet);
 // NAPTÁR ADATOK LEKÉRÉSE: Megnézzük, melyik nap milyen típusú a táblában
 $naptar_adatok = [];
 // 2. Mentés előtti tisztítás: Az új rekord helyét felszabadítjuk az átfedések elkerüléséhez
+
+// Hiba 1: Mentés előtti intelligens tisztítás (Shrink logika)
 try {
     if (!isset($pdo)) { $pdo = csatlakozasSzerver2(); }
-    
-    // 1. HIBA JAVÍTÁSA: Csak akkor törlünk/módosítunk, ha a meglévő rekord NEM "védett" (pl. TP vagy A)
-    // Kivéve, ha az új adatunk pont TP vagy A, mert az mindent felülírhat.
-    $vedett_statuszok = "('TP', 'A')";
-    $uj_ertek_vedett = in_array($ertek, ['TP', 'A']);
-
-    $where_clause = "WHERE `operátor_szám` = ? ";
-    if (!$uj_ertek_vedett) {
-        $where_clause .= "AND `sz_tp_érték` NOT IN $vedett_statuszok ";
-    }
-
-    // Töröljük a teljesen átfedő nem védett rekordokat
-    $sql_del = "DELETE FROM `m_va_adatbazis` $where_clause 
-                AND `sz_tp_kezdet` >= ? AND `sz_tp_végzet` <= ?";
-    $pdo->prepare($sql_del)->execute([$bejovo_op, $sz_tp_kezdet, $sz_tp_vegzet]);
-
-    // Szűkítjük a széleken lévőket
-    $sql_shrink_end = "UPDATE `m_va_adatbazis` SET `sz_tp_kezdet` = DATE_ADD(?, INTERVAL 1 DAY) 
-                       $where_clause AND `sz_tp_végzet` > ? AND `sz_tp_kezdet` <= ?";
-    $pdo->prepare($sql_shrink_end)->execute([$sz_tp_vegzet, $bejovo_op, $sz_tp_vegzet, $sz_tp_vegzet]);
-
-    $sql_shrink_start = "UPDATE `m_va_adatbazis` SET `sz_tp_végzet` = DATE_SUB(?, INTERVAL 1 DAY) 
-                         $where_clause AND `sz_tp_kezdet` < ? AND `sz_tp_végzet` >= ?";
-    $pdo->prepare($sql_shrink_start)->execute([$sz_tp_kezdet, $bejovo_op, $sz_tp_kezdet, $sz_tp_kezdet]);
-
+    // Végrehajtjuk a szűkítést mindkét irányba, hogy ne vesszen el adat a széleken
+    $pdo->prepare("UPDATE `m_va_adatbazis` SET `sz_tp_kezdet` = DATE_ADD(?, INTERVAL 1 DAY) WHERE `operátor_szám` = ? AND `sz_tp_végzet` > ? AND `sz_tp_kezdet` <= ?")->execute([$sz_tp_vegzet, $bejovo_op, $sz_tp_vegzet, $sz_tp_vegzet]);
+    $pdo->prepare("UPDATE `m_va_adatbazis` SET `sz_tp_végzet` = DATE_SUB(?, INTERVAL 1 DAY) WHERE `operátor_szám` = ? AND `sz_tp_kezdet` < ? AND `sz_tp_végzet` >= ?")->execute([$sz_tp_kezdet, $bejovo_op, $sz_tp_kezdet, $sz_tp_kezdet]);
+    $pdo->prepare("DELETE FROM `m_va_adatbazis` WHERE `operátor_szám` = ? AND `sz_tp_kezdet` >= ? AND `sz_tp_végzet` <= ?")->execute([$bejovo_op, $sz_tp_kezdet, $sz_tp_vegzet]);
 } catch (Exception $e) { }
-
 
 try {
     $stmt_naptar = $pdo->prepare("SELECT datum, tipus FROM `munkaido_naptar` WHERE datum BETWEEN ? AND ?");
@@ -228,3 +208,4 @@ try {
 
 echo json_encode(['status' => 'ok', 'sql_info' => $db_uzenet, 'debug_user' => $cel_user_id]);
 exit;
+///EZT
