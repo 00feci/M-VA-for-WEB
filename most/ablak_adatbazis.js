@@ -42,14 +42,14 @@ function adatokBetolteseANaptarba(opSzam) {
     .catch(err => console.error("Hiba:", opSzam, err));
 }
 
-// 🔄 Egy cella adatainak elküldése a szervernek (SQL-szinkronhoz előkészítve)
+// 🔄 Egy cella adatainak elküldése a szervernek (Javítva: Dupla deklaráció törölve)
 function syncCellToServer(td) {
   if (!window.AblakCfg) return;
 
   const tr = td.closest('tr');
   if (!tr) return;
 
-  // OP szám
+  // OP szám meghatározása
   let op = td.dataset.op || '';
   if (!op) {
     const opField = tr.querySelector('select.opszam-select, input[name="op_szam[]"]');
@@ -57,17 +57,16 @@ function syncCellToServer(td) {
   }
 
   const datum = td.dataset.datum || '';
-  const ertek = td.innerText.trim();
+  // Mentés előtt megtisztítjuk az értéket a badge számaitól (pl. 3SZ -> SZ)
+  const ertek = td.textContent.replace(/[0-9]/g, '').trim(); 
   const tipus = td.dataset.tipus || '';
 
-  // 🔹 ÚJ RÉSZ: A nap típusának lekérése a fejlécből (M, Ü, -)
-  let napTipus = 'M'; // Alapértelmezés
+  // Nap típusának lekérése a fejlécből (M, Ü, -)
+  let napTipus = 'M';
   const index = td.cellIndex;
   const fejlecSor = document.querySelector('tr.fejlec-napok-tipusa');
   if (fejlecSor && fejlecSor.cells[index]) {
       napTipus = fejlecSor.cells[index].innerText.trim(); 
-      // Ha a fejlécben esetleg "|" jelek vannak, az első karaktert vagy tisztított értéket vesszük
-      // De az Ablak.php-ban elvileg csak "M", "Ü", "-" van.
   }
 
   if (!op || !datum) return;
@@ -77,7 +76,7 @@ function syncCellToServer(td) {
     datum: datum,
     ertek: ertek,
     tipus: tipus,
-    nap_tipus: napTipus // 🔹 Ezt küldjük pluszban!
+    nap_tipus: napTipus
   };
 
   fetch(`${window.AblakCfg.apiBase}munkaido_mentes.php`, {

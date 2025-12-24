@@ -108,7 +108,7 @@ function beirErtek(cell) {
   frissitOsszesOszlop();
 }
 
-// --- 2. Az oszlopfrissítő motor (Ez akadályozza meg az "M" szaladását) ---
+// --- 2. Az oszlopfrissítő motor (Javítva: Ü <-> - váltás és rendszeradat kezelés) ---
 function vetitOszlopra(colIndex, tipus) {
     const tbody = document.getElementById('tabla-body');
     if (!tbody) return;
@@ -118,23 +118,22 @@ function vetitOszlopra(colIndex, tipus) {
         if (adatCella && !adatCella.classList.contains('inaktiv-nap')) {
             const tartalom = adatCella.innerText.trim();
             
-          if (tipus === 'M') {
-    // Munkanap (M) esetén töröljük az Ü/- jeleket a szövegből
-    if (tartalom.includes('Ü') || tartalom.includes('-')) {
-        adatCella.innerText = tartalom.replace(' | Ü', '').replace('Ü | ', '').replace('Ü', '')
-                                     .replace(' | -', '').replace('- | ', '').replace('-', '').trim();
-    }
-          } else if (tipus === 'Ü' || tipus === '-') {
-    // Ünnep vagy Hétvége esetén:
-    if (tartalom === '') {
-        adatCella.innerText = tipus; // Ha üres, beírjuk
-    } else if (tartalom === 'A' || tartalom.includes('A')) {
-        // SZ|A SZABÁLY: Ha van már benne rendszeradat, fűzzük hozzá a fejlécet
-        if (!tartalom.includes(tipus)) {
-            adatCella.innerText = tartalom + ' | ' + tipus;
-        }
-    }
-}
+            if (tipus === 'M') {
+                // Munkanap (M) esetén töröljük az Ü/- jeleket a szövegből
+                adatCella.innerText = tartalom.replace(' | Ü', '').replace('Ü | ', '').replace('Ü', '')
+                                             .replace(' | -', '').replace('- | ', '').replace('-', '').trim();
+            } else if (tipus === 'Ü' || tipus === '-') {
+                // Ünnep vagy Hétvége esetén:
+                // Ha üres, vagy már Ü/-, akkor egyszerűen beállítjuk az új típust
+                if (tartalom === '' || tartalom === 'Ü' || tartalom === '-') {
+                    adatCella.innerText = tipus; 
+                } else if (tartalom.includes('A')) {
+                    // SZ|A SZABÁLY: Ha van már benne rendszeradat (A), lecseréljük a benne lévő Ü/- jelet
+                    let tiszta = tartalom.replace(' | Ü', '').replace('Ü | ', '').replace('Ü', '')
+                                         .replace(' | -', '').replace('- | ', '').replace('-', '').trim();
+                    adatCella.innerText = (tiszta === '') ? tipus : tiszta + ' | ' + tipus;
+                }
+            }
         }
     });
 }
