@@ -1121,17 +1121,19 @@ function nyisdMegAPopupot(cella) {
                 <div id="popupEredetiAdatok" style="margin-bottom:10px; color:#666; font-size:14px;"></div>
                 <div style="font-weight:bold; margin-top:10px;">📅 Időszak kijelölése:</div>
                 <div class="mini-naptar-kontener" id="popupMiniNaptar"></div>
-                
-                <div class="tipus-valaszto-kontener" style="margin-top:15px;">
-                    <select id="popupTipusSelect" onchange="kivalasztottTipus = this.value" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px;">
-                        <option value="">-- Válassz távollét típust --</option>
-                        <option value="SZ">Szabadság (SZ)</option>
-                        <option value="TP">Táppénz (TP)</option>
-                        <option value="fn">Fizetés nélküli (fn)</option>
-                        <option value="A">Jelenlét (A)</option>
+                <div class="tipus-valaszto-kontener" style="margin-top:15px; display:flex; align-items:center; gap:10px;">
+                    <span id="popupTipusPreview" class="kod-preview">🖱</span>
+                    <select id="popupTipusSelect" onchange="updatePopupPreview(this)" style="flex:1; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px;">
+                        <option value="">-- Válassz típust --</option>
+                        <option value="rendszer-adat" data-kod="A">rendszerből Adat</option>
+                        <option value="rendes-szabadsag" data-kod="SZ">Rendes szabadság</option>
+                        <option value="tanulmanyi-szabadsag" data-kod="SZ">Tanulmányi szabadság</option>
+                        <option value="kozeli-hozzatartozo-halala-miatt" data-kod="SZ">Közeli hozzátartozó halála miatt</option>
+                        <option value="tappenz" data-kod="TP">Táppénz</option>
+                        <option value="tappenz-gyap" data-kod="TP">Táppénz (GYÁP)</option>
+                        <option value="fizetes-nelkuli-szabadsag" data-kod="fn">Fizetés nélküli szabadság</option>
                     </select>
                 </div>
-
                 <div class="popup-footer">
                     <button class="btn-reset" onclick="popupTorles()" style="background:#d32f2f; color:white;">🗑️ TÖRLÉS</button>
                     <button class="btn-save" onclick="popupMentese()">💾 MENTÉS</button>
@@ -1141,12 +1143,19 @@ function nyisdMegAPopupot(cella) {
     }
     
     document.getElementById('popupCim').innerText = `Szerkesztés: ${nev}`;
-    const eredetiSzoveg = cella.innerText;
+    
+    // Napok számának kinyerése a badge-ből
+    const badge = cella.querySelector('.nap-szamlalo-badge');
+    const napokSzamaAdat = badge ? badge.innerText : '1';
+    // A tiszta kód kinyerése a badge száma nélkül
+    const tisztaKod = cella.innerText.replace(napokSzamaAdat, '').trim();
+    
     const kezdet = cella.dataset.kezdet ? cella.dataset.kezdet.replaceAll('-', '.') : '';
     const vegzet = cella.dataset.vegzet ? cella.dataset.vegzet.replaceAll('-', '.') : '';
     const datumKiiras = kezdet ? ` (${kezdet} - ${vegzet})` : '';
 
-    document.getElementById('popupEredetiAdatok').innerHTML = 'Jelenleg: ' + (eredetiSzoveg ? `<b>${eredetiSzoveg}${datumKiiras}</b>` : '<i>(Üres)</i>');
+    // Megjelenítés: Pl: "SZ (3 nap)"
+    document.getElementById('popupEredetiAdatok').innerHTML = 'Jelenleg: ' + (tisztaKod ? `<b>${tisztaKod} (${napokSzamaAdat} nap)${datumKiiras}</b>` : '<i>(Üres)</i>');
 
     generaldMiniNaptarat(nap, startLimit, endLimit, opKod);
 
@@ -1206,7 +1215,12 @@ function frissitGombStilusok() {
 }
 
 function popupMentese() {
-    if (!kivalasztottTipus) { alert("Válassz típust!"); return; }
+    const select = document.getElementById('popupTipusSelect');
+    const opt = select ? select.selectedOptions[0] : null;
+    if (!opt || !opt.value) { alert("Válassz típust!"); return; }
+
+    const kivalasztottTipus = opt.dataset.kod;
+    const kivalasztottOsztaly = opt.value;
     const opKod = document.querySelector('#szerkesztoPopup .btn-save').dataset.op;
     const kijeloltNapok = Array.from(document.querySelectorAll('#popupMiniNaptar .nap-box.kivalasztva'))
                        .map(box => parseInt(box.dataset.nap)).sort((a, b) => a - b);
@@ -1248,10 +1262,7 @@ function popupMentese() {
                 datum_veg: `${ev}-${honap}-${String(veg).padStart(2, '0')}`,
                 visszateres_napja: visszateres,
                 ertek: kivalasztottTipus,
-                // JAVÍTÁS: 'A' (Jelenlét) mentésekor ne legyen FN (Zöld) az alapértelmezett
-                tipus: kivalasztottTipus === 'SZ' ? 'rendes-szabadsag' : 
-                       (kivalasztottTipus === 'TP' ? 'tappenz' : 
-                       (kivalasztottTipus === 'fn' ? 'fizetes-nelkuli-szabadsag' : '')),
+                tipus: kivalasztottOsztaly === 'rendszer-adat' ? '' : kivalasztottOsztaly,
                 nap_tipus: 'M'
             })
         }).then(r => r.json());
@@ -1293,4 +1304,23 @@ function popupTorles() {
        adatokBetolteseANaptarba(opKod);
     });
 }
-//1
+
+function updatePopupPreview(select) {
+    const preview = document.getElementById('popupTipusPreview');
+    if (!preview) return;
+    
+    const opt = select.selectedOptions[0];
+    if (!opt || !opt.value) {
+        preview.textContent = '🖱';
+        preview.className = 'kod-preview';
+        return;
+    }
+    
+    const kod = opt.dataset.kod || '';
+    const cssClass = opt.value;
+    
+    preview.textContent = kod;
+    // A css/ablak.css fájlban lévő osztályok használata (pl. .tappenz, .rendes-szabadsag)
+    preview.className = 'kod-preview ' + cssClass;
+}
+//2
