@@ -306,7 +306,13 @@ function exportMunkaido() {
       } else if (inputElem) {
         value = inputElem.value.trim();
       } else {
-        value = cells[c].innerText.trim();
+        // Klónozzuk a cellát, hogy ne rontsuk el a naptárban lévőt
+        let cellClone = cells[c].cloneNode(true);
+        // Eltávolítjuk a számot (badge) a klónból, hogy ne kerüljön az Excelbe
+        let badges = cellClone.querySelectorAll('.nap-szamlalo-badge');
+        badges.forEach(b => b.remove());
+        // Így az Excelbe csak a tiszta betűjel (SZ, TP, stb.) kerül
+        value = cellClone.innerText.trim();
       }
 
       sor.push(value);
@@ -806,29 +812,34 @@ function frissitOsszesOszlop() {
 
 // --- JELENLÉTI ADATOK LEKÉRÉSE EGY ADOTT OPERÁTORRA ---
 function adatokBetolteseANaptarba(opSzam) {
-    // Ha nem kaptunk paramétert, ne csináljunk semmit
     if (!opSzam) return;
 
-    // Hónap lekérése az AblakCfg-ből
+    // ELŐTISZTÍTÁS: Reload helyett kiürítjük a dolgozó sorát a naptárban
+    const cellak = document.querySelectorAll(`td[data-op="${opSzam}"]`);
+    cellak.forEach(td => {
+        if (!td.classList.contains('inaktiv-nap')) {
+            td.textContent = '';
+            td.className = 'ures-cella'; // Minden színt és hibajelzőt leveszünk
+            delete td.dataset.kezdet;
+            delete td.dataset.vegzet;
+        }
+    });
+
     const aktualisHonap = `${window.AblakCfg.ev}-${String(window.AblakCfg.honap).padStart(2,'0')}`;
 
-    // Kérés indítása
     fetch(`${window.AblakCfg.apiBase}munkaido_lekerezes.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            op_szam: opSzam,
-            honap: aktualisHonap
-        })
+        body: JSON.stringify({ op_szam: opSzam, honap: aktualisHonap })
     })
     .then(r => r.json())
     .then(response => {
-        if (response.status === 'ok' && response.adatok && response.adatok.length > 0) {
-            // Siker: Megjelenítjük az adatokat, átadva az OP számot is!
+        if (response.status === 'ok' && response.adatok) {
+            // Újratöltjük az adatokat a tiszta sorba
             megjelenitoFugveny(response.adatok, opSzam);
         }
     })
-    .catch(err => console.error("Hiba az adatok lekérésekor:", opSzam, err));
+    .catch(err => console.error("Hiba:", opSzam, err));
 }
 
 // Ékezet-eltávolító segéd
@@ -900,10 +911,8 @@ function megjelenitoFugveny(adatok, opSzam, kellFrissites = true) {
         const vegzetStr = String(rekord.sz_tp_végzet);
         const kezdet = new Date(kezdetStr.indexOf('T') === -1 ? kezdetStr + 'T12:00:00' : kezdetStr);
         const vegzet = new Date(vegzetStr.indexOf('T') === -1 ? vegzetStr + 'T12:00:00' : vegzetStr);
-        
-        const szamitottNapok = Math.round((vegzet - kezdet) / (1000 * 60 * 60 * 24)) + 1;
 
-        let aktualisNap = new Date(kezdet);
+       let aktualisNap = new Date(kezdet);
         while (aktualisNap <= vegzet) {
             const ev = aktualisNap.getFullYear();
             const honap = aktualisNap.getMonth() + 1;
@@ -930,7 +939,7 @@ function megjelenitoFugveny(adatok, opSzam, kellFrissites = true) {
                         }
                     } else { ujKod = statuszKod; }
 
-                   cella.innerHTML = ujKod; 
+                    cella.innerHTML = ujKod; 
 
                     if (aktualisNap.getTime() === vegzet.getTime() && rekord.sz_tp_napok > 1) {
                         // Beszúrjuk a badge-et a bal felső sarokba
@@ -938,31 +947,11 @@ function megjelenitoFugveny(adatok, opSzam, kellFrissites = true) {
                         cella.insertAdjacentHTML('afterbegin', badge);
                     }
                     
-                    if (statuszKod && statuszKod !== 'A' && rekord.sz_tp_napok && parseInt(rekord.sz_tp_napok) !== szamitottNapok) {
+                    // ÚJ LOGIKA: A sárga háromszög ezentúl a NEM KÉZI forrást jelzi (HR ellenőrzés szükséges)
+                    if (statuszKod && statuszKod !== 'A' && rekord.jelentkezés_forrása !== 'Kézi') {
                         cella.classList.add('hibas-nap-jelzo');
-                        cella.title = `Eltérés! Adatbázis: ${rekord.sz_tp_napok} nap, Naptár: ${szamitottNapok} nap!`;
+                        cella.title = `Importált adat (Forrás: ${rekord.jelentkezés_forrása}). HR ellenőrzés szükséges!`;
                     }
-
-                    if (statuszKod && statuszKod !== 'A') {
-                        cella.dataset.kezdet = rekord.sz_tp_kezdet;
-                        cella.dataset.vegzet = rekord.sz_tp_végzet;
-                    }
-
-                    if (statuszKod !== '' && tipusClass !== 'egyeb') {
-                        cella.classList.add(...tipusClass.split(' '));
-                    }
-                }
-            }
-            aktualisNap.setDate(aktualisNap.getDate() + 1);
-        }
-    });
-
-    if (kellFrissites) {
-        setTimeout(function() { frissitOsszesOszlop(); }, 500);
-    }
-}
-
-
 
 
 
@@ -1269,6 +1258,7 @@ function popupMentese() {
 
     Promise.all(igeretek).then(() => {
         bezardAPopupot();
+        // Reload helyett csak az adott embert frissítjük, így nem ugrik el a görgetés!
         adatokBetolteseANaptarba(opKod); 
     });
 }
@@ -1296,8 +1286,9 @@ function popupTorles() {
         }).then(r => r.json());
     });
 
-    Promise.all(igéretek).then(() => {
+   Promise.all(igéretek).then(() => {
         bezardAPopupot();
+        // Törlés után is csak az adott embert frissítjük
         adatokBetolteseANaptarba(opKod);
     });
 }
