@@ -1,6 +1,3 @@
-// =========================================================
-// 🏥 MODERN POPUP - KÖZVETLEN SZERKESZTŐ (DIRECT EDIT) ✏️
-// =========================================================
 
 let kivalasztottTipus = '';
 
@@ -12,15 +9,14 @@ document.addEventListener('click', function(e) {
     nyisdMegAPopupot(td);
 });
 
+// =========================================================
+// 🏥 MODERN POPUP - KÖZVETLEN SZERKESZTŐ (DIRECT EDIT) ✏️
+// =========================================================
 
-function nyisdMegAPopupot(cella) {
+window.nyisdMegAPopupot = function(cella) {
     const opKod = cella.dataset.op;
     const nap = parseInt(cella.dataset.nap);
-    const napokSzama = window.AblakCfg ? (window.AblakCfg.napokValos || 31) : 31;
-
-    // 3. PONT: "A" korlát elengedése
-    let startLimit = 1;
-    let endLimit = napokSzama;
+    const napokSzamaValos = window.AblakCfg ? (window.AblakCfg.napokValos || 31) : 31;
 
     let nev = opKod;
     if (window.FelhasznaloLista) {
@@ -34,20 +30,29 @@ function nyisdMegAPopupot(cella) {
         overlay.id = 'szerkesztoPopup';
         overlay.className = 'popup-overlay';
         overlay.innerHTML = `
+            <style>
+                /* 🟢 Egységes zöld kijelölés a naptárban */
+                #szerkesztoPopup .nap-box.kivalasztva { background-color: #4CAF50 !important; color: white !important; }
+                #szerkesztoPopup .nap-box.kivalasztva .nap-szam, 
+                #szerkesztoPopup .nap-box.kivalasztva .nap-jelenlegi-kod { color: white !important; }
+            </style>
             <div class="popup-doboz">
                 <div class="popup-fejlec">
                     <div class="popup-cim" id="popupCim"></div>
-                    <div class="popup-bezars" onclick="bezardAPopupot()">×</div>
+                    <div class="popup-bezars" onclick="window.bezardAPopupot()">×</div>
                 </div>
-                <div style="background: #fff3e0; border-left: 5px solid #ff9800; padding: 10px; margin-bottom: 15px; font-weight: bold; color: #e65100;">
+                <div style="background: #fff3e0; border-left: 5px solid #ff9800; border-right: 5px solid #ff9800; padding: 10px; margin-bottom: 15px; font-weight: bold; color: #e65100; text-align: center;">
                     ⚠️ Egy popup = 1 dokumentum ⚠️
                 </div>
-                <div id="popupEredetiAdatok" style="margin-bottom:10px; color:#666; font-size:14px;"></div>
-                <div style="font-weight:bold; margin-top:10px;">📅 Időszak kijelölése:</div>
+                <div id="popupEredetiAdatok" style="margin-bottom:10px; color:#666; font-size:14px; text-align: center;"></div>
+                
+                <div style="font-weight:bold; margin-top:10px; text-align: center; width: 100%;">📅 Időszak kijelölése:</div>
                 <div class="mini-naptar-kontener" id="popupMiniNaptar"></div>
-                <div class="tipus-valaszto-kontener" style="margin-top:15px; display:flex; align-items:center; gap:10px;">
-                    <span id="popupTipusPreview" class="kod-preview">🖱</span>
-                    <select id="popupTipusSelect" onchange="updatePopupPreview(this)" style="flex:1; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px;">
+                
+                <div class="tipus-valaszto-kontener" style="margin-top:15px; display:flex; align-items:center; justify-content:center; gap:10px;">
+                    <span id="popupTipusPreview" class="kod-preview" style="width:40px; height:40px; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:black; font-weight:bold; border:1px solid #ccc; border-radius:4px;">🖱</span>
+                    
+                    <select id="popupTipusSelect" onchange="window.updatePopupPreview(this)" style="flex:1; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px; max-width: 250px;">
                         <option value="">-- Válassz típust --</option>
                         <option value="rendszer-adat" data-kod="A">rendszerből Adat</option>
                         <option value="rendes-szabadsag" data-kod="SZ">Rendes szabadság</option>
@@ -57,10 +62,15 @@ function nyisdMegAPopupot(cella) {
                         <option value="tappenz-gyap" data-kod="TP">Táppénz (GYÁP)</option>
                         <option value="fizetes-nelkuli-szabadsag" data-kod="fn">Fizetés nélküli szabadság</option>
                     </select>
+
+                    <div style="display:flex; align-items:center; gap:5px; background:#f9f9f9; padding:5px 10px; border-radius:6px; border:1px solid #ccc; flex-shrink: 0;">
+                        <label style="font-weight:bold; font-size:14px;">NAP:</label>
+                        <input type="number" id="popupNapokSzama" style="width:50px; padding:5px; border:1px solid #bbb; border-radius:4px; font-weight:bold; text-align:center;" value="1">
+                    </div>
                 </div>
-                <div class="popup-footer">
-                    <button class="btn-reset" onclick="popupTorles()" style="background:#d32f2f; color:white;">🗑️ TÖRLÉS</button>
-                    <button class="btn-save" onclick="popupMentese()">💾 MENTÉS</button>
+                <div class="popup-footer" style="display: flex; justify-content: space-between; margin-top: 20px; width: 100%;">
+                    <button class="btn-reset" onclick="window.popupTorles()" style="background:#d32f2f; color:white; padding: 10px 20px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold;">🗑️ TÖRLÉS</button>
+                    <button class="btn-save" onclick="window.popupMentese()" style="padding: 10px 40px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold;">💾 MENTÉS</button>
                 </div>
             </div>`;
         document.body.appendChild(overlay);
@@ -68,88 +78,74 @@ function nyisdMegAPopupot(cella) {
     
     document.getElementById('popupCim').innerText = `Szerkesztés: ${nev}`;
     
+    // --- "Jelenleg" adatok kiírása ---
+    let tisztaTartalom = cella.textContent.replace(/[0-9]/g, '').trim(); 
+    let reszek = tisztaTartalom.split('|').map(s => s.trim()).filter(s => s !== '');
+    let felsorolas = [];
+    reszek.forEach(resz => {
+        let nevStr = (resz === 'A') ? 'rendszerből Adat' : resz;
+        let n = (resz === 'A') ? 1 : (cella.dataset.napok || 1);
+        felsorolas.push(`<b>${nevStr} (${n} nap)</b>`);
+    });
+    document.getElementById('popupEredetiAdatok').innerHTML = 'Jelenleg: ' + (felsorolas.length > 0 ? felsorolas.join(' | ') : '<i>(Üres)</i>');
 
-    const select = document.getElementById('popupTipusSelect');
+    // Naptár generálása a nap nevével
+    window.generaldMiniNaptarat(nap, 1, napokSzamaValos, opKod);
     
-    // Hiba 4: Megkeressük a típus nevét (pl. "Táppénz" az "SZ" helyett)
-    let megjelenitendoNev = cella.innerText.replace(/[0-9]/g, '').trim(); 
-    if (select && cella.dataset.tipus) {
-        const option = Array.from(select.options).find(opt => opt.value === cella.dataset.tipus);
-        if (option) megjelenitendoNev = option.text;
-    }
-    
-
-    const badge = cella.querySelector('.nap-szamlalo-badge');
-    const napokBadgeVal = badge ? badge.innerText : '1'; // Egyedi változónév az ütközés elkerülésére
-    const kezdet = cella.dataset.kezdet ? cella.dataset.kezdet.replaceAll('-', '.') : '';
-    const vegzet = cella.dataset.vegzet ? cella.dataset.vegzet.replaceAll('-', '.') : '';
-    const datumKiiras = kezdet ? ` (${kezdet} - ${vegzet})` : '';
-
-    document.getElementById('popupEredetiAdatok').innerHTML = 'Jelenleg: ' + (megjelenitendoNev && megjelenitendoNev !== '🖱' ? `<b>${megjelenitendoNev} (${napokBadgeVal} nap)${datumKiiras}</b>` : '<i>(Üres)</i>');
-    generaldMiniNaptarat(nap, startLimit, endLimit, opKod);
-
-    // Hiba 2: Alaphelyzetbe állításnál a választót és az ikont is reseteljük
-    kivalasztottTipus = '';
-    if(select) {
-        select.value = '';
-        updatePopupPreview(select); 
-    }
-
-
+    // Kezdő érték a NAP mezőbe (kijelöltek száma)
+    window.frissitPopupNapokSzama();
 
     overlay.style.display = 'flex';
     overlay.querySelector('.btn-save').dataset.op = opKod;
-}
+};
 
-function bezardAPopupot() {
-    const popup = document.getElementById('szerkesztoPopup');
-    if (popup) popup.style.display = 'none';
-}
+window.frissitPopupNapokSzama = function() {
+    const kijeloltCount = document.querySelectorAll('#popupMiniNaptar .nap-box.kivalasztva').length;
+    const input = document.getElementById('popupNapokSzama');
+    if (input) input.value = kijeloltCount > 0 ? kijeloltCount : 1;
+};
 
-function generaldMiniNaptarat(fokuszNap, startLimit, endLimit, opKod) {
+window.generaldMiniNaptarat = function(fokuszNap, startLimit, endLimit, opKod) {
     const kontener = document.getElementById('popupMiniNaptar');
     if (!kontener) return;
     kontener.innerHTML = '';
-    const fejlecRow = document.querySelector('tr.fejlec-napok-tipusa');
-    const getCellContent = (n) => {
-        let c = document.querySelector(`td[data-op="${opKod}"][data-nap="${n}"]`);
-        if (!c) c = document.querySelector(`td[data-op="${opKod}"][data-nap="${String(n).padStart(2, '0')}"]`);
-        return c ? c.textContent.trim() : '';
-    };
+    const napNevek = ['V', 'H', 'K', 'Sze', 'Cs', 'P', 'Szo'];
+    const ev = window.AblakCfg.ev;
+    const honap = window.AblakCfg.honap;
 
     for (let i = startLimit; i <= endLimit; i++) {
         const div = document.createElement('div');
         div.className = 'nap-box';
         div.dataset.nap = i;
-        const aktualisTartalom = getCellContent(i);
-        let napTipus = ''; 
-        if(fejlecRow && fejlecRow.cells[i+1]) {
-            const txt = fejlecRow.cells[i+1].innerText.trim();
-            if(txt === 'Ü') { div.classList.add('unnep'); napTipus='Ü'; }
-            if(txt === '-') { div.classList.add('hetvege'); napTipus='-'; }
-        }
-        div.innerHTML = `<div class="nap-szam">${i}</div><div class="nap-jelenlegi-kod" style="font-size: 18px; font-weight: bold; color: #333;">${aktualisTartalom}</div><div class="nap-tipus">${napTipus}</div>`;
+        const d = new Date(ev, honap - 1, i);
+        const napNev = napNevek[d.getDay()];
+        
+        let c = document.querySelector(`td[data-op="${opKod}"][data-nap="${i}"]`);
+        if (!c) c = document.querySelector(`td[data-op="${opKod}"][data-nap="${String(i).padStart(2, '0')}"]`);
+        const tartalom = c ? c.textContent.replace(/[0-9]/g, '').trim() : '';
+
+        div.innerHTML = `<div class="nap-szam" style="font-size:10px;">${String(i).padStart(2,'0')} ${napNev}</div><div class="nap-jelenlegi-kod">${tartalom}</div>`;
         if (i === fokuszNap) div.classList.add('kivalasztva');
-        div.onclick = function() { div.classList.toggle('kivalasztva'); };
+        
+        div.onclick = function() { 
+            div.classList.toggle('kivalasztva'); 
+            window.frissitPopupNapokSzama(); 
+        };
         kontener.appendChild(div);
     }
-}
-function frissitGombStilusok() {
-    document.querySelectorAll('.tipus-btn').forEach(btn => btn.classList.remove('aktiv'));
-    if (kivalasztottTipus === 'SZ') document.querySelector('.btn-sz').classList.add('aktiv');
-    if (kivalasztottTipus === 'TP') document.querySelector('.btn-tp').classList.add('aktiv');
-    if (kivalasztottTipus === 'fn') document.querySelector('.btn-fn').classList.add('aktiv');
-    if (kivalasztottTipus === 'A')  document.querySelector('.btn-a').classList.add('aktiv');
-}
-
-function popupMentese() {
+};
+window.popupMentese = function() {
     const select = document.getElementById('popupTipusSelect');
     const opt = select ? select.selectedOptions[0] : null;
+    const napokMezo = document.getElementById('popupNapokSzama');
+    
     if (!opt || !opt.value) { alert("Válassz típust!"); return; }
 
     const kivalasztottTipus = opt.dataset.kod;
     const kivalasztottOsztaly = opt.value;
     const opKod = document.querySelector('#szerkesztoPopup .btn-save').dataset.op;
+    const manuálisNapok = napokMezo ? napokMezo.value : 1; // 👈 A NAP mező értéke
+    
     const kijeloltNapok = Array.from(document.querySelectorAll('#popupMiniNaptar .nap-box.kivalasztva'))
                        .map(box => parseInt(box.dataset.nap)).sort((a, b) => a - b);
 
@@ -157,56 +153,42 @@ function popupMentese() {
 
     const ev = window.AblakCfg.ev;
     const honap = String(window.AblakCfg.honap).padStart(2, '0');
-    const napokValos = window.AblakCfg.napokValos || 31;
 
-    let blokkok = [];
-    let aktualisBlokk = [kijeloltNapok[0]];
-    for (let i = 1; i < kijeloltNapok.length; i++) {
-        if (kijeloltNapok[i] === kijeloltNapok[i-1] + 1) aktualisBlokk.push(kijeloltNapok[i]); 
-        else { blokkok.push(aktualisBlokk); aktualisBlokk = [kijeloltNapok[i]]; }
-    }
-    blokkok.push(aktualisBlokk);
+    // Csak a folytonos kijelölés első és utolsó napját küldjük
+    const start = kijeloltNapok[0];
+    const veg = kijeloltNapok[kijeloltNapok.length - 1];
 
-    const igeretek = blokkok.map(blokk => {
-        const start = blokk[0];
-        const veg = blokk[blokk.length - 1];
-        let visszateres = "";
-        for (let j = veg + 1; j <= napokValos; j++) {
-            let c = document.querySelector(`td[data-op="${opKod}"][data-nap="${j}"]`);
-            if (!c) c = document.querySelector(`td[data-op="${opKod}"][data-nap="${String(j).padStart(2, '0')}"]`);
-            let txt = c ? c.textContent.trim() : "";
-            if (txt !== '-' && txt !== 'Ü') {
-                visszateres = `${ev}-${honap}-${String(j).padStart(2, '0')}`;
-                break;
-            }
+    fetch(`${window.AblakCfg.apiBase}munkaido_mentes.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            op_szam: opKod,
+            datum: `${ev}-${honap}-${String(start).padStart(2, '0')}`,
+            datum_veg: `${ev}-${honap}-${String(veg).padStart(2, '0')}`,
+            ertek: kivalasztottTipus,
+            tipus: kivalasztottOsztaly === 'rendszer-adat' ? '' : kivalasztottOsztaly,
+            napok: manuálisNapok, // 👈 Ezt küldjük el az adatbázisnak
+            nap_tipus: 'M'
+        })
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.status === 'ok') {
+            window.bezardAPopupot();
+            if (typeof adatokBetolteseANaptarba === 'function') adatokBetolteseANaptarba(opKod);
+        } else {
+            alert("Hiba a mentés során: " + res.uzenet);
         }
+    })
+    .catch(err => console.error("Mentési hiba:", err));
+};
 
-     return fetch(`${window.AblakCfg.apiBase}munkaido_mentes.php`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                op_szam: opKod,
-                datum: `${ev}-${honap}-${String(start).padStart(2, '0')}`,
-                datum_veg: `${ev}-${honap}-${String(veg).padStart(2, '0')}`,
-                visszateres_napja: visszateres,
-                ertek: kivalasztottTipus,
-                tipus: kivalasztottOsztaly === 'rendszer-adat' ? '' : kivalasztottOsztaly,
-                nap_tipus: 'M'
-            })
-        }).then(r => r.json());
-    });
-
-    Promise.all(igeretek).then(() => {
-        bezardAPopupot();
-        // Reload helyett csak az adott embert frissítjük, így nem ugrik el a görgetés!
-        adatokBetolteseANaptarba(opKod); 
-    });
-}
-
-function popupTorles() {
+window.popupTorles = function() {
     const kijeloltNapok = document.querySelectorAll('#popupMiniNaptar .nap-box.kivalasztva');
-    if(kijeloltNapok.length === 0) { alert("Jelölj ki legalább egy napot a törléshez!"); return; }
+    if(kijeloltNapok.length === 0) { alert("Jelölj ki napokat a törléshez!"); return; }
+    
     if(!confirm("Biztosan törlöd a kijelölt napok bejegyzéseit?")) return;
+    
     const opKod = document.querySelector('#szerkesztoPopup .btn-save').dataset.op;
     const ev = window.AblakCfg.ev;
     const honap = String(window.AblakCfg.honap).padStart(2, '0');
@@ -219,69 +201,71 @@ function popupTorles() {
             body: JSON.stringify({
                 op_szam: opKod,
                 datum: `${ev}-${honap}-${String(nap).padStart(2, '0')}`,
-                ertek: 'A',
+                ertek: 'A', // Törléskor visszaállítjuk alaphelyzetbe
                 tipus: '',
                 nap_tipus: 'M'
             })
         }).then(r => r.json());
     });
 
-   Promise.all(igéretek).then(() => {
-        bezardAPopupot();
-        // Törlés után is csak az adott embert frissítjük
-       adatokBetolteseANaptarba(opKod);
+    Promise.all(igéretek).then(() => {
+        window.bezardAPopupot();
+        if (typeof adatokBetolteseANaptarba === 'function') adatokBetolteseANaptarba(opKod);
     });
-}
-function updatePopupPreview(select) {
+};
+
+window.updatePopupPreview = function(select) {
     const preview = document.getElementById('popupTipusPreview');
     if (!preview) return;
-    
     const opt = select.selectedOptions[0];
-    if (!opt || !opt.value) {
-        preview.textContent = '🖱';
-        preview.className = 'kod-preview';
-        return;
-    }
-    
-    const kod = opt.dataset.kod || '';
-    const cssClass = opt.value;
-    
-    preview.textContent = kod;
-    // A css/ablak.css fájlban lévő osztályok használata (pl. .tappenz, .rendes-szabadsag)
-    preview.className = 'kod-preview ' + cssClass;
-}
+    preview.innerHTML = opt.dataset.kod || '🖱';
+    preview.className = 'kod-preview ' + (opt.value || '');
+    Object.assign(preview.style, { display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'black' });
+};
 
 // =========================================================
 // 🌐 GLOBÁLIS POPUP - NAPOK TÍPUSA SZERKESZTŐ
 // =========================================================
-function nyisdMegAGlobalisPopupot(cella) {
+window.nyisdMegAGlobalisPopupot = function(cella) {
     const ev = window.AblakCfg.ev;
     const honap = String(window.AblakCfg.honap).padStart(2, '0');
-    
+    const napokValos = window.AblakCfg ? (window.AblakCfg.napokValos || 31) : 31;
+    const aktivNap = cella.cellIndex - 1;
+
     let overlay = document.getElementById('globalisPopup');
     if (!overlay) {
         overlay = document.createElement('div');
         overlay.id = 'globalisPopup';
         overlay.className = 'popup-overlay';
         overlay.innerHTML = `
+            <style>
+                #globalisPopup .nap-box.kivalasztva { background-color: #4CAF50 !important; color: white !important; }
+                #globalisPopup .nap-box.kivalasztva .nap-szam, 
+                #globalisPopup .nap-box.kivalasztva .nap-jelenlegi-kod { color: white !important; }
+            </style>
             <div class="popup-doboz">
                 <div class="popup-fejlec">
                     <div class="popup-cim" id="globalisPopupCim"></div>
-                    <div class="popup-bezars" onclick="bezardAGlobalisPopupot()">×</div>
+                    <div class="popup-bezars" onclick="window.bezardAGlobalisPopupot()">×</div>
                 </div>
                 <div style="background: #fff3e0; border-left: 5px solid #ff9800; border-right: 5px solid #ff9800; padding: 10px; margin-bottom: 15px; font-weight: bold; color: #e65100; text-align: center;">
                     ⚠️ A Napok típusa ⚠️
                 </div>
-                <div class="tipus-valaszto-kontener" style="margin-top:15px; display:flex; align-items:center; gap:10px;">
-                    <span id="globalisTipusPreview" class="kod-preview">M</span>
-                    <select id="globalisTipusSelect" onchange="updateGlobalPopupPreview(this)" style="flex:1; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px;">
-                        <option value="M" data-kod="M">Munkanap</option>
-                        <option value="Ü" data-kod="Ü">Ünnepnap</option>
-                        <option value="-" data-kod="-">Hétvége</option>
+                
+                <div style="font-weight:bold; margin-top:10px; text-align: center; width: 100%;">📅 Időszak kijelölése:</div>
+                <div class="mini-naptar-kontener" id="globalisPopupMiniNaptar"></div>
+                
+                <div class="tipus-valaszto-kontener" style="margin-top:15px; display:flex; align-items:center; justify-content:center; gap:15px;">
+                    <span id="globalisTipusPreview" class="kod-preview munkanap" style="width: 40px !important; height: 40px !important; display: flex !important; align-items: center; justify-content: center; flex-shrink: 0 !important; color: black !important; font-weight: bold; font-size: 18px; border: 1px solid #ccc; border-radius: 4px;">M</span>
+                    <select id="globalisTipusSelect" onchange="window.updateGlobalPopupPreview(this)" style="padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px; min-width: 150px;">
+                        <option value="munkanap" data-kod="M">Munkanap</option>
+                        <option value="unnep" data-kod="Ü">Ünnepnap</option>
+                        <option value="hetvege" data-kod="-">Hétvége</option>
                     </select>
                 </div>
-                <div class="popup-footer" style="display: flex; justify-content: center;">
-                    <button class="btn-save" onclick="globalisPopupMentese()" style="width: 80%;">💾 MENTÉS</button>
+                
+                <div class="popup-footer" style="display: flex; justify-content: center; margin-top: 20px; width: 100%;">
+                    <button class="btn-save" onclick="window.globalisPopupMentese()" style="width: 100%; max-width: 300px; padding: 12px; font-size: 16px; cursor: pointer;">💾 MENTÉS</button>
                 </div>
             </div>`;
         document.body.appendChild(overlay);
@@ -289,34 +273,92 @@ function nyisdMegAGlobalisPopupot(cella) {
 
     document.getElementById('globalisPopupCim').innerText = `Szerkesztés: ${ev}.${honap}`;
     overlay.style.display = 'flex';
-    // Mentéshez eltároljuk melyik napról van szó
-    overlay.dataset.cellIndex = cella.cellIndex;
-}
+    window.generaldMiniNaptarat_Global(aktivNap, 1, napokValos);
+};
 
-function bezardAGlobalisPopupot() {
+window.bezardAGlobalisPopupot = function() {
     const popup = document.getElementById('globalisPopup');
     if (popup) popup.style.display = 'none';
-}
+};
 
-function updateGlobalPopupPreview(select) {
+window.updateGlobalPopupPreview = function(select) {
     const preview = document.getElementById('globalisTipusPreview');
-    if (preview) preview.textContent = select.value;
-}
-
-function globalisPopupMentese() {
-    const overlay = document.getElementById('globalisPopup');
-    const select = document.getElementById('globalisTipusSelect');
-    const colIndex = overlay.dataset.cellIndex;
-    const ujErtek = select.value;
+    if (!preview) return;
+    const opt = select.selectedOptions[0];
+    preview.innerHTML = opt.dataset.kod || 'M';
+    preview.className = 'kod-preview ' + opt.value;
     
-    // Itt hívjuk majd a naptár-kezelő mentését (NULL op_számmal)
-    const fejlecCella = document.querySelector('tr.fejlec-napok-tipusa').cells[colIndex];
-    if (fejlecCella) {
-        fejlecCella.innerText = ujErtek;
-        if (typeof vetitOszlopra === 'function') vetitOszlopra(colIndex, ujErtek);
-        if (typeof naptarFejlecMentese === 'function') naptarFejlecMentese(fejlecCella, ujErtek);
+    // Fix stílusok kényszerítése
+    Object.assign(preview.style, {
+        width: '40px', height: '40px', display: 'flex', alignItems: 'center',
+        justifyContent: 'center', flexShrink: '0', color: 'black', fontWeight: 'bold'
+    });
+};
+
+window.generaldMiniNaptarat_Global = function(fokuszNap, startLimit, endLimit) {
+    const kontener = document.getElementById('globalisPopupMiniNaptar');
+    if (!kontener) return;
+    kontener.innerHTML = '';
+    
+    const napNevek = ['V', 'H', 'K', 'Sze', 'Cs', 'P', 'Szo'];
+    const ev = window.AblakCfg.ev;
+    const honap = window.AblakCfg.honap;
+    const fejlecRow = document.querySelector('tr.fejlec-napok-tipusa');
+
+    for (let i = startLimit; i <= endLimit; i++) {
+        const div = document.createElement('div');
+        div.className = 'nap-box';
+        div.dataset.nap = i;
+        
+        const d = new Date(ev, honap - 1, i);
+        const napNev = napNevek[d.getDay()];
+        const fejlecCella = fejlecRow ? fejlecRow.cells[i + 1] : null;
+        const aktualisKod = fejlecCella ? fejlecCella.innerText.trim() : '';
+        
+        if (aktualisKod === 'Ü') div.classList.add('unnep');
+        if (aktualisKod === '-') div.classList.add('hetvege');
+
+        div.innerHTML = `
+            <div class="nap-szam" style="font-size: 11px; color: #666;">${String(i).padStart(2, '0')} ${napNev}</div>
+            <div class="nap-jelenlegi-kod" style="font-size: 18px; font-weight: bold; color: #333;">${aktualisKod}</div>
+        `;
+        
+        if (i === fokuszNap) div.classList.add('kivalasztva');
+        div.onclick = function() { div.classList.toggle('kivalasztva'); };
+        kontener.appendChild(div);
     }
-    
-    bezardAGlobalisPopupot();
-}
+};
 
+window.globalisPopupMentese = function() {
+    const select = document.getElementById('globalisTipusSelect');
+    const ujTipus = select.selectedOptions[0].dataset.kod;
+    const kijeloltNapok = Array.from(document.querySelectorAll('#globalisPopupMiniNaptar .nap-box.kivalasztva'))
+                       .map(box => parseInt(box.dataset.nap));
+
+    if (kijeloltNapok.length === 0) { alert("Jelölj ki napokat!"); return; }
+
+    const ev = window.AblakCfg.ev;
+    const honap = String(window.AblakCfg.honap).padStart(2, '0');
+    const datums = kijeloltNapok.map(n => `${ev}-${honap}-${String(n).padStart(2, '0')}`);
+
+    fetch(`${window.AblakCfg.apiBase}munkaido_naptar_kezelo.php?action=save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ datums: datums, tipus: ujTipus })
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.status === 'ok') {
+            const fejlecSor = document.querySelector('tr.fejlec-napok-tipusa');
+            kijeloltNapok.forEach(nap => {
+                const cellIndex = nap + 1;
+                const cella = fejlecSor.cells[cellIndex];
+                if (cella) {
+                    cella.innerText = ujTipus;
+                    if (typeof vetitOszlopra === 'function') vetitOszlopra(cellIndex, ujTipus);
+                }
+            });
+            window.bezardAGlobalisPopupot();
+        }
+    });
+};

@@ -30,21 +30,29 @@ try {
 
 // --- MENTÉS (SAVE) ---
     if ($action === 'save') {
-        $input = json_decode(file_get_contents('php://input'), true);
-        $datum = $input['datum'] ?? '';
-        $tipus = $input['tipus'] ?? '';
+        $input  = json_decode(file_get_contents('php://input'), true);
+        $datums = $input['datums'] ?? []; // Dátumok tömbje
+        $tipus  = $input['tipus'] ?? '';
 
-        if (!$datum || !$tipus) throw new Exception('Hiányzó adatok.');
+        if (empty($datums) || !$tipus) throw new Exception('Hiányzó adatok.');
 
-        // Mentünk MINDENT (M, Ü, -), így frissítés után is ott marad
-        $sql = "INSERT INTO `munkaido_naptar` (`datum`, `tipus`) 
-                VALUES (:datum, :tipus) 
-                ON DUPLICATE KEY UPDATE `tipus` = :tipus";
-        
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([':datum' => $datum, ':tipus' => $tipus]);
-        
-        echo json_encode(['status' => 'ok', 'uzenet' => 'Mentve: ' . $tipus]);
+        $pdo->beginTransaction();
+        try {
+            $sql = "INSERT INTO `munkaido_naptar` (`datum`, `tipus`) 
+                    VALUES (:datum, :tipus) 
+                    ON DUPLICATE KEY UPDATE `tipus` = :tipus";
+            $stmt = $pdo->prepare($sql);
+            
+            foreach ($datums as $datum) {
+                $stmt->execute([':datum' => $datum, ':tipus' => $tipus]);
+            }
+            
+            $pdo->commit();
+            echo json_encode(['status' => 'ok', 'uzenet' => count($datums) . ' nap sikeresen mentve.']);
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
     }
 
     // --- BETÖLTÉS (LOAD) ---

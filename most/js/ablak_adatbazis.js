@@ -294,16 +294,16 @@ function adatokBetolteseTomegesen() {
     .catch(err => console.error("Hiba a tömeges letöltésnél:", err));
 }
 
-// 🎯 Betöltés
+// 🎯 Adatok betöltése és inicializálás
 fetch(`${window.AblakCfg.apiBase}felhasznalok_lista.php`)
   .then(response => response.json())
-// ... (A fetch lekérte a felhasználó listát) ...
-.then(data => {
+  .then(data => {
     window.FelhasznaloLista = data;
     const tbody = document.getElementById('tabla-body');
+    if (!tbody) return;
     tbody.innerHTML = '';
     
-    // 1. Táblázat felépítése (Üres sorok kirajzolása)
+    // 1. Táblázat felépítése
     data.forEach(felhasznalo => {
         const tr = letrehozTablaSort(felhasznalo);
         tbody.appendChild(tr);
@@ -312,94 +312,34 @@ fetch(`${window.AblakCfg.apiBase}felhasznalok_lista.php`)
     initTomSelect();
     frissitStickyTopok();
     
-    // Naptár fejléc betöltése (Alapzat)
-    naptarFejlecBetoltese(); 
+    // 2. Naptár fejléc betöltése (Alapzat)
+    if (typeof naptarFejlecBetoltese === 'function') {
+        naptarFejlecBetoltese(); 
+    }
 
-    // --- ITT A KAPCSOLÓ! ---
-    // false = ÉLES ÜZEM (Mindenki egyszerre, 1 kéréssel)
-    // true  = TESZT ÜZEM (Csak egy ember, vagy régi lassú módszer)
-    
-    const TESZT_UZEMMOD = true; // <--- EZT ÁLLÍTSD ÁT, HA KÉSZ VAGY!
-    const TESZT_ALANY   = '0057';
-
+    // 3. Adatok betöltése (Alapértelmezetten éles mód, vagy teszt)
+    const TESZT_UZEMMOD = false; 
     if (TESZT_UZEMMOD) {
-        console.warn("⚠️ TESZT MÓD AKTÍV: Csak egy felhasználó betöltése!");
-        adatokBetolteseANaptarba(TESZT_ALANY); 
+        adatokBetolteseANaptarba('0057'); 
     } else {
-        console.log("🚀 ÉLES MÓD: Tömeges betöltés indítása...");
-        adatokBetolteseTomegesen(); // Ezt a függvényt mindjárt megírjuk!
+        adatokBetolteseTomegesen(); 
     }
 });
 
 function betoltes() {
   const fileInput = document.getElementById('betoltesFile');
-  if (!fileInput) {
-    alert("Hiányzik a betoltesFile input.");
-    return;
-  }
-  fileInput.click();
+  if (fileInput) fileInput.click();
 }
 
-
-//Rátöltés funkció
 function ratoltes() {
   const fileInput = document.getElementById('ratoltesFile');
-  if (!fileInput) {
-    alert("Hiányzik a ratoltesFile input.");
-    return;
-  }
-  fileInput.click();
+  if (fileInput) fileInput.click();
 }
 
-  const betInput = document.getElementById('betoltesFile');
-  if (betInput) {
-    betInput.addEventListener('change', function () {
-      if (!this.files || !this.files.length) return;
-
-      const formData = new FormData();
-      formData.append('betoltes_file', this.files[0]);
-
-      fetch(`${window.AblakCfg.apiBase}betoltes_callcenter.php`, {
-        method: 'POST',
-        body: formData
-      })
-        .then(r => r.json())
-        .then(res => {
-          alert(res.uzenet || 'Betöltés kész.');
-          location.reload();
-        })
-        .catch(() => {
-          alert('Hiba történt betöltés közben.');
-        })
-        .finally(() => {
-          this.value = '';
-        });
-    });
-  }
-    // 👉 Billentyűzet letiltása az "A"-ként zárolt cellákban
-    tbody.addEventListener('keydown', function (e) {
-      const td = e.target.closest('td');
-      if (!td) return;
-
-      if (td.dataset.locked === 'A') {
-        e.preventDefault();
-      }
-    });
-  }
-
-});
-window.addEventListener('load', frissitStickyTopok);
-
-// --- NAPTÁR FEJLÉC KEZELÉSE (SQL MENTÉS ÉS BETÖLTÉS) ---
-
-// 1. BETÖLTÉS: Induláskor lekéri a mentett M/Ü/- állapotokat
+// --- NAPTÁR FEJLÉC KEZELÉSE ---
 function naptarFejlecBetoltese() {
     if (!window.AblakCfg) return;
-
-    console.log("📅 Naptár fejléc betöltése az adatbázisból...");
-
     const url = `${window.AblakCfg.apiBase}munkaido_naptar_kezelo.php?action=load&ev=${window.AblakCfg.ev}&honap=${window.AblakCfg.honap}`;
-
     fetch(url)
         .then(response => response.json())
         .then(res => {
@@ -409,69 +349,45 @@ function naptarFejlecBetoltese() {
         })
         .catch(err => console.error("Hiba a naptár betöltésekor:", err));
 }
-// 2. MENTÉS: Amikor kattintasz, elküldi az új értéket
+
 function naptarFejlecMentese(cella, ujErtek) {
     if (!window.AblakCfg) return;
-
-    // Dátum kitalálása a cella pozíciójából
-    const nap = cella.cellIndex - 1; // 2. oszlop = 1. nap
+    const nap = cella.cellIndex - 1; 
     const ev = window.AblakCfg.ev;
     const honap = window.AblakCfg.honap;
     const datumStr = `${ev}-${String(honap).padStart(2, '0')}-${String(nap).padStart(2, '0')}`;
 
-    const payload = {
-        datum: datumStr,
-        tipus: ujErtek // "M", "Ü", "-"
-    };
-
     fetch(`${window.AblakCfg.apiBase}munkaido_naptar_kezelo.php?action=save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ datum: datumStr, tipus: ujErtek })
     })
     .then(r => r.json())
-    .then(res => {
-        console.log(`💾 Fejléc mentve (${datumStr} => ${ujErtek}):`, res.uzenet);
-    })
     .catch(err => console.error("Mentési hiba:", err));
 }
 
-
+// --- EXPORT FUNKCIÓK ---
 function exportMunkaido() {
   const tabla = document.querySelector("table.munkaido");
   let rows = [];
-
-  const maxNapok   = window.AblakCfg.napokSzama || 31;          // 31 napos tábla
-  const napokValos = window.AblakCfg.napokValos || maxNapok;    // tényleges napok száma
+  const maxNapok = window.AblakCfg.napokSzama || 31;
+  const napokValos = window.AblakCfg.napokValos || maxNapok;
 
   for (let i = 1; i < tabla.rows.length; i++) {
     let cells = tabla.rows[i].cells;
     let sor = [];
-
     for (let c = 0; c < cells.length; c++) {
       const inputElem = cells[c].querySelector('input, select');
       let value = '';
-
-      // Nap-oszlopok: 0: OP, 1: Név, 2..(2+maxNapok-1): napok
-      // Ha a nap sorszáma nagyobb, mint napokValos (pl. 30, 31 februárban),
-      // akkor az exportban mindig üres legyen.
-      if (c >= 2 && c < 2 + maxNapok && c >= 2 + napokValos) {
-        value = '';
-      } else if (inputElem) {
-        value = inputElem.value.trim();
-      } else {
-        // Klónozzuk a cellát, hogy ne rontsuk el a naptárban lévőt
+      if (c >= 2 && c < 2 + maxNapok && c >= 2 + napokValos) value = '';
+      else if (inputElem) value = inputElem.value.trim();
+      else {
         let cellClone = cells[c].cloneNode(true);
-        // Eltávolítjuk a számot (badge) a klónból, hogy ne kerüljön az Excelbe
-        let badges = cellClone.querySelectorAll('.nap-szamlalo-badge');
-        badges.forEach(b => b.remove());
-        // Így az Excelbe csak a tiszta betűjel (SZ, TP, stb.) kerül
+        cellClone.querySelectorAll('.nap-szamlalo-badge').forEach(b => b.remove());
         value = cellClone.innerText.trim();
       }
-
       sor.push(value);
     }
-
     rows.push(sor);
   }
 
@@ -485,12 +401,13 @@ function exportMunkaido() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `munkaido_${String(window.AblakCfg.ev).padStart(4,'0')}.${String(window.AblakCfg.honap).padStart(2,'0')}.xlsx`;
+    a.download = `munkaido_${window.AblakCfg.ev}.${String(window.AblakCfg.honap).padStart(2,'0')}.xlsx`;
     document.body.appendChild(a);
     a.click();
     a.remove();
   });
 }
+
 function exportCallCenter() {
   fetch(`${window.AblakCfg.apiBase}export_callcenter.php`)
     .then(response => response.blob())
@@ -504,3 +421,25 @@ function exportCallCenter() {
       a.remove();
     });
 }
+
+// Eseménykezelők regisztrálása
+document.addEventListener('DOMContentLoaded', function() {
+    const betInput = document.getElementById('betoltesFile');
+    if (betInput) {
+        betInput.addEventListener('change', function() {
+            if (!this.files.length) return;
+            const fd = new FormData(); fd.append('betoltes_file', this.files[0]);
+            fetch(`${window.AblakCfg.apiBase}betoltes_callcenter.php`, { method: 'POST', body: fd })
+            .then(r => r.json()).then(res => { alert(res.uzenet); location.reload(); });
+        });
+    }
+    const ratInput = document.getElementById('ratoltesFile');
+    if (ratInput) {
+        ratInput.addEventListener('change', function() {
+            if (!this.files.length) return;
+            const fd = new FormData(); fd.append('ratoltes_file', this.files[0]);
+            fetch(`${window.AblakCfg.apiBase}ratoltes_callcenter.php`, { method: 'POST', body: fd })
+            .then(r => r.json()).then(res => { alert(res.uzenet); location.reload(); });
+        });
+    }
+});
