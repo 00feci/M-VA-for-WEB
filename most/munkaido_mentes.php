@@ -206,6 +206,13 @@ $vegleges_adatbazis_sor = [
 // 7. SQL MENTÉS (UPSERT)
 try {
     if (!isset($pdo)) { $pdo = csatlakozasSzerver2(); }
+    
+    // Ha munkanapok száma 0 (pl. csak hétvégét jelöltél ki), nem mentünk szemetet!
+    if ($sz_tp_napok <= 0 && in_array($bejovo_ertek, $mentendo_kodok)) {
+         echo json_encode(['status' => 'ok', 'uzenet' => 'Nincs mentendő munkanap a tartományban.']);
+         exit;
+    }
+
     $stmt_check = $pdo->prepare("SELECT id FROM m_va_adatbazis WHERE `operátor_szám` = ? AND DATE(`sz_tp_kezdet`) = DATE(?)");
     $stmt_check->execute([$bejovo_op, $sz_tp_kezdet]);
     $existing_id = $stmt_check->fetchColumn();

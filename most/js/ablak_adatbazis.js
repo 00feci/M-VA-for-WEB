@@ -1,12 +1,11 @@
 function adatokBetolteseANaptarba(opSzam) {
     if (!opSzam) return;
 
-    // ELŐTISZTÍTÁS: Tisztítás után visszatöltjük az alapértelmezett "A" értékeket
-   const cellak = document.querySelectorAll(`td[data-op="${opSzam}"]`);
+    const cellak = document.querySelectorAll(`td[data-op="${opSzam}"]`);
     cellak.forEach(td => {
         if (!td.classList.contains('inaktiv-nap')) {
             const nap = td.dataset.nap;
-            // JAVÍTÁS: Nem töröljük az összes osztályt (className), csak alaphelyzetbe állítunk
+            // JAVÍTÁS: Nem töröljük az összes osztályt, csak a státuszokat!
             td.textContent = '';
             td.classList.remove('rendes-szabadsag', 'tappenz', 'fizetes-nelkuli-szabadsag', 'rendszer-adat', 'hibas-nap-jelzo', 'javitott-adat');
             td.classList.add('ures-cella');

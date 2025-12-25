@@ -30,7 +30,7 @@ window.nyisdMegAPopupot = function(cella) {
         overlay.id = 'szerkesztoPopup';
         overlay.className = 'popup-overlay';
         overlay.innerHTML = `
-           <style>
+            <style>
                 #szerkesztoPopup .nap-box.kivalasztva { background-color: #4CAF50 !important; color: white !important; }
                 #szerkesztoPopup .nap-box.kivalasztva .nap-szam, 
                 #szerkesztoPopup .nap-box.kivalasztva .nap-jelenlegi-kod { color: white !important; }
