@@ -1,17 +1,19 @@
 function adatokBetolteseANaptarba(opSzam) {
     if (!opSzam) return;
 
-    // xcxxx kód, ezt a blokot cseréld
     // ELŐTISZTÍTÁS: Tisztítás után visszatöltjük az alapértelmezett "A" értékeket
-    const cellak = document.querySelectorAll(`td[data-op="${opSzam}"]`);
+   const cellak = document.querySelectorAll(`td[data-op="${opSzam}"]`);
     cellak.forEach(td => {
         if (!td.classList.contains('inaktiv-nap')) {
             const nap = td.dataset.nap;
-            // Alaphelyzetbe állítás
+            // JAVÍTÁS: Nem töröljük az összes osztályt (className), csak alaphelyzetbe állítunk
             td.textContent = '';
-            td.className = 'ures-cella';
+            td.classList.remove('rendes-szabadsag', 'tappenz', 'fizetes-nelkuli-szabadsag', 'rendszer-adat', 'hibas-nap-jelzo', 'javitott-adat');
+            td.classList.add('ures-cella');
+            
             delete td.dataset.kezdet;
             delete td.dataset.vegzet;
+            delete td.dataset.napok;
             
             // Ha van mentett rendszer-adat (A), akkor azt rögtön visszaírjuk alapnak
             if (window.AJelolesek && window.AJelolesek[opSzam] && window.AJelolesek[opSzam][nap]) {
@@ -223,12 +225,12 @@ function megjelenitoFugveny(adatok, opSzam, kellFrissites = true) {
 
                     cella.innerHTML = ujKod; 
 
+                    // JAVÍTÁS: A badge-et a cella VÉGÉRE tesszük, hogy ne zavarjon be az "A" elé
                     if (aktualisNap.getTime() === vegzet.getTime() && rekord.sz_tp_napok > 1) {
                         const badge = `<span class="nap-szamlalo-badge">${rekord.sz_tp_napok}</span>`;
-                        cella.insertAdjacentHTML('afterbegin', badge);
+                        cella.insertAdjacentHTML('beforeend', badge); // 👈 afterbegin helyett beforeend
                     }
                     
-                   // ÚJ LOGIKA: A sárga háromszög ezentúl a NEM KÉZI forrást jelzi (HR ellenőrzés szükséges)
                     if (statuszKod && statuszKod !== 'A' && rekord.jelentkezés_forrása !== 'Kézi') {
                         cella.classList.add('hibas-nap-jelzo');
                         cella.title = `Importált adat (Forrás: ${rekord.jelentkezés_forrása}). HR ellenőrzés szükséges!`;
@@ -237,10 +239,7 @@ function megjelenitoFugveny(adatok, opSzam, kellFrissites = true) {
                     if (statuszKod && statuszKod !== 'A') {
                         cella.dataset.kezdet = rekord.sz_tp_kezdet;
                         cella.dataset.vegzet = rekord.sz_tp_végzet;
-                    }
-
-                    if (statuszKod !== '' && tipusClass !== 'egyeb') {
-                        cella.classList.add(...tipusClass.split(' '));
+                        cella.dataset.napok  = rekord.sz_tp_napok; // 👈 ÚJ: Elmentjük a pontos nap-számot!
                     }
                 }
             }

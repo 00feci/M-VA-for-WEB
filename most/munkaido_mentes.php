@@ -24,6 +24,7 @@ $bejovo_datum_veg = isset($URLAP['datum_veg']) ? trim($URLAP['datum_veg']) : $be
 $bejovo_visszater = isset($URLAP['visszateres_napja']) ? trim($URLAP['visszateres_napja']) : '';
 $bejovo_ertek     = isset($URLAP['ertek'])   ? trim($URLAP['ertek'])   : ''; 
 $bejovo_tipus     = isset($URLAP['tipus'])   ? trim($URLAP['tipus'])   : '';
+$bejovo_napok     = isset($URLAP['napok'])   ? (int)$URLAP['napok']    : 0; // 👈 ÚJ: Kézi napok beolvasása
 
 
 // 3. TÖRLÉS VAGY MENTÉS ELDÖNTÉSE
@@ -139,6 +140,15 @@ if (!empty($bejovo_visszater)) {
         $kovetkezo_ts = strtotime(date('Y-m-d', $kovetkezo_ts) . ' +1 day');
     }
     $sz_tp_utani_nap = date('Y-m-d', $kovetkezo_ts);
+}
+
+if ($bejovo_napok > 0) {
+    $sz_tp_napok = $bejovo_napok; // 👈 Ha küldtél kézi értéket, azt használjuk!
+} else {
+    for ($curr = $start_ts; $curr <= $end_ts; $curr = strtotime("+1 day", $curr)) {
+        $d = date('Y-m-d', $curr);
+        if (($naptar_adatok[$d] ?? 'M') === 'M') { $sz_tp_napok++; }
+    }
 }
 // 6. A TELJES ADATSOR ÖSSZEÁLLÍTÁSA
 $vegleges_adatbazis_sor = [
