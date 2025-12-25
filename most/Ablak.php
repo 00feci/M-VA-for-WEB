@@ -118,19 +118,16 @@ $API_BASE   = $MVA_EMBED ? 'Ablak_Excel/' : ''; // végén legyen /, vagy legyen
     <button onclick="exportMunkaido()">📤 Exportálás Excelbe</button>
   </div>
   
-  <!-- Középső blokk -->
+
   <div style="display:flex; justify-content:center; align-items:center; gap:10px; flex:1;">
-<span style="font-weight:bold;">Rendszer Adat:</span>
-<span id="legfrissebbDatum"><?php echo htmlspecialchars($legfrissebbDatum ?: 'nincs adat'); ?></span>
+    <span style="font-weight:bold;">Rendszer Adat:</span>
+    <span id="legfrissebbDatum"><?php echo htmlspecialchars($legfrissebbDatum ?: 'nincs adat'); ?></span>
     <button onclick="betoltes()">📥 Betöltés</button>
     <button onclick="ratoltes()">🔄 Rátöltés</button>
     <button onclick="exportCallCenter()">📤 Exportálás</button>
-    <button id="btnSzerkesztoMod" onclick="toggleSzerkesztoMod()" style="padding:10px; cursor:pointer;">
-    👁️ Csak olvasás
-</button>
-<button onclick="exportalasVegleges()" style="background-color: #673ab7; color: white; padding: 10px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold;">
-    📄 Bérszámfejtési Lista (Végleges)
-</button>
+    <button onclick="exportalasVegleges()" style="background-color: #673ab7; color: white; padding: 10px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold;">
+        📄 Bérszámfejtési Lista (Végleges)
+    </button>
   </div>
 </div>
 
@@ -169,10 +166,10 @@ $API_BASE   = $MVA_EMBED ? 'Ablak_Excel/' : ''; // végén legyen /, vagy legyen
 
   <!-- 2. sor: Napok típusa -->
   <tr class="fejlec-napok-tipusa">
-    <th style="text-align: center;" id="sliderContainer">
-      <button onclick="valtMinusz()">◀</button>
-      <span id="sliderValue">&lt;Egér&gt;</span>
-      <button onclick="valtPlusz()">▶</button>
+   <th style="text-align: center;" id="sliderContainer">
+        <button id="btnSzerkesztoMod" onclick="toggleSzerkesztoMod()" style="padding:10px; cursor:pointer; width: 100%; border: none; border-radius: 4px; font-weight: bold; background: #ccc;">
+            👁️ Csak olvasás
+        </button>
     </th>
     <th class="ures-cella" style="text-align: center;">Napok típusa</th>
 

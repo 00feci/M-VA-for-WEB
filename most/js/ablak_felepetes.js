@@ -87,26 +87,8 @@ function letrehozTablaSort(felhasznalo) {
   return tr;
 }
 
-// --- 1. Fejléc kattintás kezelése (Azonnali vetítéssel) ---
-function beirErtek(cell) {
-  const ertek = ertekek[aktualisIndex]; // "🖱", "Ü", "-", "M"
-  
-  if (!cell.classList.contains('napok-tipusa') || ertek === '🖱') {
-    return;
-  }
-  
-  // Fejléc frissítése
-  cell.innerText = ertek;
-  
-  // AZONNALI VETÍTÉS: Frissítjük az oszlopot a táblázatban
-  vetitOszlopra(cell.cellIndex, ertek);
-  
-  // Elmentjük az adatbázisba
-  naptarFejlecMentese(cell, ertek);
-  
-  // Újraszámoljuk az összesítőt
-  frissitOsszesOszlop();
-}
+// --- 1. Fejléc kattintás kezelése (KIKAPCSOLVA - A Popup veszi át) ---
+function beirErtek(cell) { return; }
 
 // --- 2. Az oszlopfrissítő motor (JAVÍTVA: Megőrzi a badge-et a bal felső sarokban) ---
 function vetitOszlopra(colIndex, tipus) {

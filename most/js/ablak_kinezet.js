@@ -65,15 +65,24 @@ function addCssClassToCell(td, tipusClass) {
     td.classList.add(tipusClass);
   }
 }
+// ✏️ Szerkesztő mód és kinezet vezérlés
+let szerkesztoModAktiv = false;
+
 function toggleSzerkesztoMod() {
     szerkesztoModAktiv = !szerkesztoModAktiv;
     document.body.classList.toggle('szerkeszto-mod-aktiv', szerkesztoModAktiv);
     const btn = document.getElementById('btnSzerkesztoMod');
     if(btn) {
         btn.innerHTML = szerkesztoModAktiv ? '✏️ Szerkesztés: BE' : '👁️ Csak olvasás';
-        btn.style.background = szerkesztoModAktiv ? '#ff5722' : '#ccc'; 
+        btn.style.background = szerkesztoModAktiv ? '#ff5722' : '#ccc';
+        btn.style.color = szerkesztoModAktiv ? 'white' : 'black';
     }
 }
+
+// Alapállapot beállítása (a sliderValue már nem létezik)
+window.onload = function() {
+    console.log("Naptár felület betöltve.");
+};
 // Ékezet-eltávolító segéd
 function removeAccents(str) {
     return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");

@@ -2,8 +2,7 @@
 // 🏥 MODERN POPUP - KÖZVETLEN SZERKESZTŐ (DIRECT EDIT) ✏️
 // =========================================================
 
-let kivalasztottTipus = ''; 
-let szerkesztoModAktiv = false;
+let kivalasztottTipus = '';
 
 document.addEventListener('click', function(e) {
     if (!szerkesztoModAktiv) return;
