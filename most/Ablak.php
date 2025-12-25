@@ -167,7 +167,7 @@ $API_BASE   = $MVA_EMBED ? 'Ablak_Excel/' : ''; // végén legyen /, vagy legyen
   <!-- 2. sor: Napok típusa -->
   <tr class="fejlec-napok-tipusa">
    <th style="text-align: center;" id="sliderContainer">
-        <button id="btnSzerkesztoMod" onclick="toggleSzerkesztoMod()" style="padding:10px; cursor:pointer; width: 100%; border: none; border-radius: 4px; font-weight: bold; background: #ccc;">
+        <button id="btnSzerkesztoMod" onclick="toggleSzerkesztoMod()" style="padding:10px; cursor:pointer; width: 100%; border: none; border-radius: 4px; font-weight: bold; background: #f2f2f2;">
             👁️ Csak olvasás
         </button>
     </th>

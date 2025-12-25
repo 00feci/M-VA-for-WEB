@@ -88,7 +88,13 @@ function letrehozTablaSort(felhasznalo) {
 }
 
 // --- 1. Fejléc kattintás kezelése (KIKAPCSOLVA - A Popup veszi át) ---
-function beirErtek(cell) { return; }
+function beirErtek(cell) {
+    if (!szerkesztoModAktiv) return; 
+    
+    if (typeof nyisdMegAGlobalisPopupot === 'function') {
+        nyisdMegAGlobalisPopupot(cell);
+    }
+}
 
 // --- 2. Az oszlopfrissítő motor (JAVÍTVA: Megőrzi a badge-et a bal felső sarokban) ---
 function vetitOszlopra(colIndex, tipus) {

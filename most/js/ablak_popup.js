@@ -251,3 +251,72 @@ function updatePopupPreview(select) {
     preview.className = 'kod-preview ' + cssClass;
 }
 
+// =========================================================
+// 🌐 GLOBÁLIS POPUP - NAPOK TÍPUSA SZERKESZTŐ
+// =========================================================
+function nyisdMegAGlobalisPopupot(cella) {
+    const ev = window.AblakCfg.ev;
+    const honap = String(window.AblakCfg.honap).padStart(2, '0');
+    
+    let overlay = document.getElementById('globalisPopup');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'globalisPopup';
+        overlay.className = 'popup-overlay';
+        overlay.innerHTML = `
+            <div class="popup-doboz">
+                <div class="popup-fejlec">
+                    <div class="popup-cim" id="globalisPopupCim"></div>
+                    <div class="popup-bezars" onclick="bezardAGlobalisPopupot()">×</div>
+                </div>
+                <div style="background: #fff3e0; border-left: 5px solid #ff9800; border-right: 5px solid #ff9800; padding: 10px; margin-bottom: 15px; font-weight: bold; color: #e65100; text-align: center;">
+                    ⚠️ A Napok típusa ⚠️
+                </div>
+                <div class="tipus-valaszto-kontener" style="margin-top:15px; display:flex; align-items:center; gap:10px;">
+                    <span id="globalisTipusPreview" class="kod-preview">M</span>
+                    <select id="globalisTipusSelect" onchange="updateGlobalPopupPreview(this)" style="flex:1; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px;">
+                        <option value="M" data-kod="M">Munkanap</option>
+                        <option value="Ü" data-kod="Ü">Ünnepnap</option>
+                        <option value="-" data-kod="-">Hétvége</option>
+                    </select>
+                </div>
+                <div class="popup-footer" style="display: flex; justify-content: center;">
+                    <button class="btn-save" onclick="globalisPopupMentese()" style="width: 80%;">💾 MENTÉS</button>
+                </div>
+            </div>`;
+        document.body.appendChild(overlay);
+    }
+
+    document.getElementById('globalisPopupCim').innerText = `Szerkesztés: ${ev}.${honap}`;
+    overlay.style.display = 'flex';
+    // Mentéshez eltároljuk melyik napról van szó
+    overlay.dataset.cellIndex = cella.cellIndex;
+}
+
+function bezardAGlobalisPopupot() {
+    const popup = document.getElementById('globalisPopup');
+    if (popup) popup.style.display = 'none';
+}
+
+function updateGlobalPopupPreview(select) {
+    const preview = document.getElementById('globalisTipusPreview');
+    if (preview) preview.textContent = select.value;
+}
+
+function globalisPopupMentese() {
+    const overlay = document.getElementById('globalisPopup');
+    const select = document.getElementById('globalisTipusSelect');
+    const colIndex = overlay.dataset.cellIndex;
+    const ujErtek = select.value;
+    
+    // Itt hívjuk majd a naptár-kezelő mentését (NULL op_számmal)
+    const fejlecCella = document.querySelector('tr.fejlec-napok-tipusa').cells[colIndex];
+    if (fejlecCella) {
+        fejlecCella.innerText = ujErtek;
+        if (typeof vetitOszlopra === 'function') vetitOszlopra(colIndex, ujErtek);
+        if (typeof naptarFejlecMentese === 'function') naptarFejlecMentese(fejlecCella, ujErtek);
+    }
+    
+    bezardAGlobalisPopupot();
+}
+
