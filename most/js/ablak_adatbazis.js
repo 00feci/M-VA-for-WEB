@@ -240,6 +240,10 @@ function megjelenitoFugveny(adatok, opSzam, kellFrissites = true) {
                         cella.dataset.vegzet = rekord.sz_tp_végzet;
                         cella.dataset.napok  = rekord.sz_tp_napok; // 👈 ÚJ: Elmentjük a pontos nap-számot!
                     }
+                    // SZÍNEK ALKALMAZÁSA (VISSZAÁLLÍTÁS)
+                    if (statuszKod !== '' && tipusClass !== 'egyeb') {
+                        cella.classList.add(...tipusClass.split(' '));
+                    }
                 }
             }
             aktualisNap.setDate(aktualisNap.getDate() + 1);
