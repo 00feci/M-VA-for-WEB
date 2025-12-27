@@ -28,7 +28,7 @@ window.nyisdMegAPopupot = function(cella) {
         if (user) nev = `${user.nev} (${opKod})`;
     }
 
-    let overlay = document.getElementById('szerkesztoPopup');
+   let overlay = document.getElementById('szerkesztoPopup');
     if (!overlay) {
         overlay = document.createElement('div');
         overlay.id = 'szerkesztoPopup';
@@ -39,7 +39,6 @@ window.nyisdMegAPopupot = function(cella) {
                 #szerkesztoPopup .nap-box.kivalasztva .nap-szam, 
                 #szerkesztoPopup .nap-box.kivalasztva .nap-jelenlegi-kod { color: white !important; }
             </style>
-            <div class="popup-doboz">
             <div class="popup-doboz">
                 <div class="popup-fejlec">
                     <div class="popup-cim" id="popupCim"></div>
@@ -71,6 +70,11 @@ window.nyisdMegAPopupot = function(cella) {
                         <label style="font-weight:bold; font-size:14px;">NAP:</label>
                         <input type="number" id="popupNapokSzama" style="width:50px; padding:5px; border:1px solid #bbb; border-radius:4px; font-weight:bold; text-align:center;" value="1">
                     </div>
+                    
+                    <div class="visszateres-kontener" style="margin-top:15px; display:flex; align-items:center; justify-content:center; gap:10px; background:#e8f5e9; padding:10px; border-radius:6px; border:1px solid #c8e6c9;">
+                    <label style="font-weight:bold; font-size:14px; color:#2e7d32;">Visszatérés:</label>
+                    <input type="date" id="popupVisszateres" style="padding:5px; border:1px solid #81c784; border-radius:4px; font-weight:bold;">
+                </div>
                 </div>
                 <div class="popup-footer" style="display: flex; justify-content: space-between; margin-top: 20px; width: 100%;">
                     <button class="btn-reset" onclick="window.popupTorles()" style="background:#d32f2f; color:white; padding: 10px 20px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold;">🗑️ TÖRLÉS</button>
@@ -104,9 +108,28 @@ window.bezardAPopupot = function() {
 };
 
 window.frissitPopupNapokSzama = function() {
-    const kijeloltCount = document.querySelectorAll('#popupMiniNaptar .nap-box.kivalasztva').length;
+    const kijeloltNapok = Array.from(document.querySelectorAll('#popupMiniNaptar .nap-box.kivalasztva'))
+                       .map(box => parseInt(box.dataset.nap)).sort((a, b) => a - b);
+    
     const input = document.getElementById('popupNapokSzama');
-    if (input) input.value = kijeloltCount > 0 ? kijeloltCount : 1;
+    if (input) input.value = kijeloltNapok.length > 0 ? kijeloltNapok.length : 1;
+
+    // Következő munkanap felajánlása
+    if (kijeloltNapok.length > 0) {
+        const utolsoNap = kijeloltNapok[kijeloltNapok.length - 1];
+        const ev = window.AblakCfg.ev;
+        const honap = window.AblakCfg.honap;
+        let kovNap = new Date(ev, honap - 1, utolsoNap + 1);
+        
+        // Alapértelmezett "meglátás": ugorjuk át a hétvégét
+        while (kovNap.getDay() === 0 || kovNap.getDay() === 6) {
+            kovNap.setDate(kovNap.getDate() + 1);
+        }
+        
+        const datumStr = kovNap.toISOString().split('T')[0];
+        const vInput = document.getElementById('popupVisszateres');
+        if (vInput) vInput.value = datumStr;
+    }
 };
 
 window.generaldMiniNaptarat = function(fokuszNap, startLimit, endLimit, opKod) {
@@ -176,6 +199,7 @@ window.popupMentese = function() {
             op_szam: opKod,
             datum: `${ev}-${honap}-${String(start).padStart(2, '0')}`,
             datum_veg: `${ev}-${honap}-${String(veg).padStart(2, '0')}`,
+            visszateres_napja: document.getElementById('popupVisszateres').value,
             ertek: kivalasztottTipus,
             tipus: kivalasztottOsztaly === 'rendszer-adat' ? '' : kivalasztottOsztaly,
             napok: manuálisNapok,

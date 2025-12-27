@@ -4,6 +4,7 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/Iroda/sql_config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/Iroda/sql_szerkezet.php';
 date_default_timezone_set('Europe/Budapest');
 
 header('Content-Type: application/json; charset=utf-8');
@@ -37,19 +38,19 @@ if (!in_array($bejovo_ertek, $mentendo_kodok)) {
         if (!isset($pdo)) { $pdo = csatlakozasSzerver2(); }
 
         // JAVÍTÁS: Kivettük a 'sz_tp_érték' hivatkozást, mert az oszlop nem létezik az adatbázisodban
-        $sql_split = "INSERT INTO `m_va_adatbazis` (`operátor_szám`, `sz_tp_kezdet`, `sz_tp_végzet`, `státusz`, `dokumentum_típusa`, `jelentkezés_forrása`) 
-                      SELECT `operátor_szám`, DATE_ADD(?, INTERVAL 1 DAY), `sz_tp_végzet`, `státusz`, `dokumentum_típusa`, 'Kézi'
+        $sql_split = "INSERT INTO `m_va_adatbazis` (`operátor_szám`, `sz_tp_kezdet`, `sz_tp_végzet`, `státusz`, `dokumentum_típusa`, `jelentkezés_forrása`, `státusz_dátum`) 
+                      SELECT `operátor_szám`, DATE_ADD(?, INTERVAL 1 DAY), `sz_tp_végzet`, `státusz`, `dokumentum_típusa`, 'Kézi', NOW()
                       FROM `m_va_adatbazis` WHERE `operátor_szám` = ? AND `sz_tp_kezdet` < ? AND `sz_tp_végzet` > ?";
         $pdo->prepare($sql_split)->execute([$bejovo_datum_veg, $bejovo_op, $bejovo_datum, $bejovo_datum_veg]);
-
+        
         $pdo->prepare("UPDATE `m_va_adatbazis` SET `sz_tp_végzet` = DATE_SUB(?, INTERVAL 1 DAY) WHERE `operátor_szám` = ? AND `sz_tp_kezdet` < ? AND `sz_tp_végzet` >= ?")->execute([$bejovo_datum, $bejovo_op, $bejovo_datum, $bejovo_datum]);
         $pdo->prepare("UPDATE `m_va_adatbazis` SET `sz_tp_kezdet` = DATE_ADD(?, INTERVAL 1 DAY) WHERE `operátor_szám` = ? AND `sz_tp_végzet` > ? AND `sz_tp_kezdet` <= ?")->execute([$bejovo_datum_veg, $bejovo_op, $bejovo_datum_veg, $bejovo_datum_veg]);
         $pdo->prepare("DELETE FROM `m_va_adatbazis` WHERE `operátor_szám` = ? AND `sz_tp_kezdet` >= ? AND `sz_tp_végzet` <= ?")->execute([$bejovo_op, $bejovo_datum, $bejovo_datum_veg]);
         
         // Lite mentés Ü és - számára (csak a legszükségesebb oszlopokkal)
         if ($bejovo_ertek === 'Ü' || $bejovo_ertek === '-') {
-            $pdo->prepare("INSERT INTO `m_va_adatbazis` (`operátor_szám`, `sz_tp_kezdet`, `sz_tp_végzet`, `státusz`, `dokumentum_típusa`, `jelentkezés_forrása`) 
-                           VALUES (?, ?, ?, 'Fix jelölés', ?, 'Kézi')")
+            $pdo->prepare("INSERT INTO `m_va_adatbazis` (`operátor_szám`, `sz_tp_kezdet`, `sz_tp_végzet`, `státusz`, `dokumentum_típusa`, `jelentkezés_forrása`, `státusz_dátum`) 
+                           VALUES (?, ?, ?, 'Fix jelölés', ?, 'Kézi', NOW())")
                 ->execute([$bejovo_op, $bejovo_datum, $bejovo_datum_veg, $bejovo_ertek]);
         }
         
@@ -86,8 +87,6 @@ if ($cel_user_id > 0) {
         $PROFIL['wp_email']      = $userdata->user_email;
     }
 }
-
-function adat($tomb, $kulcs) { return isset($tomb[$kulcs]) ? trim($tomb[$kulcs]) : ''; }
 
 // 5. TÍPUSOK ÉS KALKULÁCIÓ (Naptár-szűréssel)
 $tipus_szotar = [
@@ -150,87 +149,34 @@ if ($bejovo_napok > 0) {
         if (($naptar_adatok[$d] ?? 'M') === 'M') { $sz_tp_napok++; }
     }
 }
-// 6. A TELJES ADATSOR ÖSSZEÁLLÍTÁSA
-$vegleges_adatbazis_sor = [
-    'státusz'                       => 'Szabadság és Táppénz',
-    'státusz_dátum'                 => date('Y.m.d. H:i'),
-    'dokumentum_típusa'             => $magyar_dok_tipus,
-    'jelentkezés_forrása'           => 'Kézi',
-    'jelentkezés_forrása1'          => adat($PROFIL, 'jelentkezes_forrasa1'),
-    'jelentkezés_bérigény'          => adat($PROFIL, 'jelentkezes_berigeny'),
-    'jelentkezés_mire_hova_jelentkezett' => adat($PROFIL, 'jelentkezes_mire_hova_jelentkezett'),
-    'jelentkezés_cv'                => adat($PROFIL, 'jelentkezes_cv'),
-    'jelentkezés_mmk'               => adat($PROFIL, 'jelentkezes_mmk'),
-    'jelentkezés_vegzettseg'        => adat($PROFIL, 'jelentkezes_vegzettseg'),
-    'jelentkezés_mikor_tud_kezdeni' => adat($PROFIL, 'jelentkezes_mikor_tud_kezdeni'),
-    'jelentkezés_vállalt_óraszám'   => adat($PROFIL, 'jelentkezes_vallalt_oraszam'),
-    'üzenet'                        => '',
-    'operátor_szám'                 => $bejovo_op,
-    'foglalkoztató_cég'             => adat($PROFIL, 'foglalkoztato_ceg'),
-    'foglalkoztató_cég_email'       => adat($PROFIL, 'foglalkoztato_ceg_email'),
-    'tevékenység'                   => adat($PROFIL, 'tevekenyseg'),
-    'napi_munka_idő'                => adat($PROFIL, 'napi_munka_ido'),
-    'bérezés'                       => adat($PROFIL, 'berezes'),
-    'munkaidő'                      => adat($PROFIL, 'munkaido'),
-    'munkavégzés_helyének_típusa'   => adat($PROFIL, 'munkavegzes_helyenek_tipusa'),
-    'vezetéknév'                    => adat($PROFIL, 'last_name') ?: adat($PROFIL, 'wp_last_name'),
-    'keresztnév'                    => adat($PROFIL, 'first_name') ?: adat($PROFIL, 'wp_first_name'),
-    'születési_név'                 => adat($PROFIL, 'szuletesi_nev'),
-    'állandó_cím'                   => adat($PROFIL, 'allando_cim'),
-    'levelezési_cím'                => adat($PROFIL, 'levelezesi_cim'),
-    'levelezési_cím_település'      => adat($PROFIL, 'levelezesi_cim_telepules'),
-    'születési_hely'                => adat($PROFIL, 'szuletesi_hely'),
-    'születési_idő'                 => adat($PROFIL, 'szuletesi_ido'),
-    'anyja_neve'                    => adat($PROFIL, 'anyja_neve'),
-    'személyi_igazolvány'           => adat($PROFIL, 'szemelyi_igazolvany'),
-    'taj_szám'                      => adat($PROFIL, 'taj_szam'),
-    'adó_azonosító_jel'             => adat($PROFIL, 'ado_azonosito_jel'),
-    'telefonszám'                   => adat($PROFIL, 'telefonszam'),
-    'email_cím'                     => adat($PROFIL, 'wp_email'),
-    'bankszámlaszám'                => adat($PROFIL, 'bankszamlaszam'),
-    'számlatulajdonos_neve'         => adat($PROFIL, 'szamlatulajdonos_neve'),
-    'bank_neve'                     => adat($PROFIL, 'bank_neve'),
-    'skype'                         => adat($PROFIL, 'skype'),
-    'munkakezdés_dátuma'            => adat($PROFIL, 'munkakezdes_datuma'),
-    'keltezés'                      => adat($PROFIL, 'keltezes'),
-    'időarányosan_számított_szabadságok_napja' => adat($PROFIL, 'idoaranyosan_szamitott_szabadsagok_napja'),
-    'kilepes_datuma_utolso_munkanap'           => adat($PROFIL, 'kilepes_datuma_utolso_munkanap'),
-    'torles_alatt_kilepes_plusz_40nap_LEJAR'   => adat($PROFIL, 'torles_alatt_kilepes_plusz_40nap_LEJAR'),
-    'járási_hivatal'                           => adat($PROFIL, 'jarasi_hivatal'),
-    'sz_tp_kezdet'                  => $sz_tp_kezdet, 
-    'sz_tp_végzet'                  => $sz_tp_vegzet,
-    'sz_tp_utáni_nap'               => $sz_tp_utani_nap,
-    'sz_tp_napok'                   => $sz_tp_napok,
+// 1. Csak azokat az adatokat adjuk meg, amik ténylegesen a mostani eseményhez tartoznak
+$aktualis_valtozasok = [
+    'operátor_szám'     => $bejovo_op,
+    'sz_tp_kezdet'      => $sz_tp_kezdet,
+    'sz_tp_végzet'      => $sz_tp_vegzet,
+    'sz_tp_napok'       => $sz_tp_napok,
+    'sz_tp_utáni_nap'   => $sz_tp_utani_nap,
+    'dokumentum_típusa' => in_array($bejovo_ertek, ['Ü', '-']) ? $bejovo_ertek : $magyar_dok_tipus,
+    'státusz'           => in_array($bejovo_ertek, ['Ü', '-']) ? 'Fix jelölés' : 'Szabadság és Táppénz',
+    'státusz_dátum'     => date('Y.m.d. H:i')
 ];
-
-// 7. SQL MENTÉS (UPSERT)
+$vegleges_adatbazis_sor = keszitsMentendoSort('m_va_adatbazis', $PROFIL, $aktualis_valtozasok);
+// 7. SZERVER-FÜGGETLEN MENTÉS
 try {
+    // Itt választhatsz szervert: $pdo lehet csatlakozasSzerver1() vagy csatlakozasSzerver2()
     if (!isset($pdo)) { $pdo = csatlakozasSzerver2(); }
     
-    // Ha munkanapok száma 0 (pl. csak hétvégét jelöltél ki), nem mentünk szemetet!
+    // Szemetes védelem (0 munkanap = nincs mentés)
     if ($sz_tp_napok <= 0 && in_array($bejovo_ertek, $mentendo_kodok)) {
-         echo json_encode(['status' => 'ok', 'uzenet' => 'Nincs mentendő munkanap a tartományban.']);
+         echo json_encode(['status' => 'ok', 'uzenet' => 'Nem történt mentés: nincs munkanap.']);
          exit;
     }
 
-    $stmt_check = $pdo->prepare("SELECT id FROM m_va_adatbazis WHERE `operátor_szám` = ? AND DATE(`sz_tp_kezdet`) = DATE(?)");
-    $stmt_check->execute([$bejovo_op, $sz_tp_kezdet]);
-    $existing_id = $stmt_check->fetchColumn();
+    // Meghívjuk az intelligens mentőt az sql_szerkezet.php-ból
+    intelligensMentes($pdo, 'm_va_adatbazis', $vegleges_adatbazis_sor);
 
-    if ($existing_id) {
-        $set_parts = []; $values = [];
-        foreach ($vegleges_adatbazis_sor as $col => $val) { $set_parts[] = "`$col` = ?"; $values[] = $val; }
-        $sql = "UPDATE `m_va_adatbazis` SET " . implode(", ", $set_parts) . " WHERE `id` = ?";
-        $values[] = $existing_id;
-    } else {
-        $cols = []; $placeholders = []; $values = [];
-        foreach ($vegleges_adatbazis_sor as $col => $val) { $cols[] = "`$col`"; $placeholders[] = "?"; $values[] = $val; }
-        $sql = "INSERT INTO `m_va_adatbazis` (" . implode(", ", $cols) . ") VALUES (" . implode(", ", $placeholders) . ")";
-    }
-
-    $pdo->prepare($sql)->execute($values);
-    $db_uzenet = "Sikeres mentés";
-} catch (Exception $e) { $db_uzenet = "SQL HIBA: " . $e->getMessage(); }
-
-echo json_encode(['status' => 'ok', 'sql_info' => $db_uzenet, 'debug_user' => $cel_user_id]);
+    echo json_encode(['status' => 'ok', 'sql_info' => 'Sikeres mentés']);
+} catch (Exception $e) { 
+    echo json_encode(['status' => 'error', 'uzenet' => 'Hiba: ' . $e->getMessage()]); 
+}
 exit;
