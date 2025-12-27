@@ -28,32 +28,46 @@ $bejovo_tipus     = isset($URLAP['tipus'])   ? trim($URLAP['tipus'])   : '';
 $bejovo_napok     = isset($URLAP['napok'])   ? (int)$URLAP['napok']    : 0; // 👈 ÚJ: Kézi napok beolvasása
 
 
-// 3. TÖRLÉS VAGY MENTÉS ELDÖNTÉSE
-$mentendo_kodok = ['SZ', 'TP', 'fn'];
-$fix_kodok      = ['Ü', '-'];
-
-// Ha 'A', 'Ü', vagy '-' érkezik -> Először tisztítunk (Split/Shrink), hogy ne maradjon alatta régi SZ/TP
+// 3. TÖRLÉS VAGY FIX JELÖLÉS (A, Ü, -) TISZTÍTÁSA ÉS DARABOLÁSA
 if (!in_array($bejovo_ertek, $mentendo_kodok)) {
     try {
         if (!isset($pdo)) { $pdo = csatlakozasSzerver2(); }
 
-        // JAVÍTÁS: Kivettük a 'sz_tp_érték' hivatkozást, mert az oszlop nem létezik az adatbázisodban
-        $sql_split = "INSERT INTO `m_va_adatbazis` (`operátor_szám`, `sz_tp_kezdet`, `sz_tp_végzet`, `státusz`, `dokumentum_típusa`, `jelentkezés_forrása`, `státusz_dátum`) 
-                      SELECT `operátor_szám`, DATE_ADD(?, INTERVAL 1 DAY), `sz_tp_végzet`, `státusz`, `dokumentum_típusa`, 'Kézi', NOW()
-                      FROM `m_va_adatbazis` WHERE `operátor_szám` = ? AND `sz_tp_kezdet` < ? AND `sz_tp_végzet` > ?";
-        $pdo->prepare($sql_split)->execute([$bejovo_datum_veg, $bejovo_op, $bejovo_datum, $bejovo_datum_veg]);
-        
-        $pdo->prepare("UPDATE `m_va_adatbazis` SET `sz_tp_végzet` = DATE_SUB(?, INTERVAL 1 DAY) WHERE `operátor_szám` = ? AND `sz_tp_kezdet` < ? AND `sz_tp_végzet` >= ?")->execute([$bejovo_datum, $bejovo_op, $bejovo_datum, $bejovo_datum]);
-        $pdo->prepare("UPDATE `m_va_adatbazis` SET `sz_tp_kezdet` = DATE_ADD(?, INTERVAL 1 DAY) WHERE `operátor_szám` = ? AND `sz_tp_végzet` > ? AND `sz_tp_kezdet` <= ?")->execute([$bejovo_datum_veg, $bejovo_op, $bejovo_datum_veg, $bejovo_datum_veg]);
-        $pdo->prepare("DELETE FROM `m_va_adatbazis` WHERE `operátor_szám` = ? AND `sz_tp_kezdet` >= ? AND `sz_tp_végzet` <= ?")->execute([$bejovo_op, $bejovo_datum, $bejovo_datum_veg]);
-        
-        // Lite mentés Ü és - számára (csak a legszükségesebb oszlopokkal)
-        if ($bejovo_ertek === 'Ü' || $bejovo_ertek === '-') {
-            $pdo->prepare("INSERT INTO `m_va_adatbazis` (`operátor_szám`, `sz_tp_kezdet`, `sz_tp_végzet`, `státusz`, `dokumentum_típusa`, `jelentkezés_forrása`, `státusz_dátum`) 
-                           VALUES (?, ?, ?, 'Fix jelölés', ?, 'Kézi', NOW())")
-                ->execute([$bejovo_op, $bejovo_datum, $bejovo_datum_veg, $bejovo_ertek]);
+        // Split logika: Ha egy rekord közepébe vágunk, megőrizzük a profil adatokat
+        $stmt_check = $pdo->prepare("SELECT * FROM `m_va_adatbazis` WHERE `operátor_szám` = ? AND `sz_tp_kezdet` < ? AND `sz_tp_végzet` > ?");
+        $stmt_check->execute([$bejovo_op, $bejovo_datum, $bejovo_datum_veg]);
+        $split_rekord = $stmt_check->fetch(PDO::FETCH_ASSOC);
+
+        if ($split_rekord) {
+            $pdo->prepare("UPDATE `m_va_adatbazis` SET `sz_tp_végzet` = DATE_SUB(?, INTERVAL 1 DAY) WHERE `id` = ?")
+                ->execute([$bejovo_datum, $split_rekord['id']]);
+
+            $uj_resz = $split_rekord;
+            unset($uj_resz['id']); 
+            $uj_resz['sz_tp_kezdet'] = date('Y-m-d', strtotime($bejovo_datum_veg . ' +1 day'));
+            $uj_resz['státusz_dátum'] = date('Y.m.d. H:i');
+            intelligensMentes($pdo, 'm_va_adatbazis', $uj_resz);
         }
-        
+
+        // Tisztítás
+        $pdo->prepare("UPDATE `m_va_adatbazis` SET `sz_tp_kezdet` = DATE_ADD(?, INTERVAL 1 DAY) WHERE `operátor_szám` = ? AND `sz_tp_végzet` > ? AND `sz_tp_kezdet` <= ?")->execute([$bejovo_datum_veg, $bejovo_op, $bejovo_datum_veg, $bejovo_datum_veg]);
+        $pdo->prepare("UPDATE `m_va_adatbazis` SET `sz_tp_végzet` = DATE_SUB(?, INTERVAL 1 DAY) WHERE `operátor_szám` = ? AND `sz_tp_kezdet` < ? AND `sz_tp_végzet` >= ?")->execute([$bejovo_datum, $bejovo_op, $bejovo_datum, $bejovo_datum]);
+        $pdo->prepare("DELETE FROM `m_va_adatbazis` WHERE `operátor_szám` = ? AND `sz_tp_kezdet` >= ? AND `sz_tp_végzet` <= ?")->execute([$bejovo_op, $bejovo_datum, $bejovo_datum_veg]);
+
+        if ($bejovo_ertek === 'Ü' || $bejovo_ertek === '-') {
+            $fix_adatok = [
+                'operátor_szám'     => $bejovo_op,
+                'sz_tp_kezdet'      => $bejovo_datum,
+                'sz_tp_végzet'      => $bejovo_datum_veg,
+                'dokumentum_típusa' => $bejovo_ertek,
+                'státusz'           => 'Fix jelölés',
+                'jelentkezés_forrása' => 'Kézi',
+                'státusz_dátum'     => date('Y.m.d. H:i')
+            ];
+            $fix_sor = keszitsMentendoSort('m_va_adatbazis', $PROFIL, $fix_adatok);
+            intelligensMentes($pdo, 'm_va_adatbazis', $fix_sor);
+        }
+
         echo json_encode(['status' => 'ok', 'uzenet' => 'Sikeres módosítás: ' . $bejovo_ertek]);
         exit;
     } catch (Exception $e) {
@@ -62,24 +76,18 @@ if (!in_array($bejovo_ertek, $mentendo_kodok)) {
     }
 }
 
-// 4. FELHASZNÁLÓ AZONOSÍTÁSA ÉS PROFIL ADATOK
+// 4. FELHASZNÁLÓ PROFIL ADATOK BETÖLTÉSE
+$cel_user_id = 0;
 $cel_user_id = 0;
 if ($bejovo_op !== '' && $bejovo_op !== 'kulso') {
     $user_by_login = get_user_by('login', $bejovo_op);
-    if ($user_by_login) {
-        $cel_user_id = $user_by_login->ID;
-    } else {
-        $users = get_users(['meta_key' => 'nickname', 'meta_value' => $bejovo_op, 'number' => 1, 'fields' => 'ID']);
-        if (!empty($users)) { $cel_user_id = $users[0]; }
-    }
+    if ($user_by_login) { $cel_user_id = $user_by_login->ID; }
 }
 
 $PROFIL = [];
 if ($cel_user_id > 0) {
     $all_meta = get_user_meta($cel_user_id);
-    foreach ($all_meta as $key => $val) {
-        $PROFIL[$key] = isset($val[0]) ? $val[0] : '';
-    }
+    foreach ($all_meta as $key => $val) { $PROFIL[$key] = isset($val[0]) ? $val[0] : ''; }
     $userdata = get_userdata($cel_user_id);
     if ($userdata) {
         $PROFIL['wp_last_name']  = $userdata->last_name;
@@ -151,32 +159,27 @@ if ($bejovo_napok > 0) {
 }
 // 1. Csak azokat az adatokat adjuk meg, amik ténylegesen a mostani eseményhez tartoznak
 $aktualis_valtozasok = [
-    'operátor_szám'     => $bejovo_op,
-    'sz_tp_kezdet'      => $sz_tp_kezdet,
-    'sz_tp_végzet'      => $sz_tp_vegzet,
-    'sz_tp_napok'       => $sz_tp_napok,
-    'sz_tp_utáni_nap'   => $sz_tp_utani_nap,
-    'dokumentum_típusa' => in_array($bejovo_ertek, ['Ü', '-']) ? $bejovo_ertek : $magyar_dok_tipus,
-    'státusz'           => in_array($bejovo_ertek, ['Ü', '-']) ? 'Fix jelölés' : 'Szabadság és Táppénz',
-    'státusz_dátum'     => date('Y.m.d. H:i')
+    'operátor_szám'       => $bejovo_op,
+    'sz_tp_kezdet'        => $sz_tp_kezdet,
+    'sz_tp_végzet'        => $sz_tp_vegzet,
+    'sz_tp_napok'         => $sz_tp_napok,
+    'sz_tp_utáni_nap'     => $sz_tp_utani_nap,
+    'jelentkezés_forrása' => 'Kézi',
+    'dokumentum_típusa'   => $magyar_dok_tipus,
+    'státusz'             => 'Szabadság és Táppénz',
+    'státusz_dátum'       => date('Y.m.d. H:i')
 ];
 $vegleges_adatbazis_sor = keszitsMentendoSort('m_va_adatbazis', $PROFIL, $aktualis_valtozasok);
 // 7. SZERVER-FÜGGETLEN MENTÉS
 try {
-    // Itt választhatsz szervert: $pdo lehet csatlakozasSzerver1() vagy csatlakozasSzerver2()
     if (!isset($pdo)) { $pdo = csatlakozasSzerver2(); }
-    
-    // Szemetes védelem (0 munkanap = nincs mentés)
-    if ($sz_tp_napok <= 0 && in_array($bejovo_ertek, $mentendo_kodok)) {
-         echo json_encode(['status' => 'ok', 'uzenet' => 'Nem történt mentés: nincs munkanap.']);
-         exit;
+    if ($sz_tp_napok > 0 || !in_array($bejovo_ertek, $mentendo_kodok)) {
+        intelligensMentes($pdo, 'm_va_adatbazis', $vegleges_adatbazis_sor);
+        echo json_encode(['status' => 'ok', 'uzenet' => 'Sikeres mentés!']);
+    } else {
+        echo json_encode(['status' => 'ok', 'uzenet' => 'Nincs mentendő munkanap.']);
     }
-
-    // Meghívjuk az intelligens mentőt az sql_szerkezet.php-ból
-    intelligensMentes($pdo, 'm_va_adatbazis', $vegleges_adatbazis_sor);
-
-    echo json_encode(['status' => 'ok', 'sql_info' => 'Sikeres mentés']);
-} catch (Exception $e) { 
-    echo json_encode(['status' => 'error', 'uzenet' => 'Hiba: ' . $e->getMessage()]); 
+} catch (Exception $e) {
+    echo json_encode(['status' => 'error', 'uzenet' => 'SQL hiba: ' . $e->getMessage()]);
 }
 exit;
