@@ -25,15 +25,36 @@ $bejovo_datum_veg = isset($URLAP['datum_veg']) ? trim($URLAP['datum_veg']) : $be
 $bejovo_visszater = isset($URLAP['visszateres_napja']) ? trim($URLAP['visszateres_napja']) : '';
 $bejovo_ertek     = isset($URLAP['ertek'])   ? trim($URLAP['ertek'])   : ''; 
 $bejovo_tipus     = isset($URLAP['tipus'])   ? trim($URLAP['tipus'])   : '';
-$bejovo_napok     = isset($URLAP['napok'])   ? (int)$URLAP['napok']    : 0; // 👈 ÚJ: Kézi napok beolvasása
+$bejovo_napok     = isset($URLAP['napok'])   ? (int)$URLAP['napok']    : 0;
 
+// HIÁNYZÓ LISTA DEFINIÁLÁSA
+$mentendo_kodok = ['SZ', 'TP', 'fn', 'rendes-szabadsag', 'tanulmanyi-szabadsag', 'kozeli-hozzatartozo-halala-miatt', 'tappenz', 'tappenz-gyap', 'fizetes-nelkuli-szabadsag'];
 
-// 3. TÖRLÉS VAGY FIX JELÖLÉS (A, Ü, -) TISZTÍTÁSA ÉS DARABOLÁSA
+// 3. FELHASZNÁLÓ PROFIL ADATOK BETÖLTÉSE (ELŐREHOZVA A TÖRLÉS ELÉ!)
+$cel_user_id = 0;
+if ($bejovo_op !== '' && $bejovo_op !== 'kulso') {
+    $user_by_login = get_user_by('login', $bejovo_op);
+    if ($user_by_login) { $cel_user_id = $user_by_login->ID; }
+}
+
+$PROFIL = [];
+if ($cel_user_id > 0) {
+    $all_meta = get_user_meta($cel_user_id);
+    foreach ($all_meta as $key => $val) { $PROFIL[$key] = isset($val[0]) ? $val[0] : ''; }
+    $userdata = get_userdata($cel_user_id);
+    if ($userdata) {
+        $PROFIL['wp_last_name']  = $userdata->last_name;
+        $PROFIL['wp_first_name'] = $userdata->first_name;
+        $PROFIL['wp_email']      = $userdata->user_email;
+    }
+}
+
+// 4. TÖRLÉS VAGY FIX JELÖLÉS (A, Ü, -) TISZTÍTÁSA ÉS DARABOLÁSA
 if (!in_array($bejovo_ertek, $mentendo_kodok)) {
     try {
         if (!isset($pdo)) { $pdo = csatlakozasSzerver2(); }
 
-        // Split logika: Ha egy rekord közepébe vágunk, megőrizzük a profil adatokat
+        // Split logika
         $stmt_check = $pdo->prepare("SELECT * FROM `m_va_adatbazis` WHERE `operátor_szám` = ? AND `sz_tp_kezdet` < ? AND `sz_tp_végzet` > ?");
         $stmt_check->execute([$bejovo_op, $bejovo_datum, $bejovo_datum_veg]);
         $split_rekord = $stmt_check->fetch(PDO::FETCH_ASSOC);
@@ -76,25 +97,34 @@ if (!in_array($bejovo_ertek, $mentendo_kodok)) {
     }
 }
 
-// 4. FELHASZNÁLÓ PROFIL ADATOK BETÖLTÉSE
-$cel_user_id = 0;
-$cel_user_id = 0;
-if ($bejovo_op !== '' && $bejovo_op !== 'kulso') {
-    $user_by_login = get_user_by('login', $bejovo_op);
-    if ($user_by_login) { $cel_user_id = $user_by_login->ID; }
-}
+        // Tisztítás és törlés
+        $pdo->prepare("UPDATE `m_va_adatbazis` SET `sz_tp_kezdet` = DATE_ADD(?, INTERVAL 1 DAY) WHERE `operátor_szám` = ? AND `sz_tp_végzet` > ? AND `sz_tp_kezdet` <= ?")->execute([$bejovo_datum_veg, $bejovo_op, $bejovo_datum_veg, $bejovo_datum_veg]);
+        $pdo->prepare("UPDATE `m_va_adatbazis` SET `sz_tp_végzet` = DATE_SUB(?, INTERVAL 1 DAY) WHERE `operátor_szám` = ? AND `sz_tp_kezdet` < ? AND `sz_tp_végzet` >= ?")->execute([$bejovo_datum, $bejovo_op, $bejovo_datum, $bejovo_datum]);
+        $pdo->prepare("DELETE FROM `m_va_adatbazis` WHERE `operátor_szám` = ? AND `sz_tp_kezdet` >= ? AND `sz_tp_végzet` <= ?")->execute([$bejovo_op, $bejovo_datum, $bejovo_datum_veg]);
 
-$PROFIL = [];
-if ($cel_user_id > 0) {
-    $all_meta = get_user_meta($cel_user_id);
-    foreach ($all_meta as $key => $val) { $PROFIL[$key] = isset($val[0]) ? $val[0] : ''; }
-    $userdata = get_userdata($cel_user_id);
-    if ($userdata) {
-        $PROFIL['wp_last_name']  = $userdata->last_name;
-        $PROFIL['wp_first_name'] = $userdata->first_name;
-        $PROFIL['wp_email']      = $userdata->user_email;
+        if ($bejovo_ertek === 'Ü' || $bejovo_ertek === '-') {
+            $fix_adatok = [
+                'operátor_szám'     => $bejovo_op,
+                'sz_tp_kezdet'      => $bejovo_datum,
+                'sz_tp_végzet'      => $bejovo_datum_veg,
+                'dokumentum_típusa' => $bejovo_ertek,
+                'státusz'           => 'Fix jelölés',
+                'jelentkezés_forrása' => 'Kézi',
+                'státusz_dátum'     => date('Y.m.d. H:i')
+            ];
+            $fix_sor = keszitsMentendoSort('m_va_adatbazis', $PROFIL, $fix_adatok);
+            intelligensMentes($pdo, 'm_va_adatbazis', $fix_sor);
+        }
+
+        echo json_encode(['status' => 'ok', 'uzenet' => 'Sikeres módosítás: ' . $bejovo_ertek]);
+        exit;
+    } catch (Exception $e) {
+        echo json_encode(['status' => 'error', 'uzenet' => 'Hiba: ' . $e->getMessage()]);
+        exit;
     }
 }
+
+
 
 // 5. TÍPUSOK ÉS KALKULÁCIÓ (Naptár-szűréssel)
 $tipus_szotar = [

@@ -8,7 +8,7 @@ if (!function_exists('adat')) {
 
 function getTablaTerkepe($tablaNev) {
     $terkepek = [
-        'm_va_adatbazis' => [
+'m_va_adatbazis' => [
     'státusz'                       => 'statusz',
     'státusz_dátum'                 => 'statusz_datum',
     'dokumentum_típusa'             => 'dokumentum_tipusa',
@@ -58,27 +58,21 @@ function getTablaTerkepe($tablaNev) {
     'sz_tp_végzet'                  => 'sz_tp_vegzet',
     'sz_tp_utáni_nap'               => 'sz_tp_utani_nap',
     'sz_tp_napok'                   => 'sz_tp_napok',
-
-   ],
+        ]
         // Ide később felvehetsz más táblákat is
-        'masik_tabla' => [ 'oszlop' => 'meta_kulcs' ]
+        //'masik_tabla' => [ 'oszlop' => 'meta_kulcs' ]
     ];
     return $terkepek[$tablaNev] ?? [];
 }
 
-/**
- * INTELLIGENS ÖSSZEFŰZŐ: Eldönti a prioritást.
- */
 function keszitsMentendoSort($tablaNev, $profil, $egyediAdatok) {
     $terkep = getTablaTerkepe($tablaNev);
     $veglegesSor = [];
 
     foreach ($terkep as $oszlop => $metaKulcs) {
-        // 1. Ha a PHP-ból kaptunk egyedi adatot, az az erősebb
         if (array_key_exists($oszlop, $egyediAdatok)) {
             $veglegesSor[$oszlop] = $egyediAdatok[$oszlop];
         } 
-        // 2. Ha van meta-kulcs megadva, keressük a profilban
         elseif (!empty($metaKulcs)) {
             if ($oszlop === 'vezetéknév') {
                 $veglegesSor[$oszlop] = adat($profil, 'last_name') ?: adat($profil, 'wp_last_name');
@@ -88,7 +82,6 @@ function keszitsMentendoSort($tablaNev, $profil, $egyediAdatok) {
                 $veglegesSor[$oszlop] = adat($profil, $metaKulcs);
             }
         } 
-        // 3. Egyébként marad üres, hogy ne legyen SQL hiba
         else {
             $veglegesSor[$oszlop] = '';
         }
@@ -96,19 +89,14 @@ function keszitsMentendoSort($tablaNev, $profil, $egyediAdatok) {
     return $veglegesSor;
 }
 
-/**
- * UNIVERZÁLIS MENTŐ: Bármilyen szerverhez (PDO) jó.
- */
 function intelligensMentes($pdo, $tablaNev, $adatSor) {
     $oszlopok = array_keys($adatSor);
     $cols = implode("`, `", $oszlopok);
     $placeholders = implode(", ", array_fill(0, count($adatSor), "?"));
-    
     $updateResz = [];
     foreach ($oszlopok as $k) {
         $updateResz[] = "`$k` = VALUES(`$k`)";
     }
-    
     $sql = "INSERT INTO `$tablaNev` (`$cols`) VALUES ($placeholders) 
             ON DUPLICATE KEY UPDATE " . implode(", ", $updateResz);
 
