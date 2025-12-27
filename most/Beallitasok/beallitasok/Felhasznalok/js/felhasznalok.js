@@ -1,8 +1,9 @@
 // Beallitasok/beallitasok/Felhasznalok/js/felhasznalok.js
 
 async function felhasznalokBetoltese() {
-    const kontener = document.getElementById('menu-kontener');
-    kontener.innerHTML = '<p>Betöltés...</p>';
+    // JAVÍTÁS: A modul-tartalom dobozba írunk, így a Vissza gomb megmarad felül!
+    const tartalomHelye = document.getElementById('modul-tartalom');
+    if (tartalomHelye) tartalomHelye.innerHTML = '<p style="text-align:center; padding:20px;">Betöltés...</p>';
 
     try {
         const response = await fetch('Beallitasok/beallitasok/Felhasznalok/felhasznalok_lekerese.php');
@@ -11,16 +12,16 @@ async function felhasznalokBetoltese() {
         if (res.status === 'ok') {
             generaljTablazatot(res.adatok, res.oszlopok);
         } else {
-            kontener.innerHTML = '<p style="color:red">Hiba: ' + (res.error || 'Ismeretlen hiba') + '</p>';
+            if (tartalomHelye) tartalomHelye.innerHTML = '<p style="color:red">Hiba: ' + (res.error || 'Ismeretlen hiba') + '</p>';
         }
     } catch (e) {
-        console.error(e);
+        console.error("Betöltési hiba:", e);
     }
 }
 
 function generaljTablazatot(adatok, oszlopok) {
     // Csak a fix szöveges mezőket listázzuk. Minden más oszlop automatikusan kapcsoló lesz!
-    const szovegesMezok = ['név', 'email', 'felhasználónév', 'jelszó', 'telefon', 'mac_cím', 'külső_ip_cím', 'cég', 'szerep'];
+    const szovegesMezok = ['id','név', 'email', 'felhasználónév', 'jelszó', 'telefon', 'mac_cím', 'külső_ip_cím', 'cég', 'szerep'];
     
     let html = '<div class="felhasznalo-tabla-wrapper"><table class="f-tabla"><thead><tr>';
     
