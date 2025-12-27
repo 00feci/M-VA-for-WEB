@@ -1,0 +1,103 @@
+/* Felhasználói táblázat konténer */
+.felhasznalo-tabla-wrapper {
+    width: 100%;
+    overflow-x: auto; /* Ha sok az oszlop, lehessen görgetni */
+    margin-top: 20px;
+}
+
+.f-tabla {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    color: #eee;
+    font-size: 12px; /* Kicsit kisebb betű a több adat miatt */
+}
+
+.f-tabla th {
+    padding: 12px 8px;
+    background-color: #2a2a2a;
+    border-bottom: 1px solid #444; /* Egyszerű szürke elválasztó */
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    white-space: nowrap;
+}
+
+.f-tabla td {
+    padding: 10px 5px;
+    border-bottom: 1px solid #333;
+    text-align: center; /* Mindent középre igazítunk az oszlopon belül */
+    vertical-align: middle;
+}
+
+/* Fix szélesség a szöveges mezőknek, hogy ne nyomják össze a táblát */
+.f-input {
+    background: #333;
+    border: 1px solid #555;
+    color: white;
+    padding: 6px;
+    border-radius: 4px;
+    width: 140px; /* Megnövelt fix szélesség az átfedés ellen */
+    box-sizing: border-box;
+}
+
+.switch {
+    position: relative;
+    display: block; /* Középre igazításhoz block */
+    margin: 0 auto; /* Automatikus margó a vízszintes középre igazításhoz */
+    width: 40px;
+    height: 20px;
+}
+.f-tabla tr:hover {
+    background-color: #2d2d2d; /* Sor kiemelése hoverre */
+}
+
+/* Jogosultság oszlopok (kapcsolók) szűkítése */
+.f-tabla th:nth-child(n+7), 
+.f-tabla td:nth-child(n+7) {
+    min-width: 50px;
+    max-width: 80px;
+}
+
+/* 🟢 Toggle Switch Stílus */
+.switch {
+    position: relative;
+    display: block; /* Inline helyett block */
+    margin: 0 auto; /* Automatikus margó a középre igazításhoz */
+    width: 40px;
+    height: 20px;
+}
+
+.switch input { opacity: 0; width: 0; height: 0; }
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #555;
+    transition: .4s;
+    border-radius: 20px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 14px; width: 14px;
+    left: 3px; bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider { background-color: #00ff88; } /* Neon zöld ha OK */
+input:checked + .slider:before { transform: translateX(20px); }
+
+/* Szerkeszthető szövegmezők */
+.f-input {
+    background: #333;
+    border: 1px solid #555;
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+    width: 100px;
+}

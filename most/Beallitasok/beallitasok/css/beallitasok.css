@@ -1,0 +1,84 @@
+body {
+    background-color: #121212;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.beallitas-panel {
+    position: relative;
+    width: 95%; /* Rugalmas szélesség */
+    max-width: 1600px; /* Maximális szélesség, hogy ne nyúljon el túl hosszan */
+    min-height: 600px;
+    margin: 20px auto;
+    padding: 30px;
+    border: 1px solid #444;
+    border-radius: 25px; /* Szélesebb panelnél a kisebb kerekítés elegánsabb */
+    font-family: Arial, sans-serif;
+    background-color: #222;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+    transition: width 0.3s ease; /* Finom átmenet méretváltáskor */
+}
+
+/* Mobilos nézetre való felkészítés */
+@media (max-width: 768px) {
+    .beallitas-panel {
+        width: 98%;
+        padding: 15px;
+        margin: 10px auto;
+    }
+}
+
+/* Útvonaljelző (Breadcrumb) stílusa */
+.utvonal-jelzo {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.utvonal-jelzo span { color: #555; margin: 0 5px; }
+
+/* Dashboard Gombok stílusa */
+.menu-kontener {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 80%;
+}
+
+.dashboard-gomb {
+    background: #333;
+    color: white;
+    border: 1px solid #444;
+    padding: 15px;
+    border-radius: 15px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.dashboard-gomb:hover {
+    background: #444;
+    border-color: #00CED1;
+    transform: translateY(-2px);
+}
+
+.vissza-gomb {
+    position: absolute;
+    top: 10px;
+    left: 80px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
