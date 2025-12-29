@@ -101,20 +101,20 @@ async function torlesKivalasztott() {
         console.error("Hálózati hiba törléskor:", e);
     }
 }
-// Új felhasználó mentése - kötelező mezők ellenőrzésével
+// Új felhasználó mentése - MINDEN szöveges mező ellenőrzésével
 async function ujFelhasznaloMentese(gomb) {
     const tr = gomb.closest('tr');
+    const szovegesMezok = ['név', 'email', 'felhasználónév', 'jelszó', 'telefon', 'mac_cím', 'külső_ip_cím', 'cég'];
     
-    // Kötelező mezők kigyűjtése
-    const fnev = tr.querySelector('input[data-col="felhasználónév"]').value.trim();
-    const nev = tr.querySelector('input[data-col="név"]').value.trim();
-    const email = tr.querySelector('input[data-col="email"]').value.trim();
-    
-    // Ellenőrzés: ha bármelyik hiányzik, megállunk és szólunk
-    if (!fnev) return alert("A Felhasználónév mező kötelező!");
-    if (!nev) return alert("A Név mező kötelező!");
-    if (!email) return alert("Az Email mező kötelező!");
+    // Ellenőrzés: végigmegyünk az összes szöveges mezőn
+    for (let mezo of szovegesMezok) {
+        const input = tr.querySelector(`input[data-col="${mezo}"]`);
+        if (input && !input.value.trim()) {
+            return alert("A(z) '" + mezo + "' mező kitöltése kötelező!");
+        }
+    }
 
+    const fnev = tr.querySelector('input[data-col="felhasználónév"]').value.trim();
     if (!confirm("Biztosan létrehozza '" + fnev + "' felhasználót?")) return;
     
     const inputs = tr.querySelectorAll('input');
@@ -158,4 +158,5 @@ async function mentes(felhasznalo, oszlop, ertek) {
 }
 
 // TESZT_SZINKRON_MUKODIK
+
 
