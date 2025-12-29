@@ -132,15 +132,3 @@ async function mentes(originalUser, adatok) {
         }
     } catch (e) { console.error("Hiba:", e); }
 }
-
-
-
-
-
-
-
-
-
-
-
-
