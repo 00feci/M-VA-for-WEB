@@ -2,7 +2,6 @@
 
 // 🌍 Globális definíció - CSAK ITT KELL MÓDOSÍTANI, ha új szöveges mező lesz!
 const SZOVEGES_MEZOK = ['név', 'email', 'felhasználónév', 'jelszó', 'telefon', 'mac_cím', 'külső_ip_cím', 'cég'];
-let html = '<div class="felhasznalo-tabla-wrapper"><table class="f-tabla"><thead><tr>';
 async function felhasznalokBetoltese() {
     const tartalomHelye = document.getElementById('modul-tartalom');
     if (tartalomHelye) tartalomHelye.innerHTML = '<p style="text-align:center; padding:20px;">Betöltés...</p>';
@@ -132,3 +131,4 @@ async function mentes(originalUser, adatok) {
         }
     } catch (e) { console.error("Hiba:", e); }
 }
+
