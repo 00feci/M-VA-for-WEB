@@ -1,7 +1,7 @@
-/* 🌍 EGYETLEN HELY: Itt dől el minden oszlop egységes szélessége és magassága */
+/* 🌍 EGYETLEN HELY: Minden oszlop (adatmező és kapcsoló is) egységesen X széles és X hosszú */
 .f-tabla th, .f-tabla td { 
     width: 190px;   /* X széles */
-    height: 55px;   /* X hosszu (magas) */
+    height: 55px;   /* X hosszú (magas) */
     vertical-align: middle; 
     text-align: center; 
     padding: 5px; 
@@ -13,7 +13,7 @@
     overflow: hidden; 
 }
 
-/* Alapvető táblázat szerkezet és rögzítések */
+/* Technikai rögzítések (sticky) és alapformázás */
 .felhasznalo-tabla-wrapper { overflow: auto; width: 100%; max-height: 75vh; border: 1px solid #444; position: relative; }
 .f-tabla { border-collapse: separate; border-spacing: 0; width: max-content; table-layout: fixed; }
 
@@ -22,5 +22,6 @@
 .f-tabla thead th:first-child { z-index: 110; background: #333; }
 .new-user-row td { background: #2a2a2a !important; }
 
+/* Az elemek kitöltik az egységes cellákat */
 .f-input { width: 95%; height: 35px; padding: 5px; box-sizing: border-box; border: 1px solid #555; background: #333; color: #fff; }
 .switch { margin: 0 auto; display: block; }
