@@ -28,19 +28,18 @@ function generaljTablazatot(adatok, oszlopok) {
         /* 📏 table-layout: fixed kényszeríti az oszlopokat a megadott szélességre */
         .f-tabla { border-collapse: separate; border-spacing: 0; width: max-content; table-layout: fixed; }
         
-        /* 🎯 EGYETLEN HELY: Itt állítjuk az összes oszlop (adat) méretét */
+       /* ✅ EGYETLEN HELY: Minden oszlop szigorúan egységes (kivétel nélkül) */
         .f-tabla th, .f-tabla td { 
             vertical-align: middle; text-align: center; padding: 5px; 
-            height: 60px;   /* Egységes magasság */
-            width: 200px;   /* Egységes szélesség minden adat oszlopnak */
+            height: 55px;    /* Fix magasság mindenhol */
+            width: 190px;    /* Fix szélesség mindenhol, az első oszlopban is! */
             border-bottom: 1px solid #444; border-right: 1px solid #444; background: #222; color: #fff; 
             white-space: nowrap; overflow: hidden;
         }
 
-        /* 📌 Az első oszlop (Választ) kivétel: ez maradjon keskeny a használhatóság miatt */
+        /* A rögzítés marad, de a szélesség-kivételt töröltem */
         .f-tabla th:first-child, .f-tabla td:first-child { 
             position: sticky; left: 0; z-index: 90; background: #222; border-right: 2px solid #666; 
-            width: 70px; 
         }
         
         .f-tabla thead th { position: sticky; top: 0; z-index: 100; background: #333; border-bottom: 2px solid #666; }
@@ -165,6 +164,7 @@ async function mentes(originalUser, adatok) {
         }
     } catch (e) { console.error("Hiba:", e); }
 }
+
 
 
 
