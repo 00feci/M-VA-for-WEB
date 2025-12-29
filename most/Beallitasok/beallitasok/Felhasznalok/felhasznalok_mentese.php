@@ -37,11 +37,12 @@ try {
     if ($szerep === '0') { echo json_encode(['status' => 'error', 'uzenet' => 'Admin nem módosítható!']); exit; }
 
    $params = [];
+    $i = 0; // Sorszámozott helyőrzők az ékezetes mezőnevek kezeléséhez
     if ($szerep === false) {
-        // ✨ ÚJ felhasználó: Dinamikus INSERT biztonságos helyőrzőkkel
+        // ✨ ÚJ felhasználó: Dinamikus INSERT sorszámozott helyőrzőkkel
         $cols = []; $placeholders = [];
         foreach ($adatok as $col => $val) {
-            $p = str_replace('-', '_', $col); // Kötőjel javítása helyőrzőben
+            $p = "p" . $i++;
             $cols[] = "`$col`";
             $placeholders[] = ":$p";
             $params[$p] = $val;
@@ -50,14 +51,14 @@ try {
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
     } else {
-        // 📝 MÓDOSÍTÁS: Dinamikus UPDATE biztonságos helyőrzőkkel
+        // 📝 MÓDOSÍTÁS: Dinamikus UPDATE sorszámozott helyőrzőkkel
         $set = [];
-        $params['origUser'] = $originalUser;
         foreach ($adatok as $col => $val) {
-            $p = str_replace('-', '_', $col); // Kötőjel javítása helyőrzőben
+            $p = "p" . $i++;
             $set[] = "`$col` = :$p";
             $params[$p] = $val;
         }
+        $params['origUser'] = $originalUser;
         $sql = "UPDATE m_va_felhasznalok SET " . implode(", ", $set) . " WHERE `felhasználónév` = :origUser";
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
@@ -67,3 +68,4 @@ try {
 } catch (Exception $e) {
     echo json_encode(['status' => 'error', 'uzenet' => $e->getMessage()]);
 }
+
