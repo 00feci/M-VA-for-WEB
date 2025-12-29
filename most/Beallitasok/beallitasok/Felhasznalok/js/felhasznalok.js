@@ -1,87 +1,133 @@
-// Beallitasok/beallitasok/Felhasznalok/js/felhasznalok.js
-
-async function felhasznalokBetoltese() {
-    // JAVÍTÁS: A modul-tartalom dobozba írunk, így a Vissza gomb megmarad felül!
-    const tartalomHelye = document.getElementById('modul-tartalom');
-    if (tartalomHelye) tartalomHelye.innerHTML = '<p style="text-align:center; padding:20px;">Betöltés...</p>';
-
-    try {
-        const response = await fetch('Beallitasok/beallitasok/Felhasznalok/felhasznalok_lekerese.php');
-        const res = await response.json();
-
-        if (res.status === 'ok') {
-            generaljTablazatot(res.adatok, res.oszlopok);
-        } else {
-            if (tartalomHelye) tartalomHelye.innerHTML = '<p style="color:red">Hiba: ' + (res.error || 'Ismeretlen hiba') + '</p>';
-        }
-    } catch (e) {
-        console.error("Betöltési hiba:", e);
-    }
-}
-
-function generaljTablazatot(adatok, oszlopok) {
-    // Csak a fix szöveges mezőket listázzuk. Minden más oszlop automatikusan kapcsoló lesz!
-    const szovegesMezok = ['id','név', 'email', 'felhasználónév', 'jelszó', 'telefon', 'mac_cím', 'külső_ip_cím', 'cég', 'szerep'];
-    
-    let html = '<div class="felhasznalo-tabla-wrapper"><table class="f-tabla"><thead><tr>';
-    
-    // Fejlécek (dátum kihagyva)
-    oszlopok.forEach(o => { if(o !== 'dátum') html += `<th>${o}</th>`; });
-    html += '</tr></thead><tbody>';
-
-    adatok.forEach(sor => {
-        html += '<tr>';
-        oszlopok.forEach(o => {
-            if (o === 'dátum') return;
-
-            let ertek = sor[o] || '';
-            if (szovegesMezok.includes(o)) {
-                // ✍️ SZÖVEGMEZŐ (fix szélességgel a CSS-ben)
-                html += `<td><input type="text" class="f-input" value="${ertek}" onblur="mentes('${sor.felhasználónév}', '${o}', this.value)"></td>`;
-            } else {
-                // 🔘 KAPCSOLÓ (Automatikus minden funkcióhoz)
-                let checked = ertek === 'OK' ? 'checked' : '';
-                html += `<td><label class="switch"><input type="checkbox" ${checked} onchange="mentes('${sor.felhasználónév}', '${o}', this.checked)"><span class="slider"></span></label></td>`;
-            }
-        });
-        html += '</tr>';
-    });
-
-    html += '</tbody></table></div>';
-    
-    // Csak a tartalom részt frissítjük, hogy a Vissza gomb ne tűnjön el!
-    const tartalomHelye = document.getElementById('modul-tartalom');
-    if (tartalomHelye) tartalomHelye.innerHTML = html;
-}
-
-async function mentes(felhasznalo, oszlop, ertek) {
-    console.log("🚀 Mentés indítása a szerverre:", felhasznalo, oszlop, ertek);
-
-    // Ha checkbox (Toggle), akkor 'OK' vagy üres string legyen az érték az SQL-hez
-    let veglegesErtek = ertek;
-    if (typeof ertek === 'boolean') {
-        veglegesErtek = ertek ? 'OK' : '';
-    }
-
-    try {
-        const response = await fetch('Beallitasok/beallitasok/Felhasznalok/felhasznalok_mentese.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                felhasznalo: felhasznalo,
-                oszlop: oszlop,
-                ertek: veglegesErtek
-            })
-        });
-        const res = await response.json();
-        
-        if (res.status === 'ok') {
-            console.log("✅ Adatbázis sikeresen frissítve:", res.uzenet);
-        } else {
-            alert("Hiba a mentésnél: " + res.uzenet);
-            console.error("Szerver hiba:", res.uzenet);
-        }
-    } catch (e) {
-        console.error("Hálózati hiba történt:", e);
-    }
+// Beallitasok/beallitasok/Felhasznalok/js/felhasznalok.js
+async function felhasznalokBetoltese() {
+    // JAVÍTÁS: A modul-tartalom dobozba írunk, így a Vissza gomb megmarad felül!
+    const tartalomHelye = document.getElementById('modul-tartalom');
+    if (tartalomHelye) tartalomHelye.innerHTML = '<p style="text-align:center; padding:20px;">Betöltés...</p>';
+    try {
+        const response = await fetch('Beallitasok/beallitasok/Felhasznalok/felhasznalok_lekerese.php');
+        const res = await response.json();
+        if (res.status === 'ok') {
+            generaljTablazatot(res.adatok, res.oszlopok);
+        } else {
+            if (tartalomHelye) tartalomHelye.innerHTML = '<p style="color:red">Hiba: ' + (res.error || 'Ismeretlen hiba') + '</p>';
+        }
+    } catch (e) {
+        console.error("Betöltési hiba:", e);
+    }
+}
+
+function generaljTablazatot(adatok, oszlopok) {
+    // Szöveges mezők (id és szerep nélkül)
+    const szovegesMezok = ['név', 'email', 'felhasználónév', 'jelszó', 'telefon', 'mac_cím', 'külső_ip_cím', 'cég'];
+    
+    let html = '<div class="felhasznalo-tabla-wrapper"><table class="f-tabla"><thead><tr>';
+    html += '<th>Választ</th>'; // Kiválasztó oszlop
+    
+    oszlopok.forEach(o => { 
+        if(o !== 'dátum' && o !== 'id' && o !== 'szerep') html += `<th>${o}</th>`; 
+    });
+    html += '</tr></thead><tbody>';
+
+    // Meglévő felhasználók
+    adatok.forEach(sor => {
+        html += `<tr>`;
+        html += `<td><input type="radio" name="user-select" value="${sor.felhasználónév}"></td>`;
+        oszlopok.forEach(o => {
+            if (o === 'dátum' || o === 'id' || o === 'szerep') return;
+            let ertek = sor[o] || '';
+            if (szovegesMezok.includes(o)) {
+                html += `<td><input type="text" class="f-input" data-col="${o}" value="${ertek}"></td>`;
+            } else {
+                let checked = ertek === 'OK' ? 'checked' : '';
+                html += `<td><label class="switch"><input type="checkbox" data-col="${o}" ${checked}><span class="slider"></span></label></td>`;
+            }
+        });
+        html += '</tr>';
+    });
+
+    // ➕ Új felhasználó sor (utolsó sor)
+    html += '<tr class="new-user-row" style="background: #2a2a2a;">';
+    html += `<td><button onclick="ujFelhasznaloMentese(this)" style="cursor:pointer; background:none; border:none; font-size:20px;">➕</button></td>`;
+    oszlopok.forEach(o => {
+        if (o === 'dátum' || o === 'id' || o === 'szerep') return;
+        if (szovegesMezok.includes(o)) {
+            html += `<td><input type="text" class="f-input" data-col="${o}" placeholder="${o}..."></td>`;
+        } else {
+            html += `<td><label class="switch"><input type="checkbox" data-col="${o}"><span class="slider"></span></label></td>`;
+        }
+    });
+    html += '</tr></tbody></table></div>';
+    document.getElementById('modul-tartalom').innerHTML = html;
+}
+
+// Mentés megerősítéssel
+async function mentesKivalasztott() {
+    const radio = document.querySelector('input[name="user-select"]:checked');
+    if (!radio) { alert("Nincs kiválasztva felhasználó!"); return; }
+    const user = radio.value;
+    if (!confirm("Biztosan MENTENI szeretné '" + user + "' felhasználó adatait?")) return;
+    
+    const tr = radio.closest('tr');
+    const inputs = tr.querySelectorAll('input:not([name="user-select"])');
+    for (let input of inputs) {
+        let col = input.dataset.col;
+        let val = input.type === 'checkbox' ? (input.checked ? 'OK' : '') : input.value;
+        await mentes(user, col, val);
+    }
+    alert("'" + user + "' sikeresen mentve.");
+}
+
+// Törlés megerősítéssel
+async function torlesKivalasztott() {
+    const radio = document.querySelector('input[name="user-select"]:checked');
+    if (!radio) { alert("Nincs kiválasztva felhasználó!"); return; }
+    const user = radio.value;
+    if (!confirm("FIGYELEM! Biztosan TÖRÖLNI szeretné '" + user + "' felhasználót?")) return;
+    alert("'" + user + "' törlése hamarosan elkészül (PHP szükséges).");
+}
+
+// Új felhasználó mentése
+async function ujFelhasznaloMentese(gomb) {
+    const tr = gomb.closest('tr');
+    const fnevInput = tr.querySelector('input[data-col="felhasználónév"]');
+    const fnev = fnevInput.value.trim();
+    if (!fnev) { alert("Felhasználónév kötelező!"); return; }
+    if (!confirm("Létrehozza '" + fnev + "' felhasználót?")) return;
+    const inputs = tr.querySelectorAll('input');
+    for (let input of inputs) {
+        let col = input.dataset.col;
+        let val = input.type === 'checkbox' ? (input.checked ? 'OK' : '') : input.value;
+        await mentes(fnev, col, val);
+    }
+    alert("'" + fnev + "' létrehozva.");
+    felhasznalokBetoltese();
+}
+
+async function mentes(felhasznalo, oszlop, ertek) {
+    console.log("🚀 Mentés indítása a szerverre:", felhasznalo, oszlop, ertek);
+    // Ha checkbox (Toggle), akkor 'OK' vagy üres string legyen az érték az SQL-hez
+    let veglegesErtek = ertek;
+    if (typeof ertek === 'boolean') {
+        veglegesErtek = ertek ? 'OK' : '';
+    }
+    try {
+        const response = await fetch('Beallitasok/beallitasok/Felhasznalok/felhasznalok_mentese.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                felhasznalo: felhasznalo,
+                oszlop: oszlop,
+                ertek: veglegesErtek
+            })
+        });
+        const res = await response.json();   
+        if (res.status === 'ok') {
+            console.log("✅ Adatbázis sikeresen frissítve:", res.uzenet);
+        } else {
+            alert("Hiba a mentésnél: " + res.uzenet);
+            console.error("Szerver hiba:", res.uzenet);
+        }
+    } catch (e) {
+        console.error("Hálózati hiba történt:", e);
+    }
 }
