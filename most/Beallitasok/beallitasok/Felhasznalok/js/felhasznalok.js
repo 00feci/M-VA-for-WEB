@@ -23,8 +23,8 @@ function generaljTablazatot(adatok, oszlopok) {
     
     let html = `
     <style>
-        .f-tabla td { vertical-align: middle; text-align: center; padding: 10px; }
-        .f-input { width: 100%; box-sizing: border-box; min-height: 30px; }
+        .f-tabla td { vertical-align: middle; text-align: center; padding: 12px 10px; height: 55px; }
+        .f-input { width: 100%; min-width: 160px; padding: 8px; box-sizing: border-box; border: 1px solid #555; background: #333; color: #fff; }
         .switch { margin: 0 auto; display: block; }
     </style>
     <div class="felhasznalo-tabla-wrapper"><table class="f-tabla"><thead><tr>`;
@@ -140,6 +140,7 @@ async function mentes(originalUser, adatok) {
         }
     } catch (e) { console.error("Hiba:", e); }
 }
+
 
 
 
