@@ -36,20 +36,19 @@ if ($szerep !== false && $szerep == 0) {
 
 try {
     if ($szerep === false) {
-        // ✨ Új felhasználó létrehozása (INSERT)
-        // Az összes kötelező szöveges mezőnek adunk egy üres alapértéket (''), 
-        // hogy ne dobjon 'Field doesn't have a default value' hibát.
-        $sql = "INSERT INTO m_va_felhasznalok 
-                (`felhasználónév`, `név`, `email`, `jelszó`, `telefon`, `mac_cím`, `külső_ip_cím`, `cég`, `$oszlop`, `szerep`) 
-                VALUES 
-                (:nev, '', '', '', '', '', '', '', :ertek, 1)";
-    } else {
-        // 📝 Meglévő frissítése (UPDATE)
-        $sql = "UPDATE m_va_felhasznalok SET `$oszlop` = :ertek WHERE `felhasználónév` = :nev";
+        // ✨ 1. Lépés: Létrehozzuk az üres rekordot az alapértékekkel (NOT NULL hibák ellen)
+        $sqlInsert = "INSERT INTO m_va_felhasznalok 
+                (`felhasználónév`, `név`, `email`, `jelszó`, `telefon`, `mac_cím`, `külső_ip_cím`, `cég`, `szerep`) 
+                VALUES (:nev, '', '', '', '', '', '', '', 1)";
+        $stmtInsert = $pdo->prepare($sqlInsert);
+        $stmtInsert->execute(['nev' => $target_user]);
     }
-    
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute(['ertek' => $ertek, 'nev' => $target_user]);
+
+    // 📝 2. Lépés: Most már biztosan létezik a rekord, jöhet a konkrét mező mentése (UPDATE)
+    // Ezzel elkerüljük a "specified twice" SQL hibát.
+    $sqlUpdate = "UPDATE m_va_felhasznalok SET `$oszlop` = :ertek WHERE `felhasználónév` = :nev";
+    $stmtUpdate = $pdo->prepare($sqlUpdate);
+    $stmtUpdate->execute(['ertek' => $ertek, 'nev' => $target_user]);
 
     echo json_encode(['status' => 'ok', 'uzenet' => 'Sikeres művelet: ' . $oszlop]);
 
@@ -57,4 +56,5 @@ try {
 
     echo json_encode(['status' => 'error', 'uzenet' => $e->getMessage()]);
 }
+
 
