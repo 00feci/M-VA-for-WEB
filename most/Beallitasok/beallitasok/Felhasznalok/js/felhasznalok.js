@@ -23,32 +23,29 @@ function generaljTablazatot(adatok, oszlopok) {
     // 🎨 Fejléc és első oszlop rögzítése + összecsúszás elleni védelem
     let html = `
      <style>
-    .felhasznalo-tabla-wrapper { overflow: auto; width: 100%; max-height: 75vh; border: 1px solid #444; position: relative; }
+        .felhasznalo-tabla-wrapper { overflow: auto; width: 100%; max-height: 75vh; border: 1px solid #444; position: relative; }
         
-        /* 📏 table-layout: fixed kényszeríti az oszlopokat a megadott szélességre */
+        /* 📏 table-layout: fixed kényszeríti az egységes oszlopszélességet */
         .f-tabla { border-collapse: separate; border-spacing: 0; width: max-content; table-layout: fixed; }
         
-       /* ✅ EGYETLEN HELY: Minden oszlop szigorúan egységes (kivétel nélkül) */
+        /* ✅ EGYETLEN HELY: Itt dől el MINDEN cella mérete egységesen (első oszlop is) */
         .f-tabla th, .f-tabla td { 
             vertical-align: middle; text-align: center; padding: 5px; 
-            height: 55px;    /* Fix magasság mindenhol */
-            width: 190px;    /* Fix szélesség mindenhol, az első oszlopban is! */
+            width: 200px;   /* Minden oszlop szélessége egységesen */
+            height: 55px;   /* Minden sor magassága egységesen */
             border-bottom: 1px solid #444; border-right: 1px solid #444; background: #222; color: #fff; 
             white-space: nowrap; overflow: hidden;
         }
-
-        /* A rögzítés marad, de a szélesség-kivételt töröltem */
-        .f-tabla th:first-child, .f-tabla td:first-child { 
-            position: sticky; left: 0; z-index: 90; background: #222; border-right: 2px solid #666; 
-        }
         
+        /* Csak a rögzítés tényét adjuk meg, méretet NEM */
         .f-tabla thead th { position: sticky; top: 0; z-index: 100; background: #333; border-bottom: 2px solid #666; }
+        .f-tabla th:first-child, .f-tabla td:first-child { position: sticky; left: 0; z-index: 90; background: #222; border-right: 2px solid #666; }
         .f-tabla thead th:first-child { z-index: 110; background: #333; }
 
         .new-user-row td { background: #2a2a2a !important; }
-        
-        /* Az elemek most már csak kitöltik a fix méretű cellákat */
-        .f-input { width: 90%; height: 35px; padding: 5px; box-sizing: border-box; border: 1px solid #555; background: #333; color: #fff; }
+
+        /* Az elemek kitöltik a fix méretű cellát */
+        .f-input { width: 95%; height: 35px; padding: 5px; box-sizing: border-box; border: 1px solid #555; background: #333; color: #fff; }
         .switch { margin: 0 auto; display: block; }
     </style>
     <div class="felhasznalo-tabla-wrapper"><table class="f-tabla"><thead><tr>`;
@@ -164,6 +161,7 @@ async function mentes(originalUser, adatok) {
         }
     } catch (e) { console.error("Hiba:", e); }
 }
+
 
 
 
