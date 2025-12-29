@@ -20,6 +20,7 @@ async function felhasznalokBetoltese() {
 }
 
 function generaljTablazatot(adatok, oszlopok) {
+    let html = `<div class="felhasznalo-tabla-wrapper"><table class="f-tabla"><thead><tr>`;
       html += '<th>Választ</th>';
     
     oszlopok.forEach(o => { 
@@ -131,6 +132,7 @@ async function mentes(originalUser, adatok) {
         }
     } catch (e) { console.error("Hiba:", e); }
 }
+
 
 
 
