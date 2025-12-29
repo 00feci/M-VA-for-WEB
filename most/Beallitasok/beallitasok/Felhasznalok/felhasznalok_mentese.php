@@ -20,59 +20,43 @@ if ($stmt_jog->fetchColumn() !== 'OK') {
 }
 
 $data = json_decode(file_get_contents('php://input'), true);
-$target_user = $data['felhasznalo'] ?? '';
-$oszlop = $data['oszlop'] ?? '';
-$ertek = $data['ertek'] ?? '';
+$originalUser = $data['originalUser'] ?? null;
+$adatok = $data['adatok'] ?? [];
 
-// Szigorú ellenőrzés: Csak akkor tiltunk, ha a felhasználó létezik ÉS a szerepe pontosan 0 (Admin)
-$stmt_check = $pdo->prepare("SELECT szerep FROM m_va_felhasznalok WHERE `felhasználónév` = :nev");
-$stmt_check->execute(['nev' => $target_user]);
-$szerep = $stmt_check->fetchColumn();
-
-if ($szerep !== false && $szerep == 0) {
-    echo json_encode(['status' => 'error', 'uzenet' => 'Admin nem módosítható!']);
-    exit;
-}
+if (empty($adatok)) { echo json_encode(['status' => 'error', 'uzenet' => 'Nincs adat!']); exit; }
 
 try {
-    if ($szerep === false) {
-        // 🔍 1. Oszlopok lekérése az adatbázisból
-        $q = $pdo->query("DESCRIBE m_va_felhasznalok");
-        $oszlopLista = $q->fetchAll(PDO::FETCH_COLUMN);
-        
-        // 📋 Szöveges mezők listája (JS-sel szinkronban)
-        $szovegesek = ['név', 'email', 'felhasználónév', 'jelszó', 'telefon', 'mac_cím', 'külső_ip_cím', 'cég'];
-        
-        $cols = []; $vals = [];
-        foreach ($oszlopLista as $o) {
-            if ($o === 'id' || $o === 'dátum') continue; // Automatikus mezők kihagyása
-            
-            $cols[] = "`$o`";
-            if ($o === 'felhasználónév') {
-                $vals[] = ":nev";
-            } elseif ($o === 'szerep') {
-                $vals[] = "1";
-            } elseif (in_array($o, $szovegesek)) {
-                $vals[] = "'Új felhasználó'"; // Szöveges mezők alapértéke
-            } else {
-                $vals[] = "''"; // Minden más (Toggle/Checkbox, pl. m-va, Beállítások) üres marad
-            }
-        }
-        
-        $stmtInsert = $pdo->prepare("INSERT INTO m_va_felhasznalok (" . implode(", ", $cols) . ") VALUES (" . implode(", ", $vals) . ")");
-        $stmtInsert->execute(['nev' => $target_user]);
+    // 🔍 Ellenőrizzük, létezik-e az eredeti felhasználó
+    $szerep = false;
+    if ($originalUser) {
+        $st = $pdo->prepare("SELECT szerep FROM m_va_felhasznalok WHERE `felhasználónév` = :n");
+        $st->execute(['n' => $originalUser]);
+        $szerep = $st->fetchColumn();
     }
 
-    // 📝 2. A konkrét mező tényleges mentése
-    $stmtUpdate = $pdo->prepare("UPDATE m_va_felhasznalok SET `$oszlop` = :ertek WHERE `felhasználónév` = :nev");
-    $stmtUpdate->execute(['ertek' => $ertek, 'nev' => $target_user]);
+    if ($szerep === '0') { echo json_encode(['status' => 'error', 'uzenet' => 'Admin nem módosítható!']); exit; }
 
-    echo json_encode(['status' => 'ok', 'uzenet' => 'Sikeres művelet: ' . $oszlop]);
+    if ($szerep === false) {
+        // ✨ ÚJ felhasználó: Dinamikus INSERT
+        $cols = array_keys($adatok);
+        $fields = "`" . implode("`, `", $cols) . "`, `szerep`";
+        $placeholders = ":" . implode(", :", $cols) . ", 1";
+        $sql = "INSERT INTO m_va_felhasznalok ($fields) VALUES ($placeholders)";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($adatok);
+    } else {
+        // 📝 MÓDOSÍTÁS: Dinamikus UPDATE
+        $set = [];
+        foreach ($adatok as $col => $val) { $set[] = "`$col` = :$col"; }
+        $sql = "UPDATE m_va_felhasznalok SET " . implode(", ", $set) . " WHERE `felhasználónév` = :originalUser";
+        $adatok['originalUser'] = $originalUser;
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($adatok);
+    }
 
+    echo json_encode(['status' => 'ok', 'uzenet' => 'Sikeres mentés!']);
 } catch (Exception $e) {
-
     echo json_encode(['status' => 'error', 'uzenet' => $e->getMessage()]);
 }
-
 
 
