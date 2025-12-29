@@ -59,29 +59,28 @@ function generaljTablazatot(adatok, oszlopok) {
     html += '</tr></tbody></table></div>';
     document.getElementById('modul-tartalom').innerHTML = html;
 }
-
-// Mentés megerősítéssel
+// Összevont mentés: a kijelölt sor összes adatát egyszerre küldjük el
 async function mentesKivalasztott() {
     const radio = document.querySelector('input[name="user-select"]:checked');
-    if (!radio) { alert("Nincs kiválasztva felhasználó!"); return; }
-    const user = radio.value;
-    if (!confirm("Biztosan MENTENI szeretné '" + user + "' felhasználó adatait?")) return;
+    if (!radio) return alert("Nincs kiválasztva felhasználó!");
+    const originalUser = radio.value;
+    if (!confirm("Biztosan MENTI a(z) '" + originalUser + "' felhasználót?")) return;
     
-    const tr = radio.closest('tr');
-    const inputs = tr.querySelectorAll('input:not([name="user-select"])');
-    for (let input of inputs) {
-        let col = input.dataset.col;
-        let val = input.type === 'checkbox' ? (input.checked ? 'OK' : '') : input.value;
-        await mentes(user, col, val);
-    }
-    alert("'" + user + "' sikeresen mentve.");
+    const adatok = {};
+    radio.closest('tr').querySelectorAll('input[data-col]').forEach(i => {
+        adatok[i.dataset.col] = i.type === 'checkbox' ? (i.checked ? 'OK' : '') : i.value;
+    });
+
+    await mentes(originalUser, adatok);
 }
 
+// Törlés javított ellenőrzéssel
 async function torlesKivalasztott() {
     const radio = document.querySelector('input[name="user-select"]:checked');
-    if (!radio) { alert("Nincs kiválasztva felhasználó!"); return; }
-    const user = radio.value;
-    
+    if (!radio) return alert("Nincs kiválasztva felhasználó!");
+    const user = radio.value.trim();
+    if (!user) return alert("Hiba: A kiválasztott felhasználó neve üres!");
+
     if (!confirm("FIGYELEM! Biztosan TÖRÖLNI szeretné a(z) '" + user + "' felhasználót?")) return;
 
     try {
@@ -91,16 +90,37 @@ async function torlesKivalasztott() {
             body: JSON.stringify({ felhasznalo: user })
         });
         const res = await response.json();
-        if (res.status === 'ok') {
-            alert("Sikeres törlés!");
-            felhasznalokBetoltese(); // Lista frissítése
-        } else {
-            alert("Hiba: " + res.uzenet);
-        }
-    } catch (e) {
-        console.error("Hálózati hiba törléskor:", e);
-    }
+        if (res.status === 'ok') { alert("Sikeres törlés!"); felhasznalokBetoltese(); } 
+        else { alert("Hiba: " + res.uzenet); }
+    } catch (e) { console.error("Hiba:", e); }
 }
+
+async function ujFelhasznaloMentese(gomb) {
+    const tr = gomb.closest('tr');
+    const adatok = {};
+    tr.querySelectorAll('input[data-col]').forEach(i => {
+        adatok[i.dataset.col] = i.type === 'checkbox' ? (i.checked ? 'OK' : '') : i.value;
+    });
+
+    if (!adatok['felhasználónév'] || !adatok['név'] || !adatok['email']) return alert("Alap adatok kitöltése kötelező!");
+    if (!confirm("Létrehozza '" + adatok['felhasználónév'] + "' felhasználót?")) return;
+
+    await mentes(null, adatok);
+}
+
+async function mentes(originalUser, adatok) {
+    try {
+        const response = await fetch('Beallitasok/beallitasok/Felhasznalok/felhasznalok_mentese.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ originalUser, adatok })
+        });
+        const res = await response.json();
+        if (res.status === 'ok') { alert("Művelet kész!"); felhasznalokBetoltese(); } 
+        else { alert("Hiba: " + res.uzenet); }
+    } catch (e) { console.error("Hiba:", e); }
+}
+
 // Új felhasználó mentése - MINDEN szöveges mező ellenőrzésével
 async function ujFelhasznaloMentese(gomb) {
     const tr = gomb.closest('tr');
@@ -156,5 +176,6 @@ async function mentes(felhasznalo, oszlop, ertek) {
         console.error("Hálózati hiba történt:", e);
     }
 }
+
 
 
