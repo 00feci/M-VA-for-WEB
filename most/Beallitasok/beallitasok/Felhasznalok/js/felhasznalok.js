@@ -157,6 +157,4 @@ async function mentes(felhasznalo, oszlop, ertek) {
     }
 }
 
-// TESZT_SZINKRON_MUKODIK
-
 
