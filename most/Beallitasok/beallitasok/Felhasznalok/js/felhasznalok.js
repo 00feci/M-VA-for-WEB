@@ -96,17 +96,24 @@ async function torlesKivalasztott() {
     } catch (e) { console.error("Hiba:", e); }
 }
 
-// ✅ Új felhasználó mentése egyben
+// ✅ Új felhasználó mentése egyben - MINDEN szöveges mező ellenőrzésével (helyreállítva)
 async function ujFelhasznaloMentese(gomb) {
     const tr = gomb.closest('tr');
+    const szovegesMezok = ['név', 'email', 'felhasználónév', 'jelszó', 'telefon', 'mac_cím', 'külső_ip_cím', 'cég'];
     const adatok = {};
-    tr.querySelectorAll('input[data-col]').forEach(i => {
-        adatok[i.dataset.col] = i.type === 'checkbox' ? (i.checked ? 'OK' : '') : i.value;
-    });
+    
+    // Adatok begyűjtése és minden szöveges mező kötelező ellenőrzése
+    for (let i of tr.querySelectorAll('input[data-col]')) {
+        const col = i.dataset.col;
+        const val = i.type === 'checkbox' ? (i.checked ? 'OK' : '') : i.value.trim();
+        
+        if (szovegesMezok.includes(col) && !val) {
+            return alert("A(z) '" + col + "' mező kitöltése kötelező!");
+        }
+        adatok[col] = val;
+    }
 
-    if (!adatok['felhasználónév'] || !adatok['név'] || !adatok['email']) return alert("A Felhasználónév, Név és Email kötelező!");
-    if (!confirm("Létrehozza '" + adatok['felhasználónév'] + "' felhasználót?")) return;
-
+    if (!confirm("Biztosan létrehozza a(z) '" + adatok['felhasználónév'] + "' felhasználót?")) return;
     await mentes(null, adatok);
 }
 
@@ -127,3 +134,4 @@ async function mentes(originalUser, adatok) {
         }
     } catch (e) { console.error("Hiba:", e); }
 }
+
