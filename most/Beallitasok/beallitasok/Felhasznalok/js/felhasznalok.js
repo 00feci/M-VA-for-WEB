@@ -77,15 +77,30 @@ async function mentesKivalasztott() {
     alert("'" + user + "' sikeresen mentve.");
 }
 
-// Törlés megerősítéssel
 async function torlesKivalasztott() {
     const radio = document.querySelector('input[name="user-select"]:checked');
     if (!radio) { alert("Nincs kiválasztva felhasználó!"); return; }
     const user = radio.value;
-    if (!confirm("FIGYELEM! Biztosan TÖRÖLNI szeretné '" + user + "' felhasználót?")) return;
-    alert("'" + user + "' törlése hamarosan elkészül (PHP szükséges).");
-}
+    
+    if (!confirm("FIGYELEM! Biztosan TÖRÖLNI szeretné a(z) '" + user + "' felhasználót?")) return;
 
+    try {
+        const response = await fetch('Beallitasok/beallitasok/Felhasznalok/felhasznalok_torlese.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ felhasznalo: user })
+        });
+        const res = await response.json();
+        if (res.status === 'ok') {
+            alert("Sikeres törlés!");
+            felhasznalokBetoltese(); // Lista frissítése
+        } else {
+            alert("Hiba: " + res.uzenet);
+        }
+    } catch (e) {
+        console.error("Hálózati hiba törléskor:", e);
+    }
+}
 // Új felhasználó mentése
 async function ujFelhasznaloMentese(gomb) {
     const tr = gomb.closest('tr');
@@ -131,3 +146,4 @@ async function mentes(felhasznalo, oszlop, ertek) {
         console.error("Hálózati hiba történt:", e);
     }
 }
+
