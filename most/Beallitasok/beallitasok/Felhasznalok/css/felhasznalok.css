@@ -101,15 +101,4 @@
     border-radius: 50%;
 }
 input:checked + .slider { background-color: #00ff88; } /* Neon zöld ha OK */
-input:checked + .slider:before { transform: translateX(20px); }
-
-/* Szerkeszthető szövegmezők */
-
-.f-input {
-    background: #333;
-    border: 1px solid #555;
-    color: white;
-    padding: 5px;
-    border-radius: 5px;
-    width: 100px;
-}
+input:checked + .slider:before { transform: translateX(20px); }}
