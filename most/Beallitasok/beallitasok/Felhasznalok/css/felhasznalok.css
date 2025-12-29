@@ -102,3 +102,5 @@
 }
 input:checked + .slider { background-color: #00ff88; } /* Neon zöld ha OK */
 input:checked + .slider:before { transform: translateX(20px); }
+
+/*AZT */
