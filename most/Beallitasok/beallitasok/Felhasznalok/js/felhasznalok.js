@@ -101,20 +101,30 @@ async function torlesKivalasztott() {
         console.error("Hálózati hiba törléskor:", e);
     }
 }
-// Új felhasználó mentése
+// Új felhasználó mentése - kötelező mezők ellenőrzésével
 async function ujFelhasznaloMentese(gomb) {
     const tr = gomb.closest('tr');
-    const fnevInput = tr.querySelector('input[data-col="felhasználónév"]');
-    const fnev = fnevInput.value.trim();
-    if (!fnev) { alert("Felhasználónév kötelező!"); return; }
-    if (!confirm("Létrehozza '" + fnev + "' felhasználót?")) return;
+    
+    // Kötelező mezők kigyűjtése
+    const fnev = tr.querySelector('input[data-col="felhasználónév"]').value.trim();
+    const nev = tr.querySelector('input[data-col="név"]').value.trim();
+    const email = tr.querySelector('input[data-col="email"]').value.trim();
+    
+    // Ellenőrzés: ha bármelyik hiányzik, megállunk és szólunk
+    if (!fnev) return alert("A Felhasználónév mező kötelező!");
+    if (!nev) return alert("A Név mező kötelező!");
+    if (!email) return alert("Az Email mező kötelező!");
+
+    if (!confirm("Biztosan létrehozza '" + fnev + "' felhasználót?")) return;
+    
     const inputs = tr.querySelectorAll('input');
     for (let input of inputs) {
         let col = input.dataset.col;
+        if (!col) continue;
         let val = input.type === 'checkbox' ? (input.checked ? 'OK' : '') : input.value;
         await mentes(fnev, col, val);
     }
-    alert("'" + fnev + "' létrehozva.");
+    alert("'" + fnev + "' adatai rögzítve.");
     felhasznalokBetoltese();
 }
 
@@ -148,3 +158,4 @@ async function mentes(felhasznalo, oszlop, ertek) {
 }
 
 // TESZT_SZINKRON_MUKODIK
+
