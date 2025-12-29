@@ -2,7 +2,7 @@
 
 // 🌍 Globális definíció - CSAK ITT KELL MÓDOSÍTANI, ha új szöveges mező lesz!
 const SZOVEGES_MEZOK = ['név', 'email', 'felhasználónév', 'jelszó', 'telefon', 'mac_cím', 'külső_ip_cím', 'cég'];
-
+let html = '<div class="felhasznalo-tabla-wrapper"><table class="f-tabla"><thead><tr>';
 async function felhasznalokBetoltese() {
     const tartalomHelye = document.getElementById('modul-tartalom');
     if (tartalomHelye) tartalomHelye.innerHTML = '<p style="text-align:center; padding:20px;">Betöltés...</p>';
@@ -21,7 +21,14 @@ async function felhasznalokBetoltese() {
 
 function generaljTablazatot(adatok, oszlopok) {
     
-    let html = '<div class="felhasznalo-tabla-wrapper"><table class="f-tabla"><thead><tr>';
+    let html = `
+    <style>
+        .f-tabla td { vertical-align: middle; text-align: center; padding: 10px; }
+        .f-input { width: 100%; box-sizing: border-box; min-height: 30px; }
+        .switch { margin: 0 auto; display: block; }
+    </style>
+    <div class="felhasznalo-tabla-wrapper"><table class="f-tabla"><thead><tr>`;
+    
     html += '<th>Választ</th>'; // Kiválasztó oszlop
     
     oszlopok.forEach(o => { 
@@ -133,5 +140,6 @@ async function mentes(originalUser, adatok) {
         }
     } catch (e) { console.error("Hiba:", e); }
 }
+
 
 
