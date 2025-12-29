@@ -1,6 +1,9 @@
 // Beallitasok/beallitasok/Felhasznalok/js/felhasznalok.js
+
+// 🌍 Globális definíció - CSAK ITT KELL MÓDOSÍTANI, ha új szöveges mező lesz!
+const SZOVEGES_MEZOK = ['név', 'email', 'felhasználónév', 'jelszó', 'telefon', 'mac_cím', 'külső_ip_cím', 'cég'];
+
 async function felhasznalokBetoltese() {
-    // JAVÍTÁS: A modul-tartalom dobozba írunk, így a Vissza gomb megmarad felül!
     const tartalomHelye = document.getElementById('modul-tartalom');
     if (tartalomHelye) tartalomHelye.innerHTML = '<p style="text-align:center; padding:20px;">Betöltés...</p>';
     try {
@@ -17,8 +20,6 @@ async function felhasznalokBetoltese() {
 }
 
 function generaljTablazatot(adatok, oszlopok) {
-    // Szöveges mezők (id és szerep nélkül)
-    const szovegesMezok = ['név', 'email', 'felhasználónév', 'jelszó', 'telefon', 'mac_cím', 'külső_ip_cím', 'cég'];
     
     let html = '<div class="felhasznalo-tabla-wrapper"><table class="f-tabla"><thead><tr>';
     html += '<th>Választ</th>'; // Kiválasztó oszlop
@@ -35,7 +36,7 @@ function generaljTablazatot(adatok, oszlopok) {
         oszlopok.forEach(o => {
             if (o === 'dátum' || o === 'id' || o === 'szerep') return;
             let ertek = sor[o] || '';
-            if (szovegesMezok.includes(o)) {
+            if (SZOVEGES_MEZOK.includes(o)) {
                 html += `<td><input type="text" class="f-input" data-col="${o}" value="${ertek}"></td>`;
             } else {
                 let checked = ertek === 'OK' ? 'checked' : '';
@@ -48,9 +49,9 @@ function generaljTablazatot(adatok, oszlopok) {
     // ➕ Új felhasználó sor (utolsó sor)
     html += '<tr class="new-user-row" style="background: #2a2a2a;">';
     html += `<td><button onclick="ujFelhasznaloMentese(this)" style="cursor:pointer; background:none; border:none; font-size:20px;">➕</button></td>`;
-    oszlopok.forEach(o => {
+   oszlopok.forEach(o => {
         if (o === 'dátum' || o === 'id' || o === 'szerep') return;
-        if (szovegesMezok.includes(o)) {
+        if (SZOVEGES_MEZOK.includes(o)) {
             html += `<td><input type="text" class="f-input" data-col="${o}" placeholder="${o}..."></td>`;
         } else {
             html += `<td><label class="switch"><input type="checkbox" data-col="${o}"><span class="slider"></span></label></td>`;
@@ -99,20 +100,18 @@ async function torlesKivalasztott() {
 // ✅ Új felhasználó mentése egyben - MINDEN szöveges mező ellenőrzésével (helyreállítva)
 async function ujFelhasznaloMentese(gomb) {
     const tr = gomb.closest('tr');
-    const szovegesMezok = ['név', 'email', 'felhasználónév', 'jelszó', 'telefon', 'mac_cím', 'külső_ip_cím', 'cég'];
     const adatok = {};
     
-    // Adatok begyűjtése és minden szöveges mező kötelező ellenőrzése
     for (let i of tr.querySelectorAll('input[data-col]')) {
         const col = i.dataset.col;
         const val = i.type === 'checkbox' ? (i.checked ? 'OK' : '') : i.value.trim();
         
-        if (szovegesMezok.includes(col) && !val) {
+        // A globális listát használjuk az ellenőrzéshez
+        if (SZOVEGES_MEZOK.includes(col) && !val) {
             return alert("A(z) '" + col + "' mező kitöltése kötelező!");
         }
         adatok[col] = val;
     }
-
     if (!confirm("Biztosan létrehozza a(z) '" + adatok['felhasználónév'] + "' felhasználót?")) return;
     await mentes(null, adatok);
 }
@@ -134,4 +133,5 @@ async function mentes(originalUser, adatok) {
         }
     } catch (e) { console.error("Hiba:", e); }
 }
+
 
