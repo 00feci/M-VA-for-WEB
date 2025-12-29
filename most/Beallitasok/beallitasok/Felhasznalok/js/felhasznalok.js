@@ -60,6 +60,7 @@ function generaljTablazatot(adatok, oszlopok) {
     document.getElementById('modul-tartalom').innerHTML = html;
 }
 // Összevont mentés: a kijelölt sor összes adatát egyszerre küldjük el
+// ✅ Összevont mentés: a kijelölt sor összes adatát egyszerre küldjük el
 async function mentesKivalasztott() {
     const radio = document.querySelector('input[name="user-select"]:checked');
     if (!radio) return alert("Nincs kiválasztva felhasználó!");
@@ -74,12 +75,12 @@ async function mentesKivalasztott() {
     await mentes(originalUser, adatok);
 }
 
-// Törlés javított ellenőrzéssel
+// ✅ Törlés javított ellenőrzéssel
 async function torlesKivalasztott() {
     const radio = document.querySelector('input[name="user-select"]:checked');
     if (!radio) return alert("Nincs kiválasztva felhasználó!");
     const user = radio.value.trim();
-    if (!user) return alert("Hiba: A kiválasztott felhasználó neve üres!");
+    if (!user) return alert("Hiba: Ennek a sornak nincs felhasználóneve, kézzel kell törölni az adatbázisból!");
 
     if (!confirm("FIGYELEM! Biztosan TÖRÖLNI szeretné a(z) '" + user + "' felhasználót?")) return;
 
@@ -95,6 +96,7 @@ async function torlesKivalasztott() {
     } catch (e) { console.error("Hiba:", e); }
 }
 
+// ✅ Új felhasználó mentése egyben
 async function ujFelhasznaloMentese(gomb) {
     const tr = gomb.closest('tr');
     const adatok = {};
@@ -102,12 +104,13 @@ async function ujFelhasznaloMentese(gomb) {
         adatok[i.dataset.col] = i.type === 'checkbox' ? (i.checked ? 'OK' : '') : i.value;
     });
 
-    if (!adatok['felhasználónév'] || !adatok['név'] || !adatok['email']) return alert("Alap adatok kitöltése kötelező!");
+    if (!adatok['felhasználónév'] || !adatok['név'] || !adatok['email']) return alert("A Felhasználónév, Név és Email kötelező!");
     if (!confirm("Létrehozza '" + adatok['felhasználónév'] + "' felhasználót?")) return;
 
     await mentes(null, adatok);
 }
 
+// ✅ Közös mentő funkció (Új és Módosítás is ide fut be)
 async function mentes(originalUser, adatok) {
     try {
         const response = await fetch('Beallitasok/beallitasok/Felhasznalok/felhasznalok_mentese.php', {
@@ -116,66 +119,11 @@ async function mentes(originalUser, adatok) {
             body: JSON.stringify({ originalUser, adatok })
         });
         const res = await response.json();
-        if (res.status === 'ok') { alert("Művelet kész!"); felhasznalokBetoltese(); } 
-        else { alert("Hiba: " + res.uzenet); }
+        if (res.status === 'ok') { 
+            alert("Sikeres mentés!"); 
+            felhasznalokBetoltese(); 
+        } else { 
+            alert("Hiba: " + res.uzenet); 
+        }
     } catch (e) { console.error("Hiba:", e); }
 }
-
-// Új felhasználó mentése - MINDEN szöveges mező ellenőrzésével
-async function ujFelhasznaloMentese(gomb) {
-    const tr = gomb.closest('tr');
-    const szovegesMezok = ['név', 'email', 'felhasználónév', 'jelszó', 'telefon', 'mac_cím', 'külső_ip_cím', 'cég'];
-    
-    // Ellenőrzés: végigmegyünk az összes szöveges mezőn
-    for (let mezo of szovegesMezok) {
-        const input = tr.querySelector(`input[data-col="${mezo}"]`);
-        if (input && !input.value.trim()) {
-            return alert("A(z) '" + mezo + "' mező kitöltése kötelező!");
-        }
-    }
-
-    const fnev = tr.querySelector('input[data-col="felhasználónév"]').value.trim();
-    if (!confirm("Biztosan létrehozza '" + fnev + "' felhasználót?")) return;
-    
-    const inputs = tr.querySelectorAll('input');
-    for (let input of inputs) {
-        let col = input.dataset.col;
-        if (!col) continue;
-        let val = input.type === 'checkbox' ? (input.checked ? 'OK' : '') : input.value;
-        await mentes(fnev, col, val);
-    }
-    alert("'" + fnev + "' adatai rögzítve.");
-    felhasznalokBetoltese();
-}
-
-async function mentes(felhasznalo, oszlop, ertek) {
-    console.log("🚀 Mentés indítása a szerverre:", felhasznalo, oszlop, ertek);
-    // Ha checkbox (Toggle), akkor 'OK' vagy üres string legyen az érték az SQL-hez
-    let veglegesErtek = ertek;
-    if (typeof ertek === 'boolean') {
-        veglegesErtek = ertek ? 'OK' : '';
-    }
-    try {
-        const response = await fetch('Beallitasok/beallitasok/Felhasznalok/felhasznalok_mentese.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                felhasznalo: felhasznalo,
-                oszlop: oszlop,
-                ertek: veglegesErtek
-            })
-        });
-        const res = await response.json();   
-        if (res.status === 'ok') {
-            console.log("✅ Adatbázis sikeresen frissítve:", res.uzenet);
-        } else {
-            alert("Hiba a mentésnél: " + res.uzenet);
-            console.error("Szerver hiba:", res.uzenet);
-        }
-    } catch (e) {
-        console.error("Hálózati hiba történt:", e);
-    }
-}
-
-
-
