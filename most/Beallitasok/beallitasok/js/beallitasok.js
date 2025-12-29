@@ -106,53 +106,52 @@ function navigacio(cel) {
 
 
 
-    const kontener = document.getElementById('menu-kontener');
-
+  const kontener = document.getElementById('menu-kontener');
     if (!kontener) return;
-
     kontener.innerHTML = '';
 
+    // 🚦 Navigáció: Főmenüben az ikonokat mutatjuk, modulokban a funkciógombokat
+    if (cel === 'fomenu') {
+        adat.gombok.forEach(g => {
+            const gomb = document.createElement('div');
+            gomb.className = 'dashboard-gomb';
+            gomb.innerText = g.felirat;
+            gomb.onclick = () => navigacio(g.cel);
+            kontener.appendChild(gomb);
+        });
+    } else {
+        const gombSor = document.createElement('div');
+        gombSor.className = 'dashboard-gomb-sor';
+        gombSor.style.display = 'flex';
+        gombSor.style.width = '100%';
+        gombSor.style.marginBottom = '15px';
 
+        const visszaGomb = document.createElement('div');
+        visszaGomb.className = 'dashboard-gomb';
+        visszaGomb.style.flex = '1';
+        visszaGomb.innerText = '🔙 Vissza';
+        visszaGomb.onclick = () => navigacio('fomenu');
+        gombSor.appendChild(visszaGomb);
 
-    // 1. Gombok sora (Vissza gomb)
+        if (cel === 'felhasznalok') {
+            const mentesGomb = document.createElement('div');
+            mentesGomb.className = 'dashboard-gomb';
+            mentesGomb.style.flex = '1';
+            mentesGomb.style.margin = '0 10px';
+            mentesGomb.innerText = '💾 Mentés';
+            mentesGomb.onclick = () => mentesKivalasztott();
+            gombSor.appendChild(mentesGomb);
 
-   // 1. Gombok sora (🔙 Vissza, 💾 Mentés, 🗑️ Törlés)
-    const gombSor = document.createElement('div');
-    gombSor.className = 'dashboard-gomb-sor';
-    gombSor.style.display = 'flex';
-    gombSor.style.justifyContent = 'space-between'; // Bal, közép, jobb elrendezés
-    gombSor.style.width = '100%';
-    gombSor.style.marginBottom = '15px';
-    
-    // 🔙 Vissza gomb (Bal szél)
-    const visszaGomb = document.createElement('div');
-    visszaGomb.className = 'dashboard-gomb';
-    visszaGomb.style.flex = '1';
-    visszaGomb.innerText = '🔙 Vissza';
-    visszaGomb.onclick = () => navigacio('fomenu');
-    gombSor.appendChild(visszaGomb);
-
-    if (cel === 'felhasznalok') {
-        // 💾 Mentés gomb (Közép)
-        const mentesGomb = document.createElement('div');
-        mentesGomb.className = 'dashboard-gomb';
-        mentesGomb.style.flex = '1';
-        mentesGomb.style.margin = '0 10px';
-        mentesGomb.innerText = '💾 Mentés';
-        mentesGomb.onclick = () => mentesKivalasztott();
-        gombSor.appendChild(mentesGomb);
-
-        // 🗑️ Törlés gomb (Jobb szél)
-        const torlesGomb = document.createElement('div');
-        torlesGomb.className = 'dashboard-gomb';
-        torlesGomb.style.flex = '1';
-        torlesGomb.innerText = '🗑️ Törlés';
-        torlesGomb.style.borderColor = '#c62828';
-        torlesGomb.onclick = () => torlesKivalasztott();
-        gombSor.appendChild(torlesGomb);
+            const torlesGomb = document.createElement('div');
+            torlesGomb.className = 'dashboard-gomb';
+            torlesGomb.style.flex = '1';
+            torlesGomb.innerText = '🗑️ Törlés';
+            torlesGomb.style.borderColor = '#c62828';
+            torlesGomb.onclick = () => torlesKivalasztott();
+            gombSor.appendChild(torlesGomb);
+        }
+        kontener.appendChild(gombSor);
     }
-    kontener.appendChild(gombSor);
-
 
 
     // 2. Tartalom helye (ID: modul-tartalom) - Itt csak egy változót használunk!
@@ -191,3 +190,4 @@ function navigacio(cel) {
 
 
 }
+
