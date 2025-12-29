@@ -62,21 +62,18 @@
 }
 
 
-/* Jogosultság oszlopok (kapcsolók) szűkítése */
-.f-tabla th:nth-child(n+7), 
-.f-tabla td:nth-child(n+7) {
-    min-width: 50px;
-    max-width: 80px;
+/* Csak a kapcsolók oszlopait szűkítjük (a 10. oszloptól kezdve) */
+.f-tabla th:nth-child(n+10), 
+.f-tabla td:nth-child(n+10) {
+    min-width: 60px;
+    max-width: 85px;
 }
 
-
-
 /* 🟢 Toggle Switch Stílus */
-
 .switch {
     position: relative;
-    display: block; /* Inline helyett block */
-    margin: 0 auto; /* Automatikus margó a középre igazításhoz */
+    display: block;
+    margin: 0 auto;
     width: 40px;
     height: 20px;
 }
@@ -100,7 +97,5 @@
     transition: .4s;
     border-radius: 50%;
 }
-input:checked + .slider { background-color: #00ff88; } /* Neon zöld ha OK */
+input:checked + .slider { background-color: #00ff88; }
 input:checked + .slider:before { transform: translateX(20px); }
-
-/*AZT */
