@@ -20,16 +20,31 @@ async function felhasznalokBetoltese() {
 }
 
 function generaljTablazatot(adatok, oszlopok) {
-    
+    // 🎨 Esztétikai és funkcionális javítás: Első oszlop fixálása és táguló táblázat
     let html = `
     <style>
-        .f-tabla td { vertical-align: middle; text-align: center; padding: 12px 10px; height: 55px; }
+        .felhasznalo-tabla-wrapper { overflow-x: auto; width: 100%; border: 1px solid #444; }
+        .f-tabla { border-collapse: separate; border-spacing: 0; min-width: max-content; width: 100%; }
+        .f-tabla th, .f-tabla td { vertical-align: middle; text-align: center; padding: 10px; height: 55px; border-bottom: 1px solid #444; border-right: 1px solid #444; }
+        
+        /* 📌 Első oszlop rögzítése görgetésnél */
+        .f-tabla th:first-child, 
+        .f-tabla td:first-child { 
+            position: sticky; 
+            left: 0; 
+            z-index: 10; 
+            background: #222; 
+            min-width: 60px; 
+            border-right: 2px solid #666; 
+        }
+        .new-user-row td:first-child { background: #2a2a2a !important; }
+
         .f-input { width: 100%; min-width: 160px; padding: 8px; box-sizing: border-box; border: 1px solid #555; background: #333; color: #fff; }
         .switch { margin: 0 auto; display: block; }
     </style>
     <div class="felhasznalo-tabla-wrapper"><table class="f-tabla"><thead><tr>`;
     
-    html += '<th>Választ</th>'; // Kiválasztó oszlop
+    html += '<th>Választ</th>';
     
     oszlopok.forEach(o => { 
         if(o !== 'dátum' && o !== 'id' && o !== 'szerep') html += `<th>${o}</th>`; 
@@ -140,6 +155,7 @@ async function mentes(originalUser, adatok) {
         }
     } catch (e) { console.error("Hiba:", e); }
 }
+
 
 
 
