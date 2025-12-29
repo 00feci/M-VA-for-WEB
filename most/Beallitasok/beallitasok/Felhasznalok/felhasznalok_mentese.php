@@ -36,27 +36,34 @@ try {
 
     if ($szerep === '0') { echo json_encode(['status' => 'error', 'uzenet' => 'Admin nem módosítható!']); exit; }
 
+   $params = [];
     if ($szerep === false) {
-        // ✨ ÚJ felhasználó: Dinamikus INSERT
-        $cols = array_keys($adatok);
-        $fields = "`" . implode("`, `", $cols) . "`, `szerep`";
-        $placeholders = ":" . implode(", :", $cols) . ", 1";
-        $sql = "INSERT INTO m_va_felhasznalok ($fields) VALUES ($placeholders)";
+        // ✨ ÚJ felhasználó: Dinamikus INSERT biztonságos helyőrzőkkel
+        $cols = []; $placeholders = [];
+        foreach ($adatok as $col => $val) {
+            $p = str_replace('-', '_', $col); // Kötőjel javítása helyőrzőben
+            $cols[] = "`$col`";
+            $placeholders[] = ":$p";
+            $params[$p] = $val;
+        }
+        $sql = "INSERT INTO m_va_felhasznalok (" . implode(", ", $cols) . ", `szerep`) VALUES (" . implode(", ", $placeholders) . ", 1)";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute($adatok);
+        $stmt->execute($params);
     } else {
-        // 📝 MÓDOSÍTÁS: Dinamikus UPDATE
+        // 📝 MÓDOSÍTÁS: Dinamikus UPDATE biztonságos helyőrzőkkel
         $set = [];
-        foreach ($adatok as $col => $val) { $set[] = "`$col` = :$col"; }
-        $sql = "UPDATE m_va_felhasznalok SET " . implode(", ", $set) . " WHERE `felhasználónév` = :originalUser";
-        $adatok['originalUser'] = $originalUser;
+        $params['origUser'] = $originalUser;
+        foreach ($adatok as $col => $val) {
+            $p = str_replace('-', '_', $col); // Kötőjel javítása helyőrzőben
+            $set[] = "`$col` = :$p";
+            $params[$p] = $val;
+        }
+        $sql = "UPDATE m_va_felhasznalok SET " . implode(", ", $set) . " WHERE `felhasználónév` = :origUser";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute($adatok);
+        $stmt->execute($params);
     }
 
     echo json_encode(['status' => 'ok', 'uzenet' => 'Sikeres mentés!']);
 } catch (Exception $e) {
     echo json_encode(['status' => 'error', 'uzenet' => $e->getMessage()]);
 }
-
-
