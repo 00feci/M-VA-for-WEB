@@ -24,22 +24,33 @@ function generaljTablazatot(adatok, oszlopok) {
     let html = `
     <style>
         .felhasznalo-tabla-wrapper { overflow: auto; width: 100%; max-height: 75vh; border: 1px solid #444; position: relative; }
-        .f-tabla { border-collapse: separate; border-spacing: 0; min-width: max-content; width: 100%; table-layout: auto; }
-        .f-tabla th, .f-tabla td { vertical-align: middle; text-align: center; padding: 8px 12px; height: 50px; border-bottom: 1px solid #444; border-right: 1px solid #444; background: #222; color: #fff; }
+        .f-tabla { border-collapse: separate; border-spacing: 0; min-width: 100%; width: max-content; table-layout: auto; }
         
-        /* 📌 Fejléc (oszlopnevek) rögzítése */
+        /* 🚫 Nincs összecsúszás: a tartalom kényszeríti ki a szélességet */
+        .f-tabla th, .f-tabla td { 
+            vertical-align: middle; 
+            text-align: center; 
+            padding: 10px 15px; 
+            height: 50px; 
+            border-bottom: 1px solid #444; 
+            border-right: 1px solid #444; 
+            background: #222; 
+            color: #fff;
+            white-space: nowrap; 
+        }
+        
+        /* 📌 Fejléc rögzítése */
         .f-tabla thead th { position: sticky; top: 0; z-index: 100; background: #333; border-bottom: 2px solid #666; }
         
         /* 📌 Első oszlop rögzítése */
         .f-tabla th:first-child, 
         .f-tabla td:first-child { position: sticky; left: 0; z-index: 90; background: #222; border-right: 2px solid #666; }
         
-        /* 📌 Sarok cella (Választ fejléc) rögzítése minden irányba */
         .f-tabla thead th:first-child { z-index: 110; background: #333; }
 
         .new-user-row td { background: #2a2a2a !important; }
-        .f-input { width: 100%; min-width: 180px; padding: 6px; box-sizing: border-box; border: 1px solid #555; background: #333; color: #fff; }
-        .switch { margin: 0 auto; display: inline-block; }
+        .f-input { width: 100%; min-width: 200px; padding: 8px; box-sizing: border-box; border: 1px solid #555; background: #333; color: #fff; }
+        .switch { margin: 0 auto; display: block; width: 40px; }
     </style>
     <div class="felhasznalo-tabla-wrapper"><table class="f-tabla"><thead><tr>`;
     
@@ -154,6 +165,7 @@ async function mentes(originalUser, adatok) {
         }
     } catch (e) { console.error("Hiba:", e); }
 }
+
 
 
 
