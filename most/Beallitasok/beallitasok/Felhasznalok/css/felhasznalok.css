@@ -31,3 +31,22 @@
 .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
 input:checked + .slider { background-color: #4CAF50; }
 input:checked + .slider:before { transform: translateX(26px); }
+
+/* 💾 🗑️ Művelet gombok távolsága és mérete */
+.action-cell-div { display: flex; gap: 15px; justify-content: center; align-items: center; height: 100%; }
+.act-btn { width: 45px !important; cursor: pointer; }
+
+/* 👁️ Jelszó szem ikon elhelyezése */
+.pw-cell { position: relative; }
+.pw-toggle { 
+    position: absolute; 
+    right: 15px; 
+    top: 50%; 
+    transform: translateY(-50%); 
+    cursor: pointer; 
+    user-select: none; 
+    font-size: 1.2rem;
+    z-index: 5;
+}
+.pw-input { padding-right: 40px !important; }
+
