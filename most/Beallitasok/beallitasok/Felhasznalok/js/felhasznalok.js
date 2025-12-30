@@ -83,7 +83,7 @@ async function torlesSor(gomb, user) {
         const response = await fetch('Beallitasok/beallitasok/Felhasznalok/felhasznalok_torlese.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.json({ felhasznalo: user })
+            body: JSON.stringify({ felhasznalo: user })
         });
         const res = await response.json();
         if (res.status === 'ok') { alert("Sikeres törlés!"); felhasznalokBetoltese(); } 
@@ -127,4 +127,5 @@ async function mentes(originalUser, adatok) {
         }
     } catch (e) { console.error("Hiba:", e); }
 }
+
 
