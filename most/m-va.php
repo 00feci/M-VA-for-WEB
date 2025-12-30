@@ -123,9 +123,9 @@ if (!$adat || ($adat['m-va'] ?? 'NINCS') !== 'OK') {
         box-shadow: none !important;
     }
 
-    /* 🚪 Kijelentkezés gomb stílusa: Itt levesszük a felső margót, mert a keret már adja */
+    /* 🚪 Kijelentkezés gomb stílusa: Minden margót kiveszünk, hogy a keret paddingja legyen az úr */
     .logout-gomb {
-        margin-top: 0px !important; 
+        margin: 0px !important; 
         border-color: rgba(255, 255, 255, 0.1);
     }
     
@@ -228,4 +228,5 @@ function funkcio2Inditasa(gomb) {
 </script>
 </body>
 </html>
+
 
