@@ -46,18 +46,24 @@ if (!$adat || ($adat['m-va'] ?? 'NINCS') !== 'OK') {
   <style>
     h1 { text-align: center; font-family: Arial, sans-serif; }
     body { background-color: black; color: white; }
-    .fo-kontener {
-        max-width: 400px; margin: 20px auto; padding: 30px;
-        border: 1px solid #ccc; border-radius: 100px;
+   .fo-kontener {
+        max-width: 1150px; /* Megnöveljük a szélességet a vízszintes elrendezéshez */
+        margin: 20px auto; padding: 40px;
+        border: 1px solid #ccc; border-radius: 50px; /* A szélesebb formához az 50px jobban illik */
         font-family: Arial, sans-serif; background-color: #222;
-        display: flex; flex-direction: column; align-items: center;
+        display: flex; 
+        flex-direction: row; /* Egymás mellé teszi a gombokat */
+        flex-wrap: wrap;     /* Automatikusan új sort kezd, ha betelik a hely */
+        justify-content: center; 
+        align-items: center;
+        gap: 15px;           /* Egységes távolság minden gomb között minden irányban */
     }
 
-   /* 🚪 Kijelentkezés gomb kerete: Kisebb és kompaktabb */
+   /* 🚪 Kijelentkezés gomb kerete: Szépen középre igazítva a fő blokk alatt */
     .logout-form {
-        max-width: 300px; /* Szűkebb keret */
-        margin: 5px auto; /* Kisebb külső távolság */
-        padding: 10px;    /* Kisebb belső távolság, hogy ne legyen "túl nagy" */
+        max-width: 300px; 
+        margin: 10px auto; 
+        padding: 10px;    
         border: 1px solid #ccc;
         border-radius: 50px;
         background-color: #222;
@@ -228,5 +234,3 @@ function funkcio2Inditasa(gomb) {
 </script>
 </body>
 </html>
-
-
