@@ -53,13 +53,16 @@ if (!$adat || ($adat['m-va'] ?? 'NINCS') !== 'OK') {
         display: flex; flex-direction: column; align-items: center;
     }
 
-    /* A Kijelentkezés formja tiszta marad, nincs körülötte óriási keret */
+   /* 🚪 Kijelentkezés gomb kerete: Kisebb és kompaktabb */
     .logout-form {
+        max-width: 300px; /* Szűkebb keret */
+        margin: 5px auto; /* Kisebb külső távolság */
+        padding: 10px;    /* Kisebb belső távolság, hogy ne legyen "túl nagy" */
+        border: 1px solid #ccc;
+        border-radius: 50px;
+        background-color: #222;
         display: flex;
         justify-content: center;
-        margin-top: 10px;
-        background: none;
-        border: none;
     }
   /* ✨ A végleges, egységes V8-as gomb stílus */
     .gomb {
@@ -120,9 +123,9 @@ if (!$adat || ($adat['m-va'] ?? 'NINCS') !== 'OK') {
         box-shadow: none !important;
     }
 
-    /* 🚪 Kijelentkezés gomb stílusa */
+    /* 🚪 Kijelentkezés gomb stílusa: Itt levesszük a felső margót, mert a keret már adja */
     .logout-gomb {
-        margin-top: 35px !important; /* Finom távolság az utolsó gomb után */
+        margin-top: 0px !important; 
         border-color: rgba(255, 255, 255, 0.1);
     }
     
@@ -225,3 +228,4 @@ function funkcio2Inditasa(gomb) {
 </script>
 </body>
 </html>
+
