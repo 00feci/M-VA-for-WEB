@@ -1,31 +1,36 @@
 <?php
 session_start();
 
+// 🚪 Kijelentkezés kezelése
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kijelentkezes'])) {
-    session_unset();    // Összes session változó törlése
-    session_destroy();  // Session megsemmisítése
-    header("Location: /Iroda/belepes.php"); // Vissza a belépő oldalra
+    session_unset();
+    session_destroy();
+    header("Location: /Iroda/belepes.php");
     exit;
 }
 
-// 📦 Betöltjük az adatbázis kapcsolatot
-require_once __DIR__ . '/../../sql_config.php';
-$pdo = csatlakozasSzerver1(); // <- ez hozza létre a $pdo-t
+// 📦 Adatbázis kapcsolat (Ellenőrizd az útvonalat! Ha a 'most' mappában vagy, lehet, hogy csak egy '../' kell)
+try {
+    require_once __DIR__ . '/../../sql_config.php';
+    if (!function_exists('csatlakozasSzerver1')) {
+        die("Hiba: Az adatbázis csatlakozási függvény nem található.");
+    }
+    $pdo = csatlakozasSzerver1();
+} catch (Exception $e) {
+    die("Hiba a konfigurációs fájl betöltésekor: " . $e->getMessage());
+}
 
-// 🛡️ Felhasználó jogosultság újraellenőrzése (friss adatbázisból)
+// 🛡️ Felhasználó ellenőrzése
 $felhasznalo = $_SESSION['felhasznalo'] ?? '';
 $stmt = $pdo->prepare("SELECT * FROM m_va_felhasznalok WHERE `felhasználónév` = :nev");
 $stmt->execute(['nev' => $felhasznalo]);
 $adat = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Ha nincs jog, visszadobjuk a belépő oldalra
-if ($adat['m-va'] !== 'OK') {
+// Biztonsági ellenőrzés: ha nem létezik a felhasználó vagy nincs joga
+if (!$adat || ($adat['m-va'] ?? 'NINCS') !== 'OK') {
     header("Location: /Iroda/belepes.php?hiba=jogosultsag");
     exit;
 }
-
-// innen mehet tovább a m-va.php tartalma...
-
 ?>
 <!DOCTYPE html> <!-- Ez jelzi a böngészőnek, hogy ez egy modern, HTML5 dokumentum -->
 <html lang="hu"> <!-- Megmondja a böngészőnek és keresőknek, hogy az oldal nyelve magyar -->
@@ -303,7 +308,3 @@ function funkcio2Inditasa(gomb) {
 </body>
 
 </html>
-
-
-
-
