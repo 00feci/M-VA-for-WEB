@@ -24,6 +24,9 @@ if ($_POST['funkcio'] === 'Szerződés') {
 }elseif ($_POST['funkcio'] === 'Tömeges_de_egyedi_e-mail') {
     header("Location: /Iroda/verziok/" . $_SESSION['verzio'] . "/Tomeges_de_egyedi_e-mail/tomeges_de_egyedi_e-mail.php");
 }
+    }elseif ($_POST['funkcio'] === 'Beállítások') {
+    header("Location: /Iroda/verziok/" . $_SESSION['verzio'] . "/beallitasok.php");
 // ...stb.
 }
+
 ?>
