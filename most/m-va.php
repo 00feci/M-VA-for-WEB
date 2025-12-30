@@ -129,85 +129,37 @@ $jog8 = $adat['Beállítások'] ?? 'NINCS';
 ?>
 
 <form method="POST" enctype="multipart/form-data" action="gomb_kilk.php">
-  <?php if ($jog1 === 'OK'): ?>
-        <div class="gomb zold" onclick="location.href='Szerzodes_generalas/Szerzodes_generalas.php'">
-            <span class="billen">📄</span> Szerződés kezelő
-        </div>
-    <?php else: ?>
-        <div class="gomb piros" disabled>
-            <span>📄</span> Nincs hozzáférés
-        </div>
-    <?php endif; ?>
+    <button type="submit" name="funkcio" value="Szerződés" class="gomb <?= $jog1 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog1 !== 'OK' ? 'disabled' : '' ?>>
+        <span class="billen">📄</span> <?= $jog1 === 'OK' ? 'Szerződés kezelő' : 'Nincs hozzáférés' ?>
+    </button>
 
-    <?php if ($jog2 === 'OK'): ?>
-        <div class="gomb zold" onclick="location.href='SZ_kezelo/SZ_kezelo.php'">
-            <span class="dobban">📅</span> SZ és TP kezelő
-        </div>
-    <?php else: ?>
-        <div class="gomb piros" disabled>
-            <span>📅</span> Nincs hozzáférés
-        </div>
-    <?php endif; ?>
+    <button type="submit" name="funkcio" value="Szabadság_és_Táppénz_kezelő" class="gomb <?= $jog2 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog2 !== 'OK' ? 'disabled' : '' ?>>
+        <span class="dobban">📅</span> <?= $jog2 === 'OK' ? 'SZ és TP kezelő' : 'Nincs hozzáférés' ?>
+    </button>
 
-    <?php if ($jog3 === 'OK'): ?>
-        <div class="gomb zold" onclick="funkcio2Inditasa(this)">
-            <span class="lift">📤</span> ALL tábla betöltő
-        </div>
-    <?php else: ?>
-        <div class="gomb piros" disabled>
-            <span>📤</span> Nincs hozzáférés
-        </div>
-    <?php endif; ?>
+    <button type="button" class="gomb <?= $jog3 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog3 !== 'OK' ? 'disabled' : '' ?> onclick="funkcio2Inditasa(this)">
+        <span class="lift">📤</span> <?= $jog3 === 'OK' ? 'ALL tábla betöltő' : 'Nincs hozzáférés' ?>
+    </button>
 
-    <?php if ($jog4 === 'OK'): ?>
-        <div class="gomb zold" onclick="location.href='ALL_tabla_kezelo/ALL_tabla_kezelo.php'">
-            <span class="nagyit">🖥️</span> ALL tábla kezelő
-        </div>
-    <?php else: ?>
-        <div class="gomb piros" disabled>
-            <span>🖥️</span> Nincs hozzáférés
-        </div>
-    <?php endif; ?>
+    <button type="submit" name="funkcio" value="ALL_tábla_kezelő" class="gomb <?= $jog4 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog4 !== 'OK' ? 'disabled' : '' ?>>
+        <span class="nagyit">🖥️</span> <?= $jog4 === 'OK' ? 'ALL tábla kezelő' : 'Nincs hozzáférés' ?>
+    </button>
 
-    <?php if ($jog5 === 'OK'): ?>
-        <div class="gomb zold" onclick="location.href='Toborzas/Toborzas.php'">
-            <span class="nagyit">👥</span> Toborzás
-        </div>
-    <?php else: ?>
-        <div class="gomb piros" disabled>
-            <span>👥</span> Nincs hozzáférés
-        </div>
-    <?php endif; ?>
+    <button type="submit" name="funkcio" value="Toborzás" class="gomb <?= $jog5 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog5 !== 'OK' ? 'disabled' : '' ?>>
+        <span class="nagyit">👥</span> <?= $jog5 === 'OK' ? 'Toborzás' : 'Nincs hozzáférés' ?>
+    </button>
 
-    <?php if ($jog6 === 'OK'): ?>
-        <div class="gomb zold" onclick="location.href='Hovegi_zaras/Hovegi_zaras.php'">
-            <span class="nagyit">🔒</span> Hóvégi zárás
-        </div>
-    <?php else: ?>
-        <div class="gomb piros" disabled>
-            <span>🔒</span> Nincs hozzáférés
-        </div>
-    <?php endif; ?>
+    <button type="submit" name="funkcio" value="Hóvégi_zárás" class="gomb <?= $jog6 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog6 !== 'OK' ? 'disabled' : '' ?>>
+        <span class="nagyit">🔒</span> <?= $jog6 === 'OK' ? 'Hóvégi zárás' : 'Nincs hozzáférés' ?>
+    </button>
 
-    <?php if ($jog7 === 'OK'): ?>
-        <div class="gomb zold" onclick="location.href='Tomeg_Email/Tomeg_Email.php'">
-            <span class="suhan">📧</span> Tömeges, de egyedi e-mail
-        </div>
-    <?php else: ?>
-        <div class="gomb piros" disabled>
-            <span>📧</span> Nincs hozzáférés
-        </div>
-    <?php endif; ?>
+    <button type="submit" name="funkcio" value="Tömeges_de_egyedi_e-mail" class="gomb <?= $jog7 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog7 !== 'OK' ? 'disabled' : '' ?>>
+        <span class="suhan">📧</span> <?= $jog7 === 'OK' ? 'Tömeges, de egyedi e-mail' : 'Nincs hozzáférés' ?>
+    </button>
 
-    <?php if ($jog8 === 'OK'): ?>
-        <div class="gomb zold" onclick="location.href='beallitasok.php'">
-            <span class="forgo">⚙️</span> Beállítások
-        </div>
-    <?php else: ?>
-        <div class="gomb piros" disabled>
-            <span>⚙️</span> Nincs hozzáférés
-        </div>
-    <?php endif; ?>
+    <button type="submit" name="funkcio" value="Beállítások" class="gomb <?= $jog8 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog8 !== 'OK' ? 'disabled' : '' ?>>
+        <span class="<?= $jog8 === 'OK' ? 'forgo' : '' ?>">⚙️</span> <?= $jog8 === 'OK' ? 'Beállítások' : 'Nincs hozzáférés' ?>
+    </button>
     <input type="file" id="fajl" name="fajl" accept=".txt" style="display: none">
 </form>
 
@@ -251,6 +203,7 @@ function funkcio2Inditasa(gomb) {
 </script>
 </body>
 </html>
+
 
 
 
