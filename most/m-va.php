@@ -151,7 +151,7 @@ $jog8 = $adat['Beállítások'] ?? 'NINCS';
 
     <?php if ($jog8 === 'OK'): ?>
         <div class="gomb zold" onclick="location.href='beallitasok.php'">
-            <span>⚙️</span> Beállítások
+            <span class="forgo">⚙️</span> Beállítások
         </div>
     <?php else: ?>
         <div class="gomb piros" disabled>
@@ -202,5 +202,6 @@ function funkcio2Inditasa(gomb) {
 </script>
 </body>
 </html>
+
 
 
