@@ -101,8 +101,7 @@ if (!$adat || ($adat['m-va'] ?? 'NINCS') !== 'OK') {
     .gomb:hover .suhan { transform: translateX(5px) rotate(10deg); } /* Oldalra mozdul (Email) */
     .gomb:hover .nagyit { transform: scale(1.3); }               /* Kiemelkedik (Kezelő/Toborzás) */
 
-    /* 🔒 Tiltott állapot (Vörös üveg) */
-   .piros, .gomb[disabled] {
+  .piros, .gomb[disabled] {
         background: rgba(139, 0, 0, 0.6) !important;
         border-color: darkred !important;
         color: white;
@@ -112,11 +111,12 @@ if (!$adat || ($adat['m-va'] ?? 'NINCS') !== 'OK') {
         box-shadow: none !important;
     }
 
-    /* 🚪 Kijelentkezés gomb egyedi vörös izzása */
+    /* 🚪 Kijelentkezés gomb stílusa */
     .logout-gomb {
-        margin-top: 30px !important; /* Kicsit elválasztjuk a többitől */
+        margin-top: 35px !important; /* Finom távolság az utolsó gomb után */
         border-color: rgba(255, 255, 255, 0.1);
     }
+    
     .logout-gomb:hover {
         border-color: #ff4d4d !important;
         box-shadow: 0 0 20px rgba(255, 77, 77, 0.4) !important;
@@ -216,4 +216,5 @@ function funkcio2Inditasa(gomb) {
 </script>
 </body>
 </html>
+
 
