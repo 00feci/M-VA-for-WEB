@@ -124,17 +124,17 @@ form {
     transform: rotate(180deg);
 }
 
-/* 🔒 Tiltott állapot stílusa (Vörös és nem kattintható) */
+/* 🔒 Tiltott állapot stílusa (Erősebb vörös, nem kattintható) */
 .beallitasok-tiltott {
-    background: rgba(139, 0, 0, 0.2) !important; /* Sötétvörös üveghatás */
+    background: rgba(139, 0, 0, 0.6) !important; /* Erősebb vörös a láthatóságért */
     border-color: darkred !important;
-    color: #ff9999;
+    color: #ffffff;
     cursor: not-allowed !important;
     box-shadow: none !important;
     transform: none !important;
 }
 
-/* ✨ AI Ötlet: A többi gomb (zöld/piros) modernizálása */
+/* A többi gomb (zöld/piros) modernizálása */
 .gomb, .gomb_tomeges_de_egyedi_email {
     transition: all 0.3s ease;
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -142,21 +142,22 @@ form {
 }
 
 .zold {
-    background: linear-gradient(135deg, #2ecc71, #27ae60) !important; /* Dinamikus zöld gradiens */
+    background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
     color: white !important;
     cursor: pointer;
 }
 
 .zold:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(46, 204, 113, 0.4); /* Zöld ragyogás hoverre */
+    box-shadow: 0 6px 15px rgba(46, 204, 113, 0.4);
     filter: brightness(1.1);
 }
 
 .piros {
-    background: #4a0000 !important; /* Elegánsabb mélyvörös */
-    color: #999 !important;
+    background: darkred !important; /* Visszaállítva az eredeti vörös színt */
+    color: white !important;
     cursor: not-allowed;
+    opacity: 0.6;
     border: 1px solid #600 !important;
 }
   </style>
@@ -308,4 +309,5 @@ function funkcio2Inditasa(gomb) {
 </body>
 
 </html>
+
 
