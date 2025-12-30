@@ -30,21 +30,51 @@ function generaljTablazatot(adatok, oszlopok) {
     // Meglévő felhasználók
     adatok.forEach(sor => {
         html += `<tr>`;
-        // Rádiógomb helyett mentés és törlés gombok
+        // 💾 🗑️ Műveleti gombok távolsággal
         html += `<td>
-            <button onclick="mentesSor(this, '${sor.felhasználónév}')" class="f-input" style="width:40px; cursor:pointer;" title="Mentés">💾</button>
-            <button onclick="torlesSor(this, '${sor.felhasználónév}')" class="f-input" style="width:40px; cursor:pointer; border-color:#c62828;" title="Törlés">🗑️</button>
+            <div class="action-cell-div">
+                <button onclick="mentesSor(this, '${sor.felhasználónév}')" class="f-input act-btn" title="Mentés">💾</button>
+                <button onclick="torlesSor(this, '${sor.felhasználónév}')" class="f-input act-btn" style="border-color:#c62828;" title="Törlés">🗑️</button>
+            </div>
         </td>`;
         oszlopok.forEach(o => {
             if (o === 'dátum' || o === 'id' || o === 'szerep') return;
             let ertek = sor[o] || '';
             if (SZOVEGES_MEZOK.includes(o)) {
-                html += `<td><input type="text" class="f-input" data-col="${o}" value="${ertek}"></td>`;
+                if (o === 'jelszó') {
+                    html += `<td class="pw-cell">
+                        <input type="password" class="f-input pw-input" data-col="${o}" value="${ertek}">
+                        <span class="pw-toggle" onclick="togglePasswordVisibility(this)">👁️</span>
+                    </td>`;
+                } else {
+                    html += `<td><input type="text" class="f-input" data-col="${o}" value="${ertek}"></td>`;
+                }
             } else {
                 let checked = ertek === 'OK' ? 'checked' : '';
                 html += `<td><label class="switch"><input type="checkbox" data-col="${o}" ${checked}><span class="slider"></span></label></td>`;
             }
         });
+        html += '</tr>';
+    });
+
+    // ➕ Új felhasználó sor
+    html += '<tr class="new-user-row" style="background: #2a2a2a;">';
+    html += `<td><button onclick="ujFelhasznaloMentese(this)" style="cursor:pointer; background:none; border:none; font-size:20px;">➕</button></td>`;
+    oszlopok.forEach(o => {
+        if (o === 'dátum' || o === 'id' || o === 'szerep') return;
+        if (SZOVEGES_MEZOK.includes(o)) {
+            if (o === 'jelszó') {
+                html += `<td class="pw-cell">
+                    <input type="password" class="f-input pw-input" data-col="${o}" placeholder="${o}...">
+                    <span class="pw-toggle" onclick="togglePasswordVisibility(this)">👁️</span>
+                </td>`;
+            } else {
+                html += `<td><input type="text" class="f-input" data-col="${o}" placeholder="${o}..."></td>`;
+            }
+        } else {
+            html += `<td><label class="switch"><input type="checkbox" data-col="${o}"><span class="slider"></span></label></td>`;
+        }
+    });
         html += '</tr>';
     });
 
@@ -128,4 +158,14 @@ async function mentes(originalUser, adatok) {
     } catch (e) { console.error("Hiba:", e); }
 }
 
-
+// 👁️ Jelszó láthatóságának váltása
+function togglePasswordVisibility(span) {
+    const input = span.previousElementSibling;
+    if (input.type === 'password') {
+        input.type = 'text';
+        span.innerText = '🙈';
+    } else {
+        input.type = 'password';
+        span.innerText = '👁️';
+    }
+}
