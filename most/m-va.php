@@ -86,7 +86,38 @@ form {
   border-radius: 8px;
   margin: 10px;
 }
+.beallitasok {
+    width: 190px;
+    height: 55px;
+    background: rgba(255, 255, 255, 0.05); /* Enyhe üveghatás */
+    backdrop-filter: blur(8px); /* Elmosódott háttér */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Mélységérzet árnyékkal */
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
 
+.beallitasok:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #00d2ff; /* Modern kék kiemelés */
+    box-shadow: 0 0 20px rgba(0, 210, 255, 0.4); /* Neon ragyogás */
+    transform: translateY(-3px) scale(1.02); /* Kiemelkedő hatás */
+}
+
+/* A fogaskerék pörgetése */
+.beallitasok span {
+    transition: transform 0.6s ease;
+    display: inline-block;
+}
+
+.beallitasok:hover span {
+    transform: rotate(180deg);
+}
 .zold {
   background-color: lightgreen;
   cursor: pointer;
@@ -161,7 +192,7 @@ $jog8 = $adat['Beállítások'] ?? 'NINCS';
 <button type="submit" name="funkcio" value="Beállítások"
     class="gomb_tomeges_de_egyedi_email <?= $jog8 === 'OK' ? 'zold' : 'piros' ?>"
     <?= $jog8 !== 'OK' ? 'disabled' : '' ?>>
-    <?= $jog8 === 'OK' ? 'Beállítások' : 'Nincs hozzáférés' ?>
+    <?= $jog8 === 'OK' ? '⚙️Beállítások' : 'Nincs hozzáférés' ?>
   </button>
 
   <input type="file" id="fajl" name="fajl" style="display:none" accept=".txt" onchange="fajlBekuldes()">
@@ -243,3 +274,4 @@ function funkcio2Inditasa(gomb) {
 </body>
 
 </html>
+
