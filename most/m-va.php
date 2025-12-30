@@ -155,7 +155,7 @@ $jog8 = $adat['Beállítások'] ?? 'NINCS';
         </div>
     <?php else: ?>
         <div class="gomb piros" disabled>
-            <span>🚫</span> Nincs hozzáférés
+            <span>⚙️</span> Nincs hozzáférés
         </div>
     <?php endif; ?>
 
@@ -202,6 +202,7 @@ function funkcio2Inditasa(gomb) {
 </script>
 </body>
 </html>
+
 
 
 
