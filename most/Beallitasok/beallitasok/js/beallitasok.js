@@ -75,24 +75,6 @@ function navigacio(cel) {
         visszaGomb.innerText = '🔙 Vissza';
         visszaGomb.onclick = () => navigacio('fomenu');
         gombSor.appendChild(visszaGomb);
-
-        if (cel === 'felhasznalok') {
-            const mentesGomb = document.createElement('div');
-            mentesGomb.className = 'dashboard-gomb';
-            mentesGomb.style.flex = '1';
-            mentesGomb.style.margin = '0 10px';
-            mentesGomb.innerText = '💾 Mentés';
-            mentesGomb.onclick = () => mentesKivalasztott();
-            gombSor.appendChild(mentesGomb);
-
-            const torlesGomb = document.createElement('div');
-            torlesGomb.className = 'dashboard-gomb';
-            torlesGomb.style.flex = '1';
-            torlesGomb.innerText = '🗑️ Törlés';
-            torlesGomb.style.borderColor = '#c62828';
-            torlesGomb.onclick = () => torlesKivalasztott();
-            gombSor.appendChild(torlesGomb);
-        }
         kontener.appendChild(gombSor);
     }
 
@@ -115,5 +97,6 @@ function navigacio(cel) {
         }
     }
 }
+
 
 
