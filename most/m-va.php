@@ -110,6 +110,7 @@ $jog4 = $adat['ALL_tábla_kezelő'] ?? 'NINCS';
 $jog5 = $adat['Toborzás'] ?? 'NINCS';     
 $jog6 = $adat['Hóvégi_zárás'] ?? 'NINCS';       
 $jog7 = $adat['Tömeges_de_egyedi_e-mail'] ?? 'NINCS';     
+$jog8 = $adat['Beállítások'] ?? 'NINCS';     
 ?>
 <form method="POST" enctype="multipart/form-data" action="gomb_kilk.php">
 
@@ -156,7 +157,12 @@ $jog7 = $adat['Tömeges_de_egyedi_e-mail'] ?? 'NINCS';
     <?= $jog7 !== 'OK' ? 'disabled' : '' ?>>
     <?= $jog7 === 'OK' ? 'Tömeges,  de egyedi e-mail' : 'Nincs hozzáférés' ?>
   </button>
-
+    
+<button type="submit" name="funkcio" value="Beállítások"
+    class="gomb_tomeges_de_egyedi_email <?= $jog8 === 'OK' ? 'zold' : 'piros' ?>"
+    <?= $jog8 !== 'OK' ? 'disabled' : '' ?>>
+    <?= $jog8 === 'OK' ? 'Beállítások' : 'Nincs hozzáférés' ?>
+  </button>
 
   <input type="file" id="fajl" name="fajl" style="display:none" accept=".txt" onchange="fajlBekuldes()">
   <input type="file" id="fajl" name="fajl" accept=".txt" style="display: none">
@@ -235,4 +241,5 @@ function funkcio2Inditasa(gomb) {
 <!-- ALL_tábla_betöltő  -->
 
 </body>
+
 </html>
