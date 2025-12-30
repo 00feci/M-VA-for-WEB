@@ -46,11 +46,20 @@ if (!$adat || ($adat['m-va'] ?? 'NINCS') !== 'OK') {
   <style>
     h1 { text-align: center; font-family: Arial, sans-serif; }
     body { background-color: black; color: white; }
-    form {
+    .fo-kontener {
         max-width: 400px; margin: 20px auto; padding: 30px;
         border: 1px solid #ccc; border-radius: 100px;
         font-family: Arial, sans-serif; background-color: #222;
         display: flex; flex-direction: column; align-items: center;
+    }
+
+    /* A Kijelentkezés formja tiszta marad, nincs körülötte óriási keret */
+    .logout-form {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+        background: none;
+        border: none;
     }
   /* ✨ A végleges, egységes V8-as gomb stílus */
     .gomb {
@@ -139,7 +148,7 @@ $jog7 = $adat['Tömeges_de_egyedi_e-mail'] ?? 'NINCS';
 $jog8 = $adat['Beállítások'] ?? 'NINCS';
 ?>
 
-<form method="POST" enctype="multipart/form-data" action="gomb_kilk.php">
+<form method="POST" enctype="multipart/form-data" action="gomb_kilk.php" class="fo-kontener">
     <button type="submit" name="funkcio" value="Szerződés" class="gomb <?= $jog1 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog1 !== 'OK' ? 'disabled' : '' ?>>
         <span class="billen">📄</span> <?= $jog1 === 'OK' ? 'Szerződés kezelő' : 'Nincs hozzáférés' ?>
     </button>
@@ -174,7 +183,7 @@ $jog8 = $adat['Beállítások'] ?? 'NINCS';
     <input type="file" id="fajl" name="fajl" accept=".txt" style="display: none">
 </form>
 
-<form method="POST">
+<form method="POST" class="logout-form">
   <button type="submit" name="kijelentkezes" class="gomb logout-gomb">
     <span class="suhan">🚪</span> Kijelentkezés
   </button>
@@ -216,5 +225,3 @@ function funkcio2Inditasa(gomb) {
 </script>
 </body>
 </html>
-
-
