@@ -146,8 +146,8 @@ $jog8 = $adat['Beállítások'] ?? 'NINCS';
         <span>🔒</span> <?= $jog6 === 'OK' ? 'Hóvégi zárás' : 'Nincs hozzáférés' ?>
     </button>
     <button type="submit" name="funkcio" value="Tömeges_de_egyedi_e-mail" class="gomb <?= $jog7 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog7 !== 'OK' ? 'disabled' : '' ?>>
-        <span>📧</span> <?= $jog7 === 'OK' ? 'Tömeges e-mail' : 'Nincs hozzáférés' ?>
-    </button>
+<span>📧</span> <?= $jog7 === 'OK' ? 'Tömeges, de egyedi e-mail' : 'Nincs hozzáférés' ?>
+</button>
 
     <?php if ($jog8 === 'OK'): ?>
         <div class="gomb zold" onclick="location.href='beallitasok.php'">
@@ -202,6 +202,7 @@ function funkcio2Inditasa(gomb) {
 </script>
 </body>
 </html>
+
 
 
 
