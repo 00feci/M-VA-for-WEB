@@ -6,7 +6,7 @@ const menuAdatok = {
         gombok: [
             { felirat: '📅 Szabadság és Táppénz', cel: 'szabadsag' },
             { felirat: '👥 Felhasználók', cel: 'felhasznalok' },
-           // { felirat: '⚙️ Rendszer', cel: 'rendszer' }
+            { felirat: '⚙️ Rendszer', cel: 'rendszer' }
         ]
     },
     'szabadsag': {
@@ -115,4 +115,5 @@ function navigacio(cel) {
         }
     }
 }
+
 
