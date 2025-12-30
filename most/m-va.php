@@ -189,11 +189,13 @@ $jog8 = $adat['Beállítások'] ?? 'NINCS';
     <?= $jog7 === 'OK' ? 'Tömeges,  de egyedi e-mail' : 'Nincs hozzáférés' ?>
   </button>
     
-<button type="submit" name="funkcio" value="Beállítások"
-    class="gomb_tomeges_de_egyedi_email <?= $jog8 === 'OK' ? 'zold' : 'piros' ?>"
-    <?= $jog8 !== 'OK' ? 'disabled' : '' ?>>
-    <?= $jog8 === 'OK' ? '⚙️Beállítások' : 'Nincs hozzáférés' ?>
-  </button>
+<?php if ($jog8 === 'OK'): ?>
+  <div class="beallitasok" onclick="location.href='beallitasok.php'">
+      <span>⚙️</span> Beállítások
+  </div>
+<?php else: ?>
+  <button class="gomb_tomeges_de_egyedi_email piros" disabled>Nincs hozzáférés</button>
+<?php endif; ?>
 
   <input type="file" id="fajl" name="fajl" style="display:none" accept=".txt" onchange="fajlBekuldes()">
   <input type="file" id="fajl" name="fajl" accept=".txt" style="display: none">
@@ -274,4 +276,5 @@ function funkcio2Inditasa(gomb) {
 </body>
 
 </html>
+
 
