@@ -82,22 +82,24 @@ if (!$adat || ($adat['m-va'] ?? 'NINCS') !== 'OK') {
         transform: translateY(-3px) scale(1.02);
     }
 
-    /* Ikonok alaphelyzete */
+  /* Ikonok alaphelyzete */
     .gomb span { 
-        transition: transform 0.6s ease; 
+        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
         display: inline-block; 
     }
 
-    /* ⚙️ Speciális forgás a Beállítások ikonnak */
-    /* Ahhoz, hogy működjön, adunk egy 'forgo' osztályt a span-nak a HTML-ben */
-    .gomb:hover .forgo { 
-        transform: rotate(180deg); 
+    /* ✨ Egyedi animációk az ikonokhoz */
+    @keyframes dobban {
+        0%, 100% { transform: scale(1.2); }
+        50% { transform: scale(1.4); }
     }
 
-    /* Többi ikon finom nagyítása */
-    .gomb:hover span:not(.forgo) { 
-        transform: scale(1.2); 
-    }
+    .gomb:hover .forgo { transform: rotate(180deg) scale(1.2); }  /* Pörög (Beállítások) */
+    .gomb:hover .billen { transform: rotate(-15deg) scale(1.2); } /* Megdől (Szerződés) */
+    .gomb:hover .dobban { animation: dobban 0.8s infinite; }      /* Pulzál (Szabadság) */
+    .gomb:hover .lift { transform: translateY(-5px) scale(1.1); } /* Felemelkedik (Betöltő) */
+    .gomb:hover .suhan { transform: translateX(5px) rotate(10deg); } /* Oldalra mozdul (Email) */
+    .gomb:hover .nagyit { transform: scale(1.3); }               /* Kiemelkedik (Kezelő/Toborzás) */
 
     /* 🔒 Tiltott állapot (Vörös üveg) */
     .piros, .gomb[disabled] {
@@ -127,27 +129,27 @@ $jog8 = $adat['Beállítások'] ?? 'NINCS';
 ?>
 
 <form method="POST" enctype="multipart/form-data" action="gomb_kilk.php">
-    <button type="submit" name="funkcio" value="Szerződés" class="gomb <?= $jog1 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog1 !== 'OK' ? 'disabled' : '' ?>>
-        <span>📄</span> <?= $jog1 === 'OK' ? 'Szerződés kezelő' : 'Nincs hozzáférés' ?>
+  <button type="submit" name="funkcio" value="Szerződés" class="gomb <?= $jog1 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog1 !== 'OK' ? 'disabled' : '' ?>>
+        <span class="billen">📄</span> <?= $jog1 === 'OK' ? 'Szerződés kezelő' : 'Nincs hozzáférés' ?>
     </button>
     <button type="submit" name="funkcio" value="Szabadság_és_Táppénz_kezelő" class="gomb <?= $jog2 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog2 !== 'OK' ? 'disabled' : '' ?>>
-        <span>📅</span> <?= $jog2 === 'OK' ? 'SZ és TP kezelő' : 'Nincs hozzáférés' ?>
+        <span class="dobban">📅</span> <?= $jog2 === 'OK' ? 'SZ és TP kezelő' : 'Nincs hozzáférés' ?>
     </button>
     <button type="button" class="gomb <?= $jog3 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog3 !== 'OK' ? 'disabled' : '' ?> onclick="funkcio2Inditasa(this)">
-        <span>📤</span> <?= $jog3 === 'OK' ? 'ALL tábla betöltő' : 'Nincs hozzáférés' ?>
+        <span class="lift">📤</span> <?= $jog3 === 'OK' ? 'ALL tábla betöltő' : 'Nincs hozzáférés' ?>
     </button>
     <button type="submit" name="funkcio" value="ALL_tábla_kezelő" class="gomb <?= $jog4 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog4 !== 'OK' ? 'disabled' : '' ?>>
-        <span>🖥️</span> <?= $jog4 === 'OK' ? 'ALL tábla kezelő' : 'Nincs hozzáférés' ?>
+        <span class="nagyit">🖥️</span> <?= $jog4 === 'OK' ? 'ALL tábla kezelő' : 'Nincs hozzáférés' ?>
     </button>
     <button type="submit" name="funkcio" value="Toborzás" class="gomb <?= $jog5 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog5 !== 'OK' ? 'disabled' : '' ?>>
-        <span>👥</span> <?= $jog5 === 'OK' ? 'Toborzás' : 'Nincs hozzáférés' ?>
+        <span class="nagyit">👥</span> <?= $jog5 === 'OK' ? 'Toborzás' : 'Nincs hozzáférés' ?>
     </button>
     <button type="submit" name="funkcio" value="Hóvégi_zárás" class="gomb <?= $jog6 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog6 !== 'OK' ? 'disabled' : '' ?>>
-        <span>🔒</span> <?= $jog6 === 'OK' ? 'Hóvégi zárás' : 'Nincs hozzáférés' ?>
+        <span class="nagyit">🔒</span> <?= $jog6 === 'OK' ? 'Hóvégi zárás' : 'Nincs hozzáférés' ?>
     </button>
     <button type="submit" name="funkcio" value="Tömeges_de_egyedi_e-mail" class="gomb <?= $jog7 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog7 !== 'OK' ? 'disabled' : '' ?>>
-<span>📧</span> <?= $jog7 === 'OK' ? 'Tömeges, de egyedi e-mail' : 'Nincs hozzáférés' ?>
-</button>
+        <span class="suhan">📧</span> <?= $jog7 === 'OK' ? 'Tömeges, de egyedi e-mail' : 'Nincs hozzáférés' ?>
+    </button>
 
     <?php if ($jog8 === 'OK'): ?>
         <div class="gomb zold" onclick="location.href='beallitasok.php'">
@@ -202,6 +204,7 @@ function funkcio2Inditasa(gomb) {
 </script>
 </body>
 </html>
+
 
 
 
