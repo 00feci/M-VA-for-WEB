@@ -52,11 +52,11 @@ function generaljTablazatot(adatok, oszlopok) {
                 let checked = ertek === 'OK' ? 'checked' : '';
                 html += `<td><label class="switch"><input type="checkbox" data-col="${o}" ${checked}><span class="slider"></span></label></td>`;
             }
-        });
+       });
         html += '</tr>';
     });
 
-    // ➕ Új felhasználó sor
+    // ➕ Új felhasználó sor (pontosan egyszer)
     html += '<tr class="new-user-row" style="background: #2a2a2a;">';
     html += `<td><button onclick="ujFelhasznaloMentese(this)" style="cursor:pointer; background:none; border:none; font-size:20px;">➕</button></td>`;
     oszlopok.forEach(o => {
@@ -154,4 +154,5 @@ function togglePasswordVisibility(span) {
         span.innerText = '👁️';
     }
 }
+
 
