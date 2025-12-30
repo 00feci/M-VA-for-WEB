@@ -203,12 +203,3 @@ function funkcio2Inditasa(gomb) {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
