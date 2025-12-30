@@ -92,8 +92,6 @@ async function torlesSor(gomb, user) {
 }
 
 // ✅ Új felhasználó mentése egyben - MINDEN szöveges mező ellenőrzésével (helyreállítva)
-
-// ✅ Új felhasználó mentése egyben - MINDEN szöveges mező ellenőrzésével (helyreállítva)
 async function ujFelhasznaloMentese(gomb) {
     const tr = gomb.closest('tr');
     const adatok = {};
@@ -129,3 +127,4 @@ async function mentes(originalUser, adatok) {
         }
     } catch (e) { console.error("Hiba:", e); }
 }
+
