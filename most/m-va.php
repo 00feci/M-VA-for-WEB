@@ -92,13 +92,13 @@ form {
   margin: 10px;
 }
 .beallitasok {
-    width: 190px;
-    height: 55px;
-    background: rgba(255, 255, 255, 0.05); /* Enyhe üveghatás */
-    backdrop-filter: blur(8px); /* Elmosódott háttér */
+    width: 250px; /* Igazítva a többi nagy gombhoz */
+    height: 66px; /* Igazítva a többi nagy gombhoz */
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Mélységérzet árnyékkal */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     cursor: pointer;
     display: flex;
@@ -308,3 +308,4 @@ function funkcio2Inditasa(gomb) {
 </body>
 
 </html>
+
