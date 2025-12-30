@@ -118,16 +118,41 @@ form {
 .beallitasok:hover span {
     transform: rotate(180deg);
 }
+
+/* 🔒 Tiltott állapot stílusa (Vörös és nem kattintható) */
+.beallitasok-tiltott {
+    background: rgba(139, 0, 0, 0.2) !important; /* Sötétvörös üveghatás */
+    border-color: darkred !important;
+    color: #ff9999;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+/* ✨ AI Ötlet: A többi gomb (zöld/piros) modernizálása */
+.gomb, .gomb_tomeges_de_egyedi_email {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
 .zold {
-  background-color: lightgreen;
-  cursor: pointer;
-  opacity: 1;
+    background: linear-gradient(135deg, #2ecc71, #27ae60) !important; /* Dinamikus zöld gradiens */
+    color: white !important;
+    cursor: pointer;
+}
+
+.zold:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(46, 204, 113, 0.4); /* Zöld ragyogás hoverre */
+    filter: brightness(1.1);
 }
 
 .piros {
-  background-color: darkred;
-  cursor: not-allowed;
-  opacity: 0.6;
+    background: #4a0000 !important; /* Elegánsabb mélyvörös */
+    color: #999 !important;
+    cursor: not-allowed;
+    border: 1px solid #600 !important;
 }
   </style>
 
@@ -278,6 +303,7 @@ function funkcio2Inditasa(gomb) {
 </body>
 
 </html>
+
 
 
 
