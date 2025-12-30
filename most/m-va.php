@@ -102,7 +102,7 @@ if (!$adat || ($adat['m-va'] ?? 'NINCS') !== 'OK') {
     .gomb:hover .nagyit { transform: scale(1.3); }               /* Kiemelkedik (Kezelő/Toborzás) */
 
     /* 🔒 Tiltott állapot (Vörös üveg) */
-    .piros, .gomb[disabled] {
+   .piros, .gomb[disabled] {
         background: rgba(139, 0, 0, 0.6) !important;
         border-color: darkred !important;
         color: white;
@@ -110,6 +110,17 @@ if (!$adat || ($adat['m-va'] ?? 'NINCS') !== 'OK') {
         opacity: 0.6;
         transform: none !important;
         box-shadow: none !important;
+    }
+
+    /* 🚪 Kijelentkezés gomb egyedi vörös izzása */
+    .logout-gomb {
+        margin-top: 30px !important; /* Kicsit elválasztjuk a többitől */
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    .logout-gomb:hover {
+        border-color: #ff4d4d !important;
+        box-shadow: 0 0 20px rgba(255, 77, 77, 0.4) !important;
+        background: rgba(255, 255, 255, 0.1);
     }
   </style>
 </head>
@@ -164,7 +175,9 @@ $jog8 = $adat['Beállítások'] ?? 'NINCS';
 </form>
 
 <form method="POST">
-  <button type="submit" name="kijelentkezes">Kijelentkezés</button>
+  <button type="submit" name="kijelentkezes" class="gomb logout-gomb">
+    <span class="suhan">🚪</span> Kijelentkezés
+  </button>
 </form>
 
 <script>
@@ -203,3 +216,4 @@ function funkcio2Inditasa(gomb) {
 </script>
 </body>
 </html>
+
