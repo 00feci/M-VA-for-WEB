@@ -20,17 +20,16 @@ async function felhasznalokBetoltese() {
 
 function generaljTablazatot(adatok, oszlopok) {
     let html = `<div class="felhasznalo-tabla-wrapper"><table class="f-tabla"><thead><tr>`;
-      html += '<th>Művelet</th>'; // Átnevezve
-    
-    oszlopok.forEach(o => { 
-        if(o !== 'dátum' && o !== 'id' && o !== 'szerep') html += `<th>${o}</th>`; 
+    html += '<th>Művelet</th>';
+
+    oszlopok.forEach(o => {
+        if (o !== 'dátum' && o !== 'id' && o !== 'szerep') html += `<th>${o}</th>`;
     });
     html += '</tr></thead><tbody>';
 
     // Meglévő felhasználók
     adatok.forEach(sor => {
         html += `<tr>`;
-        // 💾 🗑️ Műveleti gombok távolsággal
         html += `<td>
             <div class="action-cell-div">
                 <button onclick="mentesSor(this, '${sor.felhasználónév}')" class="f-input act-btn" title="Mentés">💾</button>
@@ -71,20 +70,6 @@ function generaljTablazatot(adatok, oszlopok) {
             } else {
                 html += `<td><input type="text" class="f-input" data-col="${o}" placeholder="${o}..."></td>`;
             }
-        } else {
-            html += `<td><label class="switch"><input type="checkbox" data-col="${o}"><span class="slider"></span></label></td>`;
-        }
-    });
-        html += '</tr>';
-    });
-
-    // ➕ Új felhasználó sor (utolsó sor)
-    html += '<tr class="new-user-row" style="background: #2a2a2a;">';
-    html += `<td><button onclick="ujFelhasznaloMentese(this)" style="cursor:pointer; background:none; border:none; font-size:20px;">➕</button></td>`;
-   oszlopok.forEach(o => {
-        if (o === 'dátum' || o === 'id' || o === 'szerep') return;
-        if (SZOVEGES_MEZOK.includes(o)) {
-            html += `<td><input type="text" class="f-input" data-col="${o}" placeholder="${o}..."></td>`;
         } else {
             html += `<td><label class="switch"><input type="checkbox" data-col="${o}"><span class="slider"></span></label></td>`;
         }
@@ -169,3 +154,4 @@ function togglePasswordVisibility(span) {
         span.innerText = '👁️';
     }
 }
+
