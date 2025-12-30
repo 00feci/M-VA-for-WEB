@@ -52,7 +52,7 @@ if (!$adat || ($adat['m-va'] ?? 'NINCS') !== 'OK') {
         font-family: Arial, sans-serif; background-color: #222;
         display: flex; flex-direction: column; align-items: center;
     }
-  /* ✨ Egységes modern gomb stílus */
+  /* ✨ A végleges, egységes V8-as gomb stílus */
     .gomb {
         width: 250px;
         height: 66px;
@@ -63,7 +63,7 @@ if (!$adat || ($adat['m-va'] ?? 'NINCS') !== 'OK') {
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         font-family: 'Segoe UI', sans-serif;
-        font-size: 16pt; /* Kicsit finomított méret a szövegeknek */
+        font-size: 16pt;
         color: white;
         display: flex;
         align-items: center;
@@ -71,24 +71,35 @@ if (!$adat || ($adat['m-va'] ?? 'NINCS') !== 'OK') {
         gap: 12px;
         margin: 10px auto;
         cursor: pointer;
+        text-decoration: none;
     }
 
-    /* Általános Hover hatás aktív gomboknál */
+    /* 🔥 Hover effekt: Neon kék ragyogás minden aktív gombra */
     .gomb:hover:not([disabled]):not(.piros) {
         background: rgba(255, 255, 255, 0.1);
-        border-color: #00d2ff; /* Modern kék kiemelés */
+        border-color: #00d2ff; /* Visszahoztuk a modern kék színt */
         box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
         transform: translateY(-3px) scale(1.02);
     }
 
-    /* Ikonok alaphelyzete és animációja */
-    .gomb span { transition: transform 0.6s ease; display: inline-block; }
-    .gomb:hover:not([disabled]):not(.piros) span { transform: scale(1.2); }
-    
-    /* Speciális forgás csak a Beállítások ikonnak */
-    .gomb[onclick*="beallitasok"]:hover span { transform: rotate(180deg); }
+    /* Ikonok alaphelyzete */
+    .gomb span { 
+        transition: transform 0.6s ease; 
+        display: inline-block; 
+    }
 
-    /* 🔒 Tiltott / Piros állapot (Üveghatású vörös, nincs hover effekt) */
+    /* ⚙️ Speciális forgás a Beállítások ikonnak */
+    /* Ahhoz, hogy működjön, adunk egy 'forgo' osztályt a span-nak a HTML-ben */
+    .gomb:hover .forgo { 
+        transform: rotate(180deg); 
+    }
+
+    /* Többi ikon finom nagyítása */
+    .gomb:hover span:not(.forgo) { 
+        transform: scale(1.2); 
+    }
+
+    /* 🔒 Tiltott állapot (Vörös üveg) */
     .piros, .gomb[disabled] {
         background: rgba(139, 0, 0, 0.6) !important;
         border-color: darkred !important;
@@ -98,7 +109,6 @@ if (!$adat || ($adat['m-va'] ?? 'NINCS') !== 'OK') {
         transform: none !important;
         box-shadow: none !important;
     }
-    .zold { cursor: pointer; }
   </style>
 </head>
 <body>
@@ -192,4 +202,5 @@ function funkcio2Inditasa(gomb) {
 </script>
 </body>
 </html>
+
 
