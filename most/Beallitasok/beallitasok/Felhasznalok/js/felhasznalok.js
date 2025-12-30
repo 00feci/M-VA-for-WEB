@@ -83,7 +83,7 @@ async function torlesSor(gomb, user) {
         const response = await fetch('Beallitasok/beallitasok/Felhasznalok/felhasznalok_torlese.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ felhasznalo: user })
+            body: JSON.json({ felhasznalo: user })
         });
         const res = await response.json();
         if (res.status === 'ok') { alert("Sikeres törlés!"); felhasznalokBetoltese(); } 
@@ -91,17 +91,7 @@ async function torlesSor(gomb, user) {
     } catch (e) { console.error("Hiba:", e); }
 }
 
-    try {
-        const response = await fetch('Beallitasok/beallitasok/Felhasznalok/felhasznalok_torlese.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ felhasznalo: user })
-        });
-        const res = await response.json();
-        if (res.status === 'ok') { alert("Sikeres törlés!"); felhasznalokBetoltese(); } 
-        else { alert("Hiba: " + res.uzenet); }
-    } catch (e) { console.error("Hiba:", e); }
-}
+// ✅ Új felhasználó mentése egyben - MINDEN szöveges mező ellenőrzésével (helyreállítva)
 
 // ✅ Új felhasználó mentése egyben - MINDEN szöveges mező ellenőrzésével (helyreállítva)
 async function ujFelhasznaloMentese(gomb) {
@@ -139,5 +129,3 @@ async function mentes(originalUser, adatok) {
         }
     } catch (e) { console.error("Hiba:", e); }
 }
-
-
