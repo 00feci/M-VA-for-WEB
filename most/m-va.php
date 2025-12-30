@@ -211,3 +211,4 @@ function funkcio2Inditasa(gomb) {
 
 
 
+
