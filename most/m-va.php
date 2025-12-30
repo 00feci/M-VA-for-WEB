@@ -52,42 +52,53 @@ if (!$adat || ($adat['m-va'] ?? 'NINCS') !== 'OK') {
         font-family: Arial, sans-serif; background-color: #222;
         display: flex; flex-direction: column; align-items: center;
     }
-    .gomb, .gomb_tomeges_de_egyedi_email {
-        transition: all 0.3s ease;
+  /* ✨ Egységes modern gomb stílus */
+    .gomb {
+        width: 250px;
+        height: 66px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(8px);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        font-family: 'Segoe UI', sans-serif; font-size: 18pt; color: white;
-        border-radius: 8px; margin: 10px;
-    }
-    .gomb { width: 254px; height: 52px; }
-    .gomb_tomeges_de_egyedi_email { width: 250px; height: 66px; }
-
-    /* ⚙️ Beállítások gomb stílusa */
-    .beallitasok {
-        width: 250px; height: 66px;
-        background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px;
+        border-radius: 8px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px;
-        margin: 10px;
-    }
-    .beallitasok:hover {
-        background: rgba(255, 255, 255, 0.1); border-color: #00d2ff;
-        box-shadow: 0 0 20px rgba(0, 210, 255, 0.4); transform: translateY(-3px) scale(1.02);
-    }
-    .beallitasok span { transition: transform 0.6s ease; display: inline-block; }
-    .beallitasok:hover span { transform: rotate(180deg); }
-
-    /* 🔒 Tiltott állapot (Vörös marad, de üveghatású) */
-    .beallitasok-tiltott {
-        background: rgba(139, 0, 0, 0.6) !important; border-color: darkred !important;
-        color: white; cursor: not-allowed !important; transform: none !important; box-shadow: none !important;
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 16pt; /* Kicsit finomított méret a szövegeknek */
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin: 10px auto;
+        cursor: pointer;
     }
 
-    .zold { background: linear-gradient(135deg, #2ecc71, #27ae60) !important; cursor: pointer; }
-    .zold:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(46, 204, 113, 0.4); filter: brightness(1.1); }
-    .piros { background: darkred !important; cursor: not-allowed; opacity: 0.6; }
+    /* Általános Hover hatás aktív gomboknál */
+    .gomb:hover:not([disabled]):not(.piros) {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: #00d2ff; /* Modern kék kiemelés */
+        box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+        transform: translateY(-3px) scale(1.02);
+    }
+
+    /* Ikonok alaphelyzete és animációja */
+    .gomb span { transition: transform 0.6s ease; display: inline-block; }
+    .gomb:hover:not([disabled]):not(.piros) span { transform: scale(1.2); }
+    
+    /* Speciális forgás csak a Beállítások ikonnak */
+    .gomb[onclick*="beallitasok"]:hover span { transform: rotate(180deg); }
+
+    /* 🔒 Tiltott / Piros állapot (Üveghatású vörös, nincs hover effekt) */
+    .piros, .gomb[disabled] {
+        background: rgba(139, 0, 0, 0.6) !important;
+        border-color: darkred !important;
+        color: white;
+        cursor: not-allowed !important;
+        opacity: 0.6;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+    .zold { cursor: pointer; }
   </style>
 </head>
 <body>
@@ -107,33 +118,33 @@ $jog8 = $adat['Beállítások'] ?? 'NINCS';
 
 <form method="POST" enctype="multipart/form-data" action="gomb_kilk.php">
     <button type="submit" name="funkcio" value="Szerződés" class="gomb <?= $jog1 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog1 !== 'OK' ? 'disabled' : '' ?>>
-        <?= $jog1 === 'OK' ? 'Szerződés kezelő' : 'Nincs hozzáférés' ?>
+        <span>📄</span> <?= $jog1 === 'OK' ? 'Szerződés kezelő' : 'Nincs hozzáférés' ?>
     </button>
     <button type="submit" name="funkcio" value="Szabadság_és_Táppénz_kezelő" class="gomb <?= $jog2 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog2 !== 'OK' ? 'disabled' : '' ?>>
-        <?= $jog2 === 'OK' ? 'SZ és TP kezelő' : 'Nincs hozzáférés' ?>
+        <span>📅</span> <?= $jog2 === 'OK' ? 'SZ és TP kezelő' : 'Nincs hozzáférés' ?>
     </button>
     <button type="button" class="gomb <?= $jog3 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog3 !== 'OK' ? 'disabled' : '' ?> onclick="funkcio2Inditasa(this)">
-        <?= $jog3 === 'OK' ? 'ALL tábla betöltő' : 'Nincs hozzáférés' ?>
+        <span>📤</span> <?= $jog3 === 'OK' ? 'ALL tábla betöltő' : 'Nincs hozzáférés' ?>
     </button>
     <button type="submit" name="funkcio" value="ALL_tábla_kezelő" class="gomb <?= $jog4 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog4 !== 'OK' ? 'disabled' : '' ?>>
-        <?= $jog4 === 'OK' ? 'ALL tábla kezelő' : 'Nincs hozzáférés' ?>
+        <span>🖥️</span> <?= $jog4 === 'OK' ? 'ALL tábla kezelő' : 'Nincs hozzáférés' ?>
     </button>
     <button type="submit" name="funkcio" value="Toborzás" class="gomb <?= $jog5 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog5 !== 'OK' ? 'disabled' : '' ?>>
-        <?= $jog5 === 'OK' ? 'Toborzás' : 'Nincs hozzáférés' ?>
+        <span>👥</span> <?= $jog5 === 'OK' ? 'Toborzás' : 'Nincs hozzáférés' ?>
     </button>
     <button type="submit" name="funkcio" value="Hóvégi_zárás" class="gomb <?= $jog6 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog6 !== 'OK' ? 'disabled' : '' ?>>
-        <?= $jog6 === 'OK' ? 'Hóvégi zárás' : 'Nincs hozzáférés' ?>
+        <span>🔒</span> <?= $jog6 === 'OK' ? 'Hóvégi zárás' : 'Nincs hozzáférés' ?>
     </button>
-    <button type="submit" name="funkcio" value="Tömeges_de_egyedi_e-mail" class="gomb_tomeges_de_egyedi_email <?= $jog7 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog7 !== 'OK' ? 'disabled' : '' ?>>
-        <?= $jog7 === 'OK' ? 'Tömeges, de egyedi e-mail' : 'Nincs hozzáférés' ?>
+    <button type="submit" name="funkcio" value="Tömeges_de_egyedi_e-mail" class="gomb <?= $jog7 === 'OK' ? 'zold' : 'piros' ?>" <?= $jog7 !== 'OK' ? 'disabled' : '' ?>>
+        <span>📧</span> <?= $jog7 === 'OK' ? 'Tömeges e-mail' : 'Nincs hozzáférés' ?>
     </button>
 
     <?php if ($jog8 === 'OK'): ?>
-        <div class="beallitasok" onclick="location.href='beallitasok.php'">
+        <div class="gomb zold" onclick="location.href='beallitasok.php'">
             <span>⚙️</span> Beállítások
         </div>
     <?php else: ?>
-        <div class="beallitasok beallitasok-tiltott">
+        <div class="gomb piros" disabled>
             <span>🚫</span> Nincs hozzáférés
         </div>
     <?php endif; ?>
@@ -181,3 +192,4 @@ function funkcio2Inditasa(gomb) {
 </script>
 </body>
 </html>
+
