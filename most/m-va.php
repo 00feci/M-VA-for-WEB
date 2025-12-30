@@ -190,11 +190,13 @@ $jog8 = $adat['Beállítások'] ?? 'NINCS';
   </button>
     
 <?php if ($jog8 === 'OK'): ?>
-  <div class="beallitasok" onclick="location.href='beallitasok.php'">
-      <span>⚙️</span> Beállítások
-  </div>
+    <div class="beallitasok" onclick="location.href='beallitasok.php'">
+        <span>⚙️</span> Beállítások
+    </div>
 <?php else: ?>
-  <button class="gomb_tomeges_de_egyedi_email piros" disabled>Nincs hozzáférés</button>
+    <div class="beallitasok beallitasok-tiltott">
+        <span>🚫</span> Nincs hozzáférés
+    </div>
 <?php endif; ?>
 
   <input type="file" id="fajl" name="fajl" style="display:none" accept=".txt" onchange="fajlBekuldes()">
@@ -276,5 +278,6 @@ function funkcio2Inditasa(gomb) {
 </body>
 
 </html>
+
 
 
