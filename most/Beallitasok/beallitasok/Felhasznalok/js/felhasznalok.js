@@ -20,7 +20,7 @@ async function felhasznalokBetoltese() {
 
 function generaljTablazatot(adatok, oszlopok) {
     let html = `<div class="felhasznalo-tabla-wrapper"><table class="f-tabla"><thead><tr>`;
-      html += '<th>Választ</th>';
+      html += '<th>Művelet</th>'; // Átnevezve
     
     oszlopok.forEach(o => { 
         if(o !== 'dátum' && o !== 'id' && o !== 'szerep') html += `<th>${o}</th>`; 
@@ -30,7 +30,11 @@ function generaljTablazatot(adatok, oszlopok) {
     // Meglévő felhasználók
     adatok.forEach(sor => {
         html += `<tr>`;
-        html += `<td><input type="radio" name="user-select" value="${sor.felhasználónév}"></td>`;
+        // Rádiógomb helyett mentés és törlés gombok
+        html += `<td>
+            <button onclick="mentesSor(this, '${sor.felhasználónév}')" class="f-input" style="width:40px; cursor:pointer;" title="Mentés">💾</button>
+            <button onclick="torlesSor(this, '${sor.felhasználónév}')" class="f-input" style="width:40px; cursor:pointer; border-color:#c62828;" title="Törlés">🗑️</button>
+        </td>`;
         oszlopok.forEach(o => {
             if (o === 'dátum' || o === 'id' || o === 'szerep') return;
             let ertek = sor[o] || '';
@@ -59,29 +63,33 @@ function generaljTablazatot(adatok, oszlopok) {
     document.getElementById('modul-tartalom').innerHTML = html;
 }
 // Összevont mentés: a kijelölt sor összes adatát egyszerre küldjük el
-// ✅ Összevont mentés: a kijelölt sor összes adatát egyszerre küldjük el
-async function mentesKivalasztott() {
-    const radio = document.querySelector('input[name="user-select"]:checked');
-    if (!radio) return alert("Nincs kiválasztva felhasználó!");
-    const originalUser = radio.value;
+// ✅ Sor mentése: a gomb melletti adatokat küldjük el
+async function mentesSor(gomb, originalUser) {
     if (!confirm("Biztosan MENTI a(z) '" + originalUser + "' felhasználót?")) return;
     
     const adatok = {};
-    radio.closest('tr').querySelectorAll('input[data-col]').forEach(i => {
+    gomb.closest('tr').querySelectorAll('input[data-col]').forEach(i => {
         adatok[i.dataset.col] = i.type === 'checkbox' ? (i.checked ? 'OK' : '') : i.value;
     });
 
     await mentes(originalUser, adatok);
 }
 
-// ✅ Törlés javított ellenőrzéssel
-async function torlesKivalasztott() {
-    const radio = document.querySelector('input[name="user-select"]:checked');
-    if (!radio) return alert("Nincs kiválasztva felhasználó!");
-    const user = radio.value.trim();
-    if (!user) return alert("Hiba: Ennek a sornak nincs felhasználóneve, kézzel kell törölni az adatbázisból!");
-
+// ✅ Sor törlése
+async function torlesSor(gomb, user) {
     if (!confirm("FIGYELEM! Biztosan TÖRÖLNI szeretné a(z) '" + user + "' felhasználót?")) return;
+
+    try {
+        const response = await fetch('Beallitasok/beallitasok/Felhasznalok/felhasznalok_torlese.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ felhasznalo: user })
+        });
+        const res = await response.json();
+        if (res.status === 'ok') { alert("Sikeres törlés!"); felhasznalokBetoltese(); } 
+        else { alert("Hiba: " + res.uzenet); }
+    } catch (e) { console.error("Hiba:", e); }
+}
 
     try {
         const response = await fetch('Beallitasok/beallitasok/Felhasznalok/felhasznalok_torlese.php', {
@@ -131,4 +139,5 @@ async function mentes(originalUser, adatok) {
         }
     } catch (e) { console.error("Hiba:", e); }
 }
+
 
