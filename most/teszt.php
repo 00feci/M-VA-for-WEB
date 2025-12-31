@@ -1,6 +1,6 @@
 <?php
 // teszt.php – Funkció4 főoldal szimuláció
-session_start()
+session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] .'/Iroda/sql_config.php';
 date_default_timezone_set('Europe/Budapest');
@@ -46,5 +46,6 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/Iroda/verziok/' . $_SESSION['verzio']
 
 </body>
 </html>
+
 
 
