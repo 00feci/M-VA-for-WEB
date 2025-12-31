@@ -65,11 +65,10 @@ function navigacio(cel) {
         // Dinamikus gombgenerálás a modulhoz (Színvariációk, Megnevezések, stb.)
 const gombSor = document.createElement('div');
         gombSor.className = 'dashboard-gomb-sor';
-        gombSor.id = 'modul-gomb-sor'; // 👈 ID hozzáadása az injektáláshoz
+        gombSor.id = 'modul-gomb-sor';
         gombSor.style.display = 'flex';
         gombSor.style.width = '100%';
-      gombSor.style.gap = '30px'; // 👈 Nagyobb köz a gombok között
-        gombSor.style.marginBottom = '15px';
+        gombSor.style.gap = '40px'; // 👈 Még nagyobb távolság a gombok között
 
         adat.gombok.forEach(g => {
             const gomb = document.createElement('div');
@@ -132,3 +131,4 @@ function frissitSzTpElonezet() {
         elonezet.textContent = kod;
 }
 }
+
