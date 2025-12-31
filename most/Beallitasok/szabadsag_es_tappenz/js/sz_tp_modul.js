@@ -14,11 +14,10 @@ function szTpModulBetoltese() {
                 
                 <div>
                     <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 3px;">Megnevezés:</label>
-                    <div style="display: flex; gap: 5px;">
-                        <select id="sztp_megnevezes" style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
-                            <option value="">-- Kiválasztás --</option>
-                        </select>
-                        <button onclick="megnevezesSzerkesztoMegnyitasa()" style="background: #2196F3; color: white; border: none; padding: 0 12px; cursor: pointer; border-radius: 4px; font-weight: bold;">+</button>
+                    injektalGombokat(); // Injektáljuk a Mentés és Törlés gombokat a felső sorba
+    console.log("Szabadság modul UI betöltve.");
+}
+<button onclick="megnevezesSzerkesztoMegnyitasa()" style="background: #2196F3; color: white; border: none; padding: 0 12px; cursor: pointer; border-radius: 4px; font-weight: bold;">+</button>
                     </div>
                 </div>
 
@@ -65,9 +64,47 @@ function szTpModulBetoltese() {
         </div>
         `;
     
-    injektalGombokat(); // Injektáljuk a Mentés és Törlés gombokat a felső sorba
+    injektalGombokat();
+    listaBetoltese(); // 👈 Lista feltöltése indításkor
     console.log("Szabadság modul UI betöltve.");
-}   
+}
+
+// Lista lekérése az adatbázisból
+function listaBetoltese() {
+    fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php')
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) return;
+            const select = document.getElementById('sztp_megnevezes');
+            const mentettErtek = select.value;
+            select.innerHTML = '<option value="">-- Kiválasztás --</option>';
+            data.lista.forEach(i => {
+                select.innerHTML += `<option value="${i.id}">${i.megnevezes}</option>`;
+            });
+            if (mentettErtek) select.value = mentettErtek;
+        });
+}
+
+// Egy konkrét elem adatainak betöltése a mezőkbe
+function adatokBetoltese(id) {
+    if (!id) {
+        document.getElementById('sztp_id').value = '';
+        document.getElementById('sztp_kod').value = '';
+        document.getElementById('sztp_szin').value = '#ffffff';
+        frissitSztpElonezet('picker');
+        return;
+    }
+    fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('sztp_id').value = data.adat.id;
+                document.getElementById('sztp_kod').value = data.adat.kod;
+                document.getElementById('sztp_szin').value = data.adat.szin;
+                frissitSztpElonezet('picker');
+            }
+        });
+}
 
 // Popup megnyitása
 function megnevezesSzerkesztoMegnyitasa() {
@@ -153,11 +190,46 @@ function frissitSztpElonezet(tipus) {
     }
 }
 
-function beallitasokMentese() { console.log("Mentés..."); }
-function beallitasokTorlese() { 
-    const nev = document.getElementById('sztp_megnevezes').value;
-    if(!nev) return alert("Nincs kiválasztva semmi a törléshez!");
-    if(confirm("Biztosan törölni szeretnéd a(z) " + nev + " beállítást?")) {
-        console.log("Törlés folyamatban..."); 
+function beallitasokMentese() {
+    const adat = {
+        id: document.getElementById('sztp_id').value,
+        megnevezes: document.getElementById('sztp_megnevezes').options[document.getElementById('sztp_megnevezes').selectedIndex]?.text,
+        kod: document.getElementById('sztp_kod').value,
+        szin: document.getElementById('sztp_szin').value,
+        extra_adatok: [] // Fájlkezelés majd ide jön
+    };
+
+    if (!adat.megnevezes || adat.megnevezes.startsWith('--')) return alert("Válassz megnevezést!");
+
+    fetch('Beallitasok/szabadsag_es_tappenz/sztp_mentes.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(adat)
+    })
+    .then(r => r.json())
+    .then(data => {
+        alert(data.message);
+        if (data.success) listaBetoltese();
+    });
+}
+
+function beallitasokTorlese() {
+    const id = document.getElementById('sztp_id').value;
+    if (!id) return alert("Nincs kiválasztva mentett beállítás!");
+
+    if (confirm("Biztosan törölni szeretnéd ezt a beállítást?")) {
+        fetch('Beallitasok/szabadsag_es_tappenz/sztp_torlese.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id })
+        })
+        .then(r => r.json())
+        .then(data => {
+            alert(data.message);
+            if (data.success) {
+                adatokBetoltese(''); // Mezők ürítése
+                listaBetoltese();   // Lista frissítése
+            }
+        });
     }
 }
