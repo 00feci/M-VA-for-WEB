@@ -4,7 +4,7 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php';
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/Iroda/sql_config.php';
-
+require_once 'sql_sz_tp.php';
 $pdo = csatlakozasSzerver1();
 header('Content-Type: application/json');
 
