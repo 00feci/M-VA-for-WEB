@@ -35,12 +35,10 @@ if (empty($megnevezes)) {
 
 try {
     if ($id) {
-        // 📝 MÓDOSÍTÁS - szin -> hex_szin
         $sql = "UPDATE szabadsag_es_tappenz_beallitasok SET megnevezes = :m, kod = :k, hex_szin = :s, extra_adatok = :e WHERE id = :id";
         $stmt = $pdo->prepare($sql);
         $stmt->execute(['m' => $megnevezes, 'k' => $kod, 's' => $szin, 'e' => $extra_adatok, 'id' => $id]);
     } else {
-        // ✨ ÚJ FELVITEL - szin -> hex_szin
         $sql = "INSERT INTO szabadsag_es_tappenz_beallitasok (megnevezes, kod, hex_szin, extra_adatok) VALUES (:m, :k, :s, :e)";
         $stmt = $pdo->prepare($sql);
         $stmt->execute(['m' => $megnevezes, 'k' => $kod, 's' => $szin, 'e' => $extra_adatok]);
