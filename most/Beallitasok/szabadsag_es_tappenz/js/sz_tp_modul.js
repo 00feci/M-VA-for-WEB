@@ -128,7 +128,8 @@ function megnevezesSzerkesztoMegnyitasa() {
 
 function modalBezaras() {
     document.getElementById('sztp-modal').style.display = 'none';
-    document.getElementById('sztp_tomeges_bevitel').value = ''; // 🧹 Bezáráskor ürítjük a listát
+    // 🧹 Kiürítjük a textareát, hogy legközelebb tiszta legyen
+    document.getElementById('sztp_tomeges_bevitel').value = ''; 
 }
 
 function megnevezesekMentese() {
@@ -147,7 +148,7 @@ function megnevezesekMentese() {
         if (data.success) {
             alert(data.message);
             document.getElementById('sztp_tomeges_bevitel').value = ''; // 🧹 Sikeres mentés után is ürítünk
-            listaBetoltese();
+            listaBetoltese(); 
         } else {
             alert("Hiba: " + data.message);
         }
@@ -159,7 +160,8 @@ function injektalGombokat() {
     if (!sor) return;
     sor.innerHTML = ''; // Előző gombok törlése
 
-    const gombok = [
+   const gombok = [
+        { felirat: '🔙 Vissza', szin: '#607d8b', akcio: () => navigacio('fomenu') },
         { felirat: '💾 Mentés', szin: '#4CAF50', akcio: beallitasokMentese },
         { felirat: '🗑️ Törlés', szin: '#f44336', akcio: beallitasokTorlese }
     ];
@@ -250,4 +252,5 @@ function szuresSztpMegnevezesre(szo) {
         options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
     }
 }
+
 
