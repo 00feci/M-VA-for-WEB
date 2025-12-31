@@ -129,10 +129,5 @@ function frissitSzTpElonezet() {
     if(elonezet) {
         elonezet.style.backgroundColor = szin;
         elonezet.textContent = kod;
-    }
 }
-    }
 }
-
-
-
