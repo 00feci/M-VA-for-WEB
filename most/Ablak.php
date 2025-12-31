@@ -17,7 +17,7 @@ if (!$adat || $adat['Szabadság_és_Táppénz_kezelő'] !== 'OK') {
     exit;
 }
 // 🛠️ Szabadság és Táppénz adatbázis struktúra ellenőrzése
-require_once __DIR__ . '/Beallitasok/szabadsag_es_tappenz/sql_sz_tp.php';
+require_once __DIR__ . '/../Beallitasok/szabadsag_es_tappenz/sql_sz_tp.php';
 // 📅 Legfrissebb betöltés_dátum
 $stmt2 = $pdo->query("SELECT MAX(`betöltés_dátum`) AS legfrissebb FROM call_center_hasznalat");
 $legfrissebbDatum = $stmt2->fetchColumn();
@@ -211,6 +211,7 @@ $API_BASE   = $MVA_EMBED ? 'Ablak_Excel/' : ''; // végén legyen /, vagy legyen
 <script src="js/ablak_popup.js?v=<?php echo filemtime(__DIR__ . '/js/ablak_popup.js'); ?>"></script>
 </body>
 </html>
+
 
 
 
