@@ -7,48 +7,45 @@ function szTpModulBetoltese() {
     // Kétoszlopos elrendezés létrehozása
    // Kétoszlopos elrendezés létrehozása
     kontener.innerHTML = `
-        <div class="sztp-keret" style="display: flex; gap: 40px; padding: 20px; align-items: flex-start;">
+   <div class="sztp-keret" style="display: flex; gap: 50px; padding: 20px; align-items: flex-start;">
             <input type="hidden" id="sztp_id" value=""> 
             
-            <div style="flex: 1; display: flex; flex-direction: column; gap: 20px;">
+            <div style="width: 360px; display: flex; flex-direction: column; gap: 15px;">
                 
-                <div style="width: 320px;">
-                    <label style="display: block; font-size: 0.9em; font-weight: bold; margin-bottom: 3px;">Megnevezés:</label>
+                <div>
+                    <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 3px;">Megnevezés:</label>
                     <div style="display: flex; gap: 5px;">
                         <select id="sztp_megnevezes" style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
                             <option value="">-- Kiválasztás --</option>
                         </select>
-                        <button onclick="megnevezesSzerkesztoMegnyitasa()" style="background: #2196F3; color: white; border: none; padding: 0 10px; cursor: pointer; border-radius: 4px; font-weight: bold;">+</button>
+                        <button onclick="megnevezesSzerkesztoMegnyitasa()" style="background: #2196F3; color: white; border: none; padding: 0 12px; cursor: pointer; border-radius: 4px; font-weight: bold;">+</button>
                     </div>
                 </div>
 
-                <div style="width: 320px; display: flex; gap: 15px;">
-                    <div style="flex: 1;">
+                <div style="display: flex; gap: 40px; justify-content: space-between;">
+                    <div style="width: 100px;">
                         <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 3px;">Kód:</label>
                         <input type="text" id="sztp_kod" maxlength="10" oninput="frissitSztpElonezet('kod')" 
-                               style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Pl: SZ">
+                               style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;" placeholder="SZ">
                     </div>
-                    <div style="flex: 1.5;">
-                        <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 3px;">Szín és Hex:</label>
-                        <div style="display: flex; gap: 5px;">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 3px;">Szín és Hex kód:</label>
+                        <div style="display: flex; gap: 8px;">
                             <input type="color" id="sztp_szin" oninput="frissitSztpElonezet('picker')" 
-                                   style="width: 35px; height: 31px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; padding: 2px;" value="#ffffff">
+                                   style="width: 40px; height: 32px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; padding: 2px;" value="#ffffff">
                             <input type="text" id="sztp_hex" oninput="frissitSztpElonezet('hex')" placeholder="#ffffff" maxlength="7"
-                                   style="width: 75px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-family: monospace; font-size: 0.9em;">
+                                   style="width: 90px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-family: monospace; font-size: 0.9em;">
                         </div>
                     </div>
                 </div>
 
-                <div style="width: 320px; display: flex; justify-content: center; padding: 10px; background: #f9f9f9; border: 1px dashed #ccc; border-radius: 6px;">
-                    <div style="text-align: center;">
-                        <span style="font-size: 0.7em; color: #999; display: block; margin-bottom: 5px; font-weight: bold;">MINTA</span>
-                        <div id="szin-elonezet-doboz" 
-                             style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; 
-                                    border: 1px solid #333; background: #ffffff; font-weight: bold; font-size: 14px; border-radius: 4px; margin: 0 auto;">-</div>
-                    </div>
+                <div style="width: 100%; height: 65px; background: #fff; border: 1px solid #eee; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 6px;">
+                    <span style="font-size: 0.65em; color: #aaa; margin-bottom: 3px; font-weight: bold;">MINTA</span>
+                    <div id="szin-elonezet-doboz" 
+                         style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; 
+                                border: 1px solid #444; background: #ffffff; font-weight: bold; font-size: 13px; border-radius: 4px;">-</div>
                 </div>
             </div>
-
             <div style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
                 <label style="font-weight: bold; font-size: 0.9em;">📄 Sablon feltöltése:</label>
                 
@@ -164,4 +161,3 @@ function beallitasokTorlese() {
         console.log("Törlés folyamatban..."); 
     }
 }
-
