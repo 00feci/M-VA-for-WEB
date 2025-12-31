@@ -128,6 +128,7 @@ function megnevezesSzerkesztoMegnyitasa() {
 
 function modalBezaras() {
     document.getElementById('sztp-modal').style.display = 'none';
+    document.getElementById('sztp_tomeges_bevitel').value = ''; // 🧹 Bezáráskor ürítjük a listát
 }
 
 function megnevezesekMentese() {
@@ -145,7 +146,8 @@ function megnevezesekMentese() {
     .then(data => {
         if (data.success) {
             alert(data.message);
-            listaBetoltese(); // A lista betöltése az adatbázisból már a valódi ID-kkal fog történni
+            document.getElementById('sztp_tomeges_bevitel').value = ''; // 🧹 Sikeres mentés után is ürítünk
+            listaBetoltese();
         } else {
             alert("Hiba: " + data.message);
         }
@@ -248,3 +250,4 @@ function szuresSztpMegnevezesre(szo) {
         options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
     }
 }
+
