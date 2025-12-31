@@ -127,8 +127,7 @@ function frissitSzTpElonezet() {
     const elonezet = document.getElementById('szin-elonezet');
     
     if(elonezet) {
-        elonezet.style.backgroundColor = szin;
+       elonezet.style.backgroundColor = szin;
         elonezet.textContent = kod;
+    }
 }
-}
-
