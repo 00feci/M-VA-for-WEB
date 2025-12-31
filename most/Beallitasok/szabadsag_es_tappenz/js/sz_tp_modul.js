@@ -7,9 +7,7 @@ function szTpModulBetoltese() {
     // Kétoszlopos elrendezés létrehozása
     kontener.innerHTML = `
         <div class="sztp-keret" style="display: flex; gap: 30px; padding: 20px; align-items: flex-start;">
-            
-            <div class="sztp-beallitasok-oszlop" style="flex: 1.5; display: flex; flex-direction: column; gap: 20px;">
-                
+            <input type="hidden" id="sztp_id" value=""> <div class="sztp-beallitasok-oszlop" style="flex: 2; display: flex; flex-direction: column; gap: 20px;">
                 <div class="sztp-csoport">
                     <label style="display: block; font-weight: bold; margin-bottom: 5px;">Megnevezés:</label>
                     <div style="display: flex; gap: 10px;">
@@ -17,9 +15,7 @@ function szTpModulBetoltese() {
                             <option value="">-- Válassz vagy adj hozzá --</option>
                         </select>
                         <button onclick="megnevezesSzerkesztoMegnyitasa()" title="Megnevezések kezelése" 
-                                style="background: #2196F3; color: white; border: none; padding: 0 15px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 18px;">
-                            +
-                        </button>
+                                style="background: #2196F3; color: white; border: none; padding: 0 15px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 18px;">+</button>
                     </div>
                 </div>
 
@@ -34,47 +30,56 @@ function szTpModulBetoltese() {
                     <input type="color" id="sztp_szin" oninput="frissitSztpElonezet()" 
                            style="width: 100%; height: 40px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; padding: 2px;" value="#ffffff">
                 </div>
-
             </div>
 
-            <div class="sztp-elonezet-oszlop" style="flex: 1; background: #fdfdfd; border: 1px solid #ddd; padding: 20px; border-radius: 8px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; min-height: 250px;">
-                <div>
-                    <h3 style="margin-top: 0; color: #666; font-size: 1.1em;">Előnézet</h3>
-                    <div style="display: flex; justify-content: center; margin: 20px 0;">
-                        <div id="szin-elonezet-doboz" 
-                             style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; 
-                                    border: 1px solid #333; background: #ffffff; font-weight: bold; font-size: 16px; border-radius: 4px;">
-                            -
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="border-top: 1px solid #eee; pt-15px;">
-                    <button onclick="beallitasokMentese()" 
-                            style="width: 100%; background: #4CAF50; color: white; border: none; padding: 12px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                        💾 Beállítás Mentése
-                    </button>
-                </div>
-            </div>
-
-        </div>
-
-        <div id="sztp-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
-            <div style="background: white; padding: 25px; border-radius: 8px; width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-                <h3 style="margin-top: 0;">Megnevezések kezelése</h3>
-                <p style="font-size: 0.9em; color: #555; margin-bottom: 10px;">
-                    Írd be az értékeket soronként vagy vesszővel elválasztva:
-                </p>
-                <textarea id="sztp_tomeges_bevitel" placeholder="Példa:&#10;Szabadság&#10;Táppénz&#10;Apasági szabadság" 
-                          style="width: 100%; height: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-family: sans-serif; resize: none;"></textarea>
-                
-                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                    <button onclick="modalBezaras()" style="padding: 8px 15px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background: #eee;">Mégse</button>
-                    <button onclick="megnevezesekMentese()" style="padding: 8px 20px; cursor: pointer; border: none; border-radius: 4px; background: #4CAF50; color: white; font-weight: bold;">Lista Frissítése</button>
+            <div class="sztp-elonezet-oszlop" style="flex: 1; background: #fafafa; border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center;">
+                <h3 style="margin-top: 0; color: #666; font-size: 1em;">Előnézet</h3>
+                <div style="display: flex; justify-content: center; margin: 15px 0;">
+                    <div id="szin-elonezet-doboz" 
+                         style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; 
+                                border: 1px solid #333; background: #ffffff; font-weight: bold; font-size: 14px; border-radius: 4px;">-</div>
                 </div>
             </div>
         </div>
-    `;
+        `;
+    
+    injektalGombokat(); // Injektáljuk a Mentés és Törlés gombokat a felső sorba
+    console.log("Szabadság modul UI betöltve.");
+}
+
+// Új függvény a felső gombokhoz
+function injektalGombokat() {
+    const sor = document.getElementById('modul-gomb-sor');
+    if (!sor) return;
+
+    // Mentés gomb
+    const mentes = document.createElement('div');
+    mentes.className = 'dashboard-gomb';
+    mentes.style.background = '#4CAF50';
+    mentes.style.color = 'white';
+    mentes.innerHTML = '💾 Mentés';
+    mentes.onclick = beallitasokMentese;
+    
+    // Törlés gomb
+    const torles = document.createElement('div');
+    torles.className = 'dashboard-gomb';
+    torles.style.background = '#f44336';
+    torles.style.color = 'white';
+    torles.innerHTML = '🗑️ Törlés';
+    torles.onclick = beallitasokTorlese;
+
+    sor.appendChild(mentes);
+    sor.appendChild(torles);
+}
+
+function beallitasokMentese() { console.log("Mentés..."); }
+function beallitasokTorlese() { 
+    const nev = document.getElementById('sztp_megnevezes').value;
+    if(!nev) return alert("Nincs kiválasztva semmi a törléshez!");
+    if(confirm("Biztosan törölni szeretnéd a(z) " + nev + " beállítást?")) {
+        console.log("Törlés folyamatban..."); 
+    }
+}
     
     console.log("Szabadság modul UI betöltve.");
 }
@@ -136,5 +141,6 @@ function frissitSztpElonezet() {
         doboz.style.color = (yiq >= 128) ? 'black' : 'white';
     }
 }
+
 
 
