@@ -89,9 +89,9 @@ function inicializalFeltoltot() {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.doc,.docx';
-        // 📂 Mappa-feltöltés engedélyezése (ha a HR-es mappát választana)
-        input.webkitdirectory = true;
-        input.onchange = e => sztpFajlFeltoltes(e.target.files[0]);
+        input.multiple = true;
+        input.webkitdirectory = true; // Mappa választás engedélyezése
+        input.onchange = e => sztpFajlokFeltoltese(e.target.files);
         input.click();
     };
 
@@ -100,27 +100,46 @@ function inicializalFeltoltot() {
     zona.ondrop = e => {
         e.preventDefault();
         zona.style.background = '#f0f7ff';
-        sztpFajlFeltoltes(e.dataTransfer.files[0]);
+        sztpFajlokFeltoltese(e.dataTransfer.files);
     };
 }
 
-function sztpFajlFeltoltes(fajl) {
-    if (!fajl) return;
-    const formData = new FormData();
-    formData.append('sablon', fajl);
+async function sztpFajlokFeltoltese(fajlok) {
+    if (!fajlok || fajlok.length === 0) return;
+    
+    const lista = document.getElementById('sztp-fajl-lista');
+    lista.innerHTML = '<li>⏳ Feltöltés folyamatban...</li>';
+    
+    let sikeresSzam = 0;
+    let utolsoFajlNev = "";
 
-    fetch('Beallitasok/szabadsag_es_tappenz/sztp_feltoltes.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(r => r.json())
-    .then(data => {
-        alert(data.message);
-        if (data.success) {
-            const lista = document.getElementById('sztp-fajl-lista');
-            lista.innerHTML = `<li>📄 ${data.fajl_neve}</li>`; 
+    for (let fajl of fajlok) {
+        const formData = new FormData();
+        formData.append('sablon', fajl);
+        // A webkitRelativePath megőrzi a mappa szerkezetét
+        formData.append('relativ_utvonal', fajl.webkitRelativePath || fajl.name);
+
+        try {
+            const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_feltoltes.php', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await r.json();
+            if (data.success) {
+                sikeresSzam++;
+                utolsoFajlNev = data.fajl_neve;
+            }
+        } catch (e) {
+            console.error("Hiba:", e);
         }
-    });
+    }
+
+    if (sikeresSzam > 0) {
+        alert(`Sikeresen feltöltve: ${sikeresSzam} fájl.`);
+        lista.innerHTML = fajlok.length === 1 ? `<li>📄 ${utolsoFajlNev}</li>` : `<li>📂 ${sikeresSzam} fájl a sablon mappában</li>`;
+    } else {
+        lista.innerHTML = `<li>❌ Sikertelen feltöltés</li>`;
+    }
 }
 
 function listaBetoltese() {
@@ -308,6 +327,7 @@ function szuresSztpMegnevezesre(szo) {
         options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
     }
 }
+
 
 
 
