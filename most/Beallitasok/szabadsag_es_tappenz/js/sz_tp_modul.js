@@ -25,12 +25,12 @@ function szTpModulBetoltese() {
                                style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;" placeholder="SZ">
                     </div>
                     <div style="flex: 1;">
-                        <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 3px;">Szín és Hex:</label>
+                        <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 3px;">Szín és Hex kód:</label>
                         <div style="display: flex; gap: 8px;">
                             <input type="color" id="sztp_szin" oninput="frissitSztpElonezet('picker')" 
                                    style="width: 40px; height: 32px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; padding: 2px;" value="#ffffff">
                             <input type="text" id="sztp_hex" oninput="frissitSztpElonezet('hex')" placeholder="#ffffff" maxlength="7"
-                                   style="width: 85px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-family: monospace; font-size: 0.9em;">
+                                   style="width: 90px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-family: monospace; font-size: 0.9em;">
                         </div>
                     </div>
                 </div>
@@ -234,5 +234,6 @@ function beallitasokTorlese() {
         });
     }
 }
+
 
 
