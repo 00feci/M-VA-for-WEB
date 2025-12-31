@@ -152,13 +152,11 @@ async function sztpFajlokFeltoltese(fajlok) {
     }
 
     if (sikeres > 0) {
-        // Ha van benne per jel, akkor mappa volt
-        if (fajlok.length > 1 || elsoFajlRelativ.includes('/')) {
-            const mappaNev = elsoFajlRelativ.split('/')[0];
-            lista.innerHTML = `<li>📂 ${mappaNev} (${sikeres} fájl)</li>`;
-        } else {
-            lista.innerHTML = `<li>📄 ${fajlok[0].name}</li>`;
-        }
+        lista.innerHTML = ''; 
+        fajlok.forEach(f => {
+            const relPath = f.relPath || f.webkitRelativePath || f.name;
+            lista.innerHTML += `<li>📄 ${relPath}</li>`;
+        });
         alert(`Sikeresen feltöltve: ${sikeres} fájl.`);
     } else {
         lista.innerHTML = `<li>❌ Sikertelen feltöltés</li>`;
@@ -203,15 +201,17 @@ fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id)
                 document.getElementById('sztp_kod').value = data.adat.kod;
                 document.getElementById('sztp_szin').value = data.adat.hex_szin;
                 
-                const lista = document.getElementById('sztp-fajl-lista');
-                const mentettNev = data.adat.sablon_neve || "";
-                if (mentettNev) {
-                    // Ha zárójelben van fájlszám, akkor mappa
-                    const ikon = (mentettNev.includes('(') && mentettNev.includes('fájl)')) ? '📂' : '📄';
-                    lista.innerHTML = `<li>${ikon} ${mentettNev}</li>`;
-                } else {
-                    lista.innerHTML = `<li>📄 Jelenleg nincs fájl</li>`;
-                }
+          // 🔍 Valódi fájllista lekérése a szerverről összefoglaló helyett
+                fetch('Beallitasok/szabadsag_es_tappenz/sztp_fajl_listazasa.php?id=' + data.adat.id)
+                    .then(r => r.json())
+                    .then(fData => {
+                        const lista = document.getElementById('sztp-fajl-lista');
+                        if (fData.success && fData.fajlok.length > 0) {
+                            lista.innerHTML = fData.fajlok.map(f => `<li>📄 ${f}</li>`).join('');
+                        } else {
+                            lista.innerHTML = `<li>📄 Jelenleg nincs fájl</li>`;
+                        }
+                    });
                 document.getElementById('sztp_hex').value = data.adat.hex_szin;
                 frissitSztpElonezet('picker');
             }
@@ -299,12 +299,13 @@ function beallitasokMentese() {
     const select = document.getElementById('sztp_megnevezes');
     const fajlLista = document.getElementById('sztp-fajl-lista');
     
-   let sablonNeve = null;
-    if (!fajlLista.innerText.includes('Jelenleg nincs')) {
-        // Precízebb csere, hogy ne maradjon szellem-ikon
-        sablonNeve = fajlLista.innerText.replace('📄', '').replace('📂', '').trim();
+let sablonNeve = null;
+    const elsoFajl = fajlLista.querySelector('li');
+    if (elsoFajl && !elsoFajl.innerText.includes('Jelenleg nincs')) {
+        // Ha mappa, akkor a gyökérmappát mentjük, ha fájl, akkor a fájlt
+        const teljesNev = elsoFajl.innerText.replace('📄 ', '').replace('📂 ', '').trim();
+        sablonNeve = teljesNev.includes('/') ? teljesNev.split('/')[0] : teljesNev;
     }
-
     const adat = {
         id: document.getElementById('sztp_id').value,
         megnevezes: select.options[select.selectedIndex]?.text,
@@ -358,6 +359,7 @@ function szuresSztpMegnevezesre(szo) {
         options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
     }
 }
+
 
 
 
