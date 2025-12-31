@@ -113,16 +113,20 @@ async function sztpFajlokFeltoltese(fajlok) {
     let sikeresSzam = 0;
     let utolsoFajlNev = "";
 
-    for (let fajl of fajlok) {
+   for (let fajl of fajlok) {
+        // 🛡️ Biztonsági szűrés: a rendszerfájlokat és üres bejegyzéseket kihagyjuk az ERR_ACCESS_DENIED ellen
+        if (fajl.size === 0 && !fajl.name.includes('.')) continue; 
+
         const formData = new FormData();
         formData.append('sablon', fajl);
-        // A webkitRelativePath megőrzi a mappa szerkezetét
         formData.append('relativ_utvonal', fajl.webkitRelativePath || fajl.name);
 
         try {
+            // Megbizonyosodunk róla, hogy a URL abszolút vagy pontosan relatív
             const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_feltoltes.php', {
                 method: 'POST',
-                body: formData
+                body: formData,
+                mode: 'cors' // Biztosítjuk a megfelelő módot
             });
             const data = await r.json();
             if (data.success) {
@@ -175,14 +179,18 @@ function adatokBetoltese(id) {
 fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id)
         .then(r => r.json())
         .then(data => {
-            if (data.success && data.adat) {
+           if (data.success && data.adat) {
                 document.getElementById('sztp_id').value = data.adat.id;
                 document.getElementById('sztp_kod').value = data.adat.kod;
                 document.getElementById('sztp_szin').value = data.adat.hex_szin;
-                // 📄 Sablon nevének megjelenítése a listában
+                
+                // 📂 Ikon intelligens visszatöltése (ha mappa, akkor mappa ikon, ha fájl, akkor fájl ikon)
                 const lista = document.getElementById('sztp-fajl-lista');
-                if (data.adat.sablon_neve) {
-                    lista.innerHTML = `<li>📄 ${data.adat.sablon_neve}</li>`;
+                const mentettNev = data.adat.sablon_neve || "";
+                
+                if (mentettNev) {
+                    const ikon = mentettNev.includes('fájl a sablon mappában') ? '📂' : '📄';
+                    lista.innerHTML = `<li>${ikon} ${mentettNev}</li>`;
                 } else {
                     lista.innerHTML = `<li>📄 Jelenleg nincs fájl</li>`;
                 }
@@ -272,7 +280,12 @@ function frissitSztpElonezet(tipus) {
 function beallitasokMentese() {
     const select = document.getElementById('sztp_megnevezes');
     const fajlLista = document.getElementById('sztp-fajl-lista');
-    const sablonNeve = fajlLista.innerText.includes('Jelenleg nincs') ? null : fajlLista.innerText.replace('📄 ', '').trim();
+    
+    // 🧹 Mindkét típusú ikont (📄 és 📂) eltávolítjuk mentés előtt
+    let sablonNeve = null;
+    if (!fajlLista.innerText.includes('Jelenleg nincs')) {
+        sablonNeve = fajlLista.innerText.replace('📄 ', '').replace('📂 ', '').trim();
+    }
 
     const adat = {
         id: document.getElementById('sztp_id').value,
@@ -327,6 +340,7 @@ function szuresSztpMegnevezesre(szo) {
         options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
     }
 }
+
 
 
 
