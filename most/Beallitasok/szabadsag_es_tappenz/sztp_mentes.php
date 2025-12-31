@@ -26,6 +26,7 @@ $id = !empty($data['id']) ? intval($data['id']) : null;
 $megnevezes = $data['megnevezes'] ?? '';
 $kod = $data['kod'] ?? '';
 $szin = $data['szin'] ?? '#ffffff';
+$sablon_neve = $data['sablon_neve'] ?? null; // 📄 Sablon neve fogadása
 $extra_adatok = isset($data['extra_adatok']) ? json_encode($data['extra_adatok']) : '[]';
 
 if (empty($megnevezes)) {
@@ -35,13 +36,13 @@ if (empty($megnevezes)) {
 
 try {
     if ($id) {
-        $sql = "UPDATE szabadsag_es_tappenz_beallitasok SET megnevezes = :m, kod = :k, hex_szin = :s, extra_adatok = :e WHERE id = :id";
+        $sql = "UPDATE szabadsag_es_tappenz_beallitasok SET megnevezes = :m, kod = :k, hex_szin = :s, sablon_neve = :sn, extra_adatok = :e WHERE id = :id";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute(['m' => $megnevezes, 'k' => $kod, 's' => $szin, 'e' => $extra_adatok, 'id' => $id]);
+        $stmt->execute(['m' => $megnevezes, 'k' => $kod, 's' => $szin, 'sn' => $sablon_neve, 'e' => $extra_adatok, 'id' => $id]);
     } else {
-        $sql = "INSERT INTO szabadsag_es_tappenz_beallitasok (megnevezes, kod, hex_szin, extra_adatok) VALUES (:m, :k, :s, :e)";
+        $sql = "INSERT INTO szabadsag_es_tappenz_beallitasok (megnevezes, kod, hex_szin, sablon_neve, extra_adatok) VALUES (:m, :k, :s, :sn, :e)";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute(['m' => $megnevezes, 'k' => $kod, 's' => $szin, 'e' => $extra_adatok]);
+        $stmt->execute(['m' => $megnevezes, 'k' => $kod, 's' => $szin, 'sn' => $sablon_neve, 'e' => $extra_adatok]);
     }
 
     echo json_encode(['success' => true, 'message' => 'Sikeres mentés!', 'id' => $id ?: $pdo->lastInsertId()]);
