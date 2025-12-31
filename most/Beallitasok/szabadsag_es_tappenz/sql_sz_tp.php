@@ -13,7 +13,7 @@ $sql = "CREATE TABLE IF NOT EXISTS `szabadsag_es_tappenz_beallitasok` (
     `fajl_struktura` VARCHAR(255) DEFAULT NULL, -- Menti útvonal
     `egy_vagy_tobb_nap` VARCHAR(50) DEFAULT NULL, -- Logika választó
     `export_allapot` VARCHAR(50) DEFAULT NULL,  -- Mit tegyen exportkor
-    `extra_adatok` JSON DEFAULT NULL,           -- ✨ Itt a "1200 oszlop" helye (rugalmasan)
+    `extra_adatok` JSON DEFAULT NULL,           -- ✨ Itt a 1200 oszlop helye (rugalmasan)
     `frissitve` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;";
 
@@ -25,3 +25,4 @@ try {
 }
 
 ?>
+
