@@ -13,8 +13,6 @@ const menuAdatok = {
         cim: '📅 Szabadság és Táppénz beállítások',
         breadcrumb: 'Iroda > Beállítások > Szabadság és Táppénz',
         gombok: [
-            { felirat: '🎨 Színvariációk', cel: 'szabadsag_szinek' },
-            { felirat: '📝 Megnevezések', cel: 'szabadsag_nevek' },
             { felirat: '🔙 Vissza', cel: 'fomenu' }
         ]
     },
@@ -98,6 +96,18 @@ function navigacio(cel) {
         } else {
             felhasznalokBetoltese();
         }
+        // 🚀 Szabadság és Táppénz modul betöltése (Kiszervezett fájl)
+    if (cel === 'szabadsag') {
+        if (typeof szTpModulBetoltese !== 'function') {
+            const script = document.createElement('script');
+            script.src = 'Beallitasok/szabadsag_es_tappenz/js/sz_tp_modul.js?v=' + new Date().getTime();
+            script.onload = () => szTpModulBetoltese();
+            document.body.appendChild(script);
+        } else {
+            szTpModulBetoltese();
+        }
+    }
+} // Itt zárjuk be a navigacio függvényt rendesen
         
 function felhasznalokMegnyitasa() {
     window.location.href = 'Beallitasok/beallitasok/Felhasznalok/felhasznalok.php';
@@ -122,4 +132,5 @@ function frissitSzTpElonezet() {
 }
     }
 }
+
 
