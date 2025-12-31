@@ -1,11 +1,11 @@
 <?php
 // teszt.php – Funkció4 főoldal szimuláció
-
+session_start()
 require_once $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] .'/Iroda/sql_config.php';
 date_default_timezone_set('Europe/Budapest');
 // 🛠️ Szabadság és Táppénz adatbázis struktúra ellenőrzése
-require_once __DIR__ . '/../Beallitasok/szabadsag_es_tappenz/sql_sz_tp.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/Iroda/verziok/' . $_SESSION['verzio'] . '/Beallitasok/szabadsag_es_tappenz/sql_sz_tp.php';
 ?>
 <!DOCTYPE html>
 <html lang="hu">
@@ -46,4 +46,5 @@ require_once __DIR__ . '/../Beallitasok/szabadsag_es_tappenz/sql_sz_tp.php';
 
 </body>
 </html>
+
 
