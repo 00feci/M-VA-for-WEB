@@ -28,9 +28,8 @@ try {
         $adat = $stmt->fetch(PDO::FETCH_ASSOC);
         echo json_encode(['success' => true, 'adat' => $adat]);
     } else {
-        // A teljes lista a legördülőhöz
-        $stmt = $pdo->query("SELECT id, megnevezes FROM szabadsag_es_tappenz_beallitasok ORDER BY megnevezes ASC");
-        $lista = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// A teljes lista a legördülőhöz a rögzítés sorrendjében
+        $stmt = $pdo->query("SELECT id, megnevezes FROM szabadsag_es_tappenz_beallitasok ORDER BY id ASC");        $lista = $stmt->fetchAll(PDO::FETCH_ASSOC);
         echo json_encode(['success' => true, 'lista' => $lista]);
     }
 } catch (Exception $e) {
