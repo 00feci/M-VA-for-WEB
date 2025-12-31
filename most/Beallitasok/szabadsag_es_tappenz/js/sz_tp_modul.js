@@ -107,11 +107,12 @@ function adatokBetoltese(id) {
     fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id)
         .then(r => r.json())
         .then(data => {
-            if (data.success && data.adat) {
+           if (data.success && data.adat) {
                 document.getElementById('sztp_id').value = data.adat.id;
                 document.getElementById('sztp_kod').value = data.adat.kod;
-                document.getElementById('sztp_szin').value = data.adat.szin;
-                document.getElementById('sztp_hex').value = data.adat.szin;
+                // data.adat.szin helyett data.adat.hex_szin használata
+                document.getElementById('sztp_szin').value = data.adat.hex_szin;
+                document.getElementById('sztp_hex').value = data.adat.hex_szin;
                 frissitSztpElonezet('picker');
             }
         });
@@ -227,3 +228,4 @@ function beallitasokTorlese() {
         });
     }
 }
+
