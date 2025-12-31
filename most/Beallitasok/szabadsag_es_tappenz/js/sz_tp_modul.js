@@ -89,6 +89,8 @@ function inicializalFeltoltot() {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.doc,.docx';
+        // 📂 Mappa-feltöltés engedélyezése (ha a HR-es mappát választana)
+        input.webkitdirectory = true;
         input.onchange = e => sztpFajlFeltoltes(e.target.files[0]);
         input.click();
     };
@@ -157,7 +159,14 @@ fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id)
             if (data.success && data.adat) {
                 document.getElementById('sztp_id').value = data.adat.id;
                 document.getElementById('sztp_kod').value = data.adat.kod;
-                document.getElementById('sztp_szin').value = data.adat.hex_szin; // hex_szin javítás
+                document.getElementById('sztp_szin').value = data.adat.hex_szin;
+                // 📄 Sablon nevének megjelenítése a listában
+                const lista = document.getElementById('sztp-fajl-lista');
+                if (data.adat.sablon_neve) {
+                    lista.innerHTML = `<li>📄 ${data.adat.sablon_neve}</li>`;
+                } else {
+                    lista.innerHTML = `<li>📄 Jelenleg nincs fájl</li>`;
+                }
                 document.getElementById('sztp_hex').value = data.adat.hex_szin;
                 frissitSztpElonezet('picker');
             }
@@ -299,6 +308,7 @@ function szuresSztpMegnevezesre(szo) {
         options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
     }
 }
+
 
 
 
