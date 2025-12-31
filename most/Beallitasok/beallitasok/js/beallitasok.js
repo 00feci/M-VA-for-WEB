@@ -68,7 +68,7 @@ const gombSor = document.createElement('div');
         gombSor.id = 'modul-gomb-sor'; // 👈 ID hozzáadása az injektáláshoz
         gombSor.style.display = 'flex';
         gombSor.style.width = '100%';
-        gombSor.style.gap = '10px';
+      gombSor.style.gap = '30px'; // 👈 Nagyobb köz a gombok között
         gombSor.style.marginBottom = '15px';
 
         adat.gombok.forEach(g => {
@@ -132,4 +132,3 @@ function frissitSzTpElonezet() {
         elonezet.textContent = kod;
 }
 }
-
