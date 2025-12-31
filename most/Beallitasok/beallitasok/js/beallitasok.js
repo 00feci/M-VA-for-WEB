@@ -96,6 +96,7 @@ function navigacio(cel) {
         } else {
             felhasznalokBetoltese();
         }
+    }
         // 🚀 Szabadság és Táppénz modul betöltése (Kiszervezett fájl)
     if (cel === 'szabadsag') {
         if (typeof szTpModulBetoltese !== 'function') {
@@ -132,5 +133,6 @@ function frissitSzTpElonezet() {
 }
     }
 }
+
 
 
