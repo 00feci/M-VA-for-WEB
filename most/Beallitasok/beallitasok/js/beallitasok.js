@@ -63,8 +63,9 @@ function navigacio(cel) {
         });
     } else {
         // Dinamikus gombgenerálás a modulhoz (Színvariációk, Megnevezések, stb.)
-        const gombSor = document.createElement('div');
+const gombSor = document.createElement('div');
         gombSor.className = 'dashboard-gomb-sor';
+        gombSor.id = 'modul-gomb-sor'; // 👈 ID hozzáadása az injektáláshoz
         gombSor.style.display = 'flex';
         gombSor.style.width = '100%';
         gombSor.style.gap = '10px';
@@ -131,3 +132,4 @@ function frissitSzTpElonezet() {
         elonezet.textContent = kod;
 }
 }
+
