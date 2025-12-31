@@ -75,7 +75,9 @@ function listaBetoltese() {
         .then(r => r.json())
         .then(data => {
             if (!data.success) return;
-            const select = document.getElementById('sztp_megnevezes');
+            const select = document.getElementById('sztp_megnevezes');  
+            // 🛡️ Biztonsági ellenőrzés: ha az elem még nem létezik, ne fusson tovább a hiba
+            if (!select) return; 
             const mentettErtek = select.value;
             select.innerHTML = '<option value="">-- Kiválasztás --</option>';
             data.lista.forEach(i => {
@@ -233,3 +235,4 @@ function beallitasokTorlese() {
         });
     }
 }
+
