@@ -73,9 +73,52 @@ function szTpModulBetoltese() {
         </div>
     `;
     
-    injektalGombokat();
-    setTimeout(listaBetoltese, 50); // 🛡️ Időzített betöltés a DOM szinkronizációhoz
+   injektalGombokat();
+    setTimeout(() => {
+        listaBetoltese();
+        inicializalFeltoltot(); // 👈 Aktiváljuk a Drag&Drop zónát
+    }, 50);
     console.log("Szabadság modul UI betöltve.");
+}
+
+function inicializalFeltoltot() {
+    const zona = document.getElementById('sztp-feltolto-zona');
+    if (!zona) return;
+
+    zona.onclick = () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.doc,.docx';
+        input.onchange = e => sztpFajlFeltoltes(e.target.files[0]);
+        input.click();
+    };
+
+    zona.ondragover = e => { e.preventDefault(); zona.style.background = '#e1f0ff'; };
+    zona.ondragleave = () => { zona.style.background = '#f0f7ff'; };
+    zona.ondrop = e => {
+        e.preventDefault();
+        zona.style.background = '#f0f7ff';
+        sztpFajlFeltoltes(e.dataTransfer.files[0]);
+    };
+}
+
+function sztpFajlFeltoltes(fajl) {
+    if (!fajl) return;
+    const formData = new FormData();
+    formData.append('sablon', fajl);
+
+    fetch('Beallitasok/szabadsag_es_tappenz/sztp_feltoltes.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        alert(data.message);
+        if (data.success) {
+            const lista = document.getElementById('sztp-fajl-lista');
+            lista.innerHTML = `<li>📄 ${data.fajl_neve}</li>`; 
+        }
+    });
 }
 
 function listaBetoltese() {
@@ -200,11 +243,15 @@ function frissitSztpElonezet(tipus) {
 
 function beallitasokMentese() {
     const select = document.getElementById('sztp_megnevezes');
+    const fajlLista = document.getElementById('sztp-fajl-lista');
+    const sablonNeve = fajlLista.innerText.includes('Jelenleg nincs') ? null : fajlLista.innerText.replace('📄 ', '').trim();
+
     const adat = {
         id: document.getElementById('sztp_id').value,
         megnevezes: select.options[select.selectedIndex]?.text,
         kod: document.getElementById('sztp_kod').value,
         szin: document.getElementById('sztp_szin').value,
+        sablon_neve: sablonNeve, // Mentjük a fájl nevét is az adatbázisba
         extra_adatok: [] 
     };
 
@@ -252,5 +299,6 @@ function szuresSztpMegnevezesre(szo) {
         options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
     }
 }
+
 
 
