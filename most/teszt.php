@@ -46,3 +46,4 @@ require_once __DIR__ . '/../Beallitasok/szabadsag_es_tappenz/sql_sz_tp.php';
 
 </body>
 </html>
+
