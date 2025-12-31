@@ -37,16 +37,24 @@ function szTpModulBetoltese() {
 
             </div>
 
-            <div class="sztp-elonezet-oszlop" style="flex: 1; background: #fdfdfd; border: 2px dashed #bbb; padding: 20px; border-radius: 10px; text-align: center;">
-                <h3 style="margin-top: 0; color: #666;">Élő előnézet</h3>
-                <div style="display: flex; justify-content: center; margin: 30px 0;">
-                    <div id="szin-elonezet-doboz" 
-                         style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; 
-                                border: 1px solid #000; background: #ffffff; font-weight: bold; font-size: 20px; border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                        -
+            <div class="sztp-elonezet-oszlop" style="flex: 1; background: #fdfdfd; border: 1px solid #ddd; padding: 20px; border-radius: 8px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; min-height: 250px;">
+                <div>
+                    <h3 style="margin-top: 0; color: #666; font-size: 1.1em;">Előnézet</h3>
+                    <div style="display: flex; justify-content: center; margin: 20px 0;">
+                        <div id="szin-elonezet-doboz" 
+                             style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; 
+                                    border: 1px solid #333; background: #ffffff; font-weight: bold; font-size: 16px; border-radius: 4px;">
+                            -
+                        </div>
                     </div>
                 </div>
-                <p style="font-size: 0.9em; color: #888;">Így fog megjelenni a Munkaidő táblázatban.</p>
+                
+                <div style="border-top: 1px solid #eee; pt-15px;">
+                    <button onclick="beallitasokMentese()" 
+                            style="width: 100%; background: #4CAF50; color: white; border: none; padding: 12px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                        💾 Beállítás Mentése
+                    </button>
+                </div>
             </div>
 
         </div>
@@ -128,4 +136,5 @@ function frissitSztpElonezet() {
         doboz.style.color = (yiq >= 128) ? 'black' : 'white';
     }
 }
+
 
