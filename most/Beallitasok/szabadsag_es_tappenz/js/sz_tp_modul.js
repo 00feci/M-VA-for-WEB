@@ -10,8 +10,11 @@ function szTpModulBetoltese() {
                 
                 <div>
                     <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 3px;">Megnevezés:</label>
+                    <input type="text" id="sztp_kereso" oninput="szuresSztpMegnevezesre(this.value)" 
+                           placeholder="Keresés..." style="width: 100%; padding: 4px; border: 1px solid #ddd; border-bottom: none; border-radius: 4px 4px 0 0; font-size: 0.8em;">
+                    
                     <div style="display: flex; gap: 5px;">
-                        <select id="sztp_megnevezes" onchange="adatokBetoltese(this.value)" style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+                        <select id="sztp_megnevezes" onchange="adatokBetoltese(this.value)" style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 0 0 4px 4px;">
                             <option value="">-- Kiválasztás --</option>
                         </select>
                         <button onclick="megnevezesSzerkesztoMegnyitasa()" style="background: #2196F3; color: white; border: none; padding: 0 12px; cursor: pointer; border-radius: 4px; font-weight: bold;">+</button>
@@ -76,7 +79,8 @@ function szTpModulBetoltese() {
 }
 
 function listaBetoltese() {
-    fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php')
+    // 🛡️ A ?v= kiegészítés megelőzi, hogy a böngésző a régi listát mutassa
+    fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?v=' + new Date().getTime())
         .then(r => r.json())
         .then(data => {
             if (!data.success) return;
@@ -234,6 +238,13 @@ function beallitasokTorlese() {
         });
     }
 }
+function szuresSztpMegnevezesre(szo) {
+    const select = document.getElementById('sztp_megnevezes');
+    const options = select.options;
+    const keresendo = szo.toLowerCase();
 
-
-
+    for (let i = 1; i < options.length; i++) {
+        const szoveg = options[i].text.toLowerCase();
+        options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
+    }
+}
