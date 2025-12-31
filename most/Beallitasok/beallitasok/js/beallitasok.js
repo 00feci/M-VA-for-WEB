@@ -10,7 +10,7 @@ const menuAdatok = {
         ]
     },
     'szabadsag': {
-        cim: 'Szabadság beállítások',
+        cim: '📅 Szabadság és Táppénz beállítások',
         breadcrumb: 'Iroda > Beállítások > Szabadság',
         gombok: [
             { felirat: '🎨 Színvariációk', cel: 'szabadsag_szinek' },
@@ -116,7 +116,4 @@ function frissitSzTpElonezet() {
     }
 }
     }
-
-
 }
-
