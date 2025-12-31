@@ -1,22 +1,32 @@
 <?php
-// sztp_mentes.php - Szabadság és Táppénz beállítások mentése
+// sztp_mentes.php - Szabadság és Táppénz beállítások mentése biztonsági ellenőrzéssel
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php';
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/Iroda/sql_config.php';
 
+// PDO kapcsolat használata a felhasznalok_mentese mintájára
+$pdo = csatlakozasSzerver1();
 header('Content-Type: application/json');
 
-// Csak POST kérést fogadunk
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['success' => false, 'message' => 'Érvénytelen kérés.']);
+// 🔐 JOGOSULTSÁG ELLENŐRZÉSE
+$felhasznalo = $_SESSION['felhasznalo'] ?? '';
+$stmt_jog = $pdo->prepare("SELECT `Beállítások` FROM m_va_felhasznalok WHERE `felhasználónév` = :nev");
+$stmt_jog->execute(['nev' => $felhasznalo]);
+
+if ($stmt_jog->fetchColumn() !== 'OK') {
+    echo json_encode(['success' => false, 'message' => 'Nincs jogosultsága a beállítások módosításához!']);
     exit;
 }
 
-// Adatok beolvasása a JavaScripttől
-$id = !empty($_POST['id']) ? intval($_POST['id']) : null;
-$megnevezes = $_POST['megnevezes'] ?? '';
-$kod = $_POST['kod'] ?? '';
-$szin = $_POST['szin'] ?? '#ffffff';
-$extra_adatok = $_POST['extra_adatok'] ?? '[]'; // Itt tároljuk a fájlokat és a PDF kapcsolót
+// Adatok fogadása (most már JSON formátumban, mert a Fetch API-val így küldjük)
+$data = json_decode(file_get_contents('php://input'), true);
+
+$id = !empty($data['id']) ? intval($data['id']) : null;
+$megnevezes = $data['megnevezes'] ?? '';
+$kod = $data['kod'] ?? '';
+$szin = $data['szin'] ?? '#ffffff';
+$extra_adatok = isset($data['extra_adatok']) ? json_encode($data['extra_adatok']) : '[]';
 
 if (empty($megnevezes)) {
     echo json_encode(['success' => false, 'message' => 'A megnevezés kötelező!']);
@@ -25,21 +35,18 @@ if (empty($megnevezes)) {
 
 try {
     if ($id) {
-        // Módosítás (Update)
-        $stmt = $conn->prepare("UPDATE szabadsag_es_tappenz_beallitasok SET megnevezes = ?, kod = ?, szin = ?, extra_adatok = ? WHERE id = ?");
-        $stmt->bind_param("ssssi", $megnevezes, $kod, $szin, $extra_adatok, $id);
+        // 📝 MÓDOSÍTÁS
+        $sql = "UPDATE szabadsag_es_tappenz_beallitasok SET megnevezes = :m, kod = :k, szin = :s, extra_adatok = :e WHERE id = :id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['m' => $megnevezes, 'k' => $kod, 's' => $szin, 'e' => $extra_adatok, 'id' => $id]);
     } else {
-        // Új felvitel (Insert)
-        $stmt = $conn->prepare("INSERT INTO szabadsag_es_tappenz_beallitasok (megnevezes, kod, szin, extra_adatok) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("ssss", $megnevezes, $kod, $szin, $extra_adatok);
+        // ✨ ÚJ FELVITEL
+        $sql = "INSERT INTO szabadsag_es_tappenz_beallitasok (megnevezes, kod, szin, extra_adatok) VALUES (:m, :k, :s, :e)";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['m' => $megnevezes, 'k' => $kod, 's' => $szin, 'e' => $extra_adatok]);
     }
 
-    if ($stmt->execute()) {
-        $uj_id = $id ?: $stmt->insert_id;
-        echo json_encode(['success' => true, 'message' => 'Sikeres mentés!', 'id' => $uj_id]);
-    } else {
-        throw new Exception($stmt->error);
-    }
+    echo json_encode(['success' => true, 'message' => 'Sikeres mentés!', 'id' => $id ?: $pdo->lastInsertId()]);
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Hiba történt: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => 'Adatbázis hiba: ' . $e->getMessage()]);
 }
