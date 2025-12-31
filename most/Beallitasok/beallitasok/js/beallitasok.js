@@ -11,7 +11,7 @@ const menuAdatok = {
     },
     'szabadsag': {
         cim: '📅 Szabadság és Táppénz beállítások',
-        breadcrumb: 'Iroda > Beállítások > Szabadság',
+        breadcrumb: 'Iroda > Beállítások > Szabadság és Táppénz',
         gombok: [
             { felirat: '🎨 Színvariációk', cel: 'szabadsag_szinek' },
             { felirat: '📝 Megnevezések', cel: 'szabadsag_nevek' },
@@ -64,17 +64,22 @@ function navigacio(cel) {
             kontener.appendChild(gomb);
         });
     } else {
+        // Dinamikus gombgenerálás a modulhoz (Színvariációk, Megnevezések, stb.)
         const gombSor = document.createElement('div');
         gombSor.className = 'dashboard-gomb-sor';
         gombSor.style.display = 'flex';
         gombSor.style.width = '100%';
+        gombSor.style.gap = '10px';
         gombSor.style.marginBottom = '15px';
-        const visszaGomb = document.createElement('div');
-        visszaGomb.className = 'dashboard-gomb';
-        visszaGomb.style.flex = '1';
-        visszaGomb.innerText = '🔙 Vissza';
-        visszaGomb.onclick = () => navigacio('fomenu');
-        gombSor.appendChild(visszaGomb);
+
+        adat.gombok.forEach(g => {
+            const gomb = document.createElement('div');
+            gomb.className = 'dashboard-gomb';
+            gomb.style.flex = '1';
+            gomb.innerText = g.felirat;
+            gomb.onclick = () => navigacio(g.cel);
+            gombSor.appendChild(gomb);
+        });
         kontener.appendChild(gombSor);
     }
     // 2. Tartalom helye (ID: modul-tartalom) - Itt csak egy változót használunk!
@@ -117,3 +122,4 @@ function frissitSzTpElonezet() {
 }
     }
 }
+
