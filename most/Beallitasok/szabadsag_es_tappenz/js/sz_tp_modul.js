@@ -7,12 +7,12 @@ function szTpModulBetoltese() {
     // Kétoszlopos elrendezés létrehozása
    // Kétoszlopos elrendezés létrehozása
     kontener.innerHTML = `
-        <div class="sztp-keret" style="display: flex; gap: 30px; padding: 20px; align-items: flex-start;">
+        <div class="sztp-keret" style="display: flex; gap: 40px; padding: 20px; align-items: flex-start;">
             <input type="hidden" id="sztp_id" value=""> 
             
-            <div class="sztp-beallitasok-oszlop" style="flex: 2; display: flex; flex-direction: column; gap: 15px;">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 20px;">
                 
-                <div class="sztp-csoport" style="width: 60%;">
+                <div style="width: 320px;">
                     <label style="display: block; font-size: 0.9em; font-weight: bold; margin-bottom: 3px;">Megnevezés:</label>
                     <div style="display: flex; gap: 5px;">
                         <select id="sztp_megnevezes" style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
@@ -22,28 +22,48 @@ function szTpModulBetoltese() {
                     </div>
                 </div>
 
-                <div class="sztp-csoport" style="width: 50%;">
-                    <label style="display: block; font-size: 0.9em; font-weight: bold; margin-bottom: 3px;">Kód:</label>
-                    <input type="text" id="sztp_kod" maxlength="10" oninput="frissitSztpElonezet('kod')" 
-                           style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Pl: SZ">
+                <div style="width: 320px; display: flex; gap: 15px;">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 3px;">Kód:</label>
+                        <input type="text" id="sztp_kod" maxlength="10" oninput="frissitSztpElonezet('kod')" 
+                               style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Pl: SZ">
+                    </div>
+                    <div style="flex: 1.5;">
+                        <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 3px;">Szín és Hex:</label>
+                        <div style="display: flex; gap: 5px;">
+                            <input type="color" id="sztp_szin" oninput="frissitSztpElonezet('picker')" 
+                                   style="width: 35px; height: 31px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; padding: 2px;" value="#ffffff">
+                            <input type="text" id="sztp_hex" oninput="frissitSztpElonezet('hex')" placeholder="#ffffff" maxlength="7"
+                                   style="width: 75px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-family: monospace; font-size: 0.9em;">
+                        </div>
+                    </div>
                 </div>
 
-                <div class="sztp-csoport" style="width: 50%;">
-                    <label style="display: block; font-size: 0.9em; font-weight: bold; margin-bottom: 3px;">Szín és Hex kód:</label>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="color" id="sztp_szin" oninput="frissitSztpElonezet('picker')" 
-                               style="width: 40px; height: 32px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; padding: 2px;" value="#ffffff">
-                        <input type="text" id="sztp_hex" oninput="frissitSztpElonezet('hex')" placeholder="#ffffff" maxlength="7"
-                               style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-family: monospace;">
+                <div style="width: 320px; display: flex; justify-content: center; padding: 10px; background: #f9f9f9; border: 1px dashed #ccc; border-radius: 6px;">
+                    <div style="text-align: center;">
+                        <span style="font-size: 0.7em; color: #999; display: block; margin-bottom: 5px; font-weight: bold;">MINTA</span>
+                        <div id="szin-elonezet-doboz" 
+                             style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; 
+                                    border: 1px solid #333; background: #ffffff; font-weight: bold; font-size: 14px; border-radius: 4px; margin: 0 auto;">-</div>
                     </div>
                 </div>
             </div>
 
-            <div class="sztp-elonezet-oszlop" style="width: 120px; height: 120px; background: #fff; border: 1px solid #ddd; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px; box-shadow: inset 0 0 5px rgba(0,0,0,0.05);">
-                <span style="font-size: 0.7em; color: #999; margin-bottom: 8px; font-weight: bold; text-transform: uppercase;">Minta</span>
-                <div id="szin-elonezet-doboz" 
-                     style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; 
-                            border: 1px solid #333; background: #ffffff; font-weight: bold; font-size: 15px; border-radius: 4px;">-</div>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
+                <label style="font-weight: bold; font-size: 0.9em;">📄 Sablon feltöltése:</label>
+                
+                <div id="sztp-feltolto-zona" 
+                     style="border: 2px dashed #2196F3; background: #f0f7ff; padding: 20px; text-align: center; border-radius: 8px; cursor: pointer;">
+                    <span style="color: #2196F3; font-size: 0.9em;">Húzd ide a fájlt vagy kattints</span>
+                </div>
+
+                <div style="background: #fff; border: 1px solid #eee; padding: 10px; border-radius: 4px;">
+                    <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: #555; line-height: 1.6;">
+                        <li>📄 a.ccv</li>
+                        <li>📄 sdas.fdsfed</li>
+                        <li>📄 gegge.vfdbdf</li>
+                    </ul>
+                </div>
             </div>
         </div>
         `;
@@ -144,3 +164,4 @@ function beallitasokTorlese() {
         console.log("Törlés folyamatban..."); 
     }
 }
+
