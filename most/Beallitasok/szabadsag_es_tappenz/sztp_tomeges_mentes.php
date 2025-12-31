@@ -21,12 +21,11 @@ $nevek = $data['nevek'] ?? [];
 if (empty($nevek)) { echo json_encode(['success' => false, 'message' => 'Nincs menthető adat!']); exit; }
 
 try {
-    // Generálunk egy ideiglenes kódot a névből (levágjuk 10 karakterre), hogy ne legyen hiba a NOT NULL miatt
-    $stmt = $pdo->prepare("INSERT IGNORE INTO szabadsag_es_tappenz_beallitasok (megnevezes, kod, hex_szin) VALUES (:nev, :kod, '#ffffff')");
+    // A kód alapértelmezetten üres lesz, nem generálunk rövidített nevet
+    $stmt = $pdo->prepare("INSERT IGNORE INTO szabadsag_es_tappenz_beallitasok (megnevezes, kod, hex_szin) VALUES (:nev, '', '#ffffff')");
     $hozzaadva = 0;
     foreach ($nevek as $nev) {
-        $temp_kod = mb_substr($nev, 0, 10); 
-        $stmt->execute(['nev' => $nev, 'kod' => $temp_kod]);
+        $stmt->execute(['nev' => $nev]);
         if ($stmt->rowCount() > 0) $hozzaadva++;
     }
     echo json_encode(['success' => true, 'message' => "Sikeresen rögzítve: $hozzaadva új elem."]);
