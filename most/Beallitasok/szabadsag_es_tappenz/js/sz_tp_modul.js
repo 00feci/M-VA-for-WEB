@@ -90,57 +90,76 @@ function inicializalFeltoltot() {
         input.type = 'file';
         input.accept = '.doc,.docx';
         input.multiple = true;
-        input.webkitdirectory = true; // Mappa választás engedélyezése
-        input.onchange = e => sztpFajlokFeltoltese(e.target.files);
+        input.webkitdirectory = true;
+        input.onchange = e => sztpFajlokFeltoltese(Array.from(e.target.files));
         input.click();
     };
 
     zona.ondragover = e => { e.preventDefault(); zona.style.background = '#e1f0ff'; };
     zona.ondragleave = () => { zona.style.background = '#f0f7ff'; };
-    zona.ondrop = e => {
+    zona.ondrop = async e => {
         e.preventDefault();
         zona.style.background = '#f0f7ff';
-        sztpFajlokFeltoltese(e.dataTransfer.files);
+        const items = e.dataTransfer.items;
+        let mindenFajl = [];
+        for (let i = 0; i < items.length; i++) {
+            const entry = items[i].webkitGetAsEntry();
+            if (entry) {
+                const fajlok = await rekurzivFajlOlvasas(entry);
+                mindenFajl = mindenFajl.concat(fajlok);
+            }
+        }
+        sztpFajlokFeltoltese(mindenFajl);
     };
+}
+
+// 📂 Segédfüggvény a mappák mélyére ásáshoz
+async function rekurzivFajlOlvasas(entry, path = "") {
+    let fajlok = [];
+    if (entry.isFile) {
+        const fajl = await new Promise(resolve => entry.file(resolve));
+        fajl.relPath = path + fajl.name;
+        fajlok.push(fajl);
+    } else if (entry.isDirectory) {
+        const reader = entry.createReader();
+        const bejegyzesek = await new Promise(resolve => reader.readEntries(resolve));
+        for (const b of bejegyzesek) {
+            fajlok = fajlok.concat(await rekurzivFajlOlvasas(b, path + entry.name + "/"));
+        }
+    }
+    return fajlok;
 }
 
 async function sztpFajlokFeltoltese(fajlok) {
     if (!fajlok || fajlok.length === 0) return;
-    
     const lista = document.getElementById('sztp-fajl-lista');
-    lista.innerHTML = '<li>⏳ Feltöltés folyamatban...</li>';
-    
-    let sikeresSzam = 0;
-    let utolsoFajlNev = "";
+    lista.innerHTML = '<li>⏳ Feltöltés...</li>';
+    let sikeres = 0;
+    let elsoFajlRelativ = "";
 
-   for (let fajl of fajlok) {
-        // 🛡️ Biztonsági szűrés: a rendszerfájlokat és üres bejegyzéseket kihagyjuk az ERR_ACCESS_DENIED ellen
-        if (fajl.size === 0 && !fajl.name.includes('.')) continue; 
-
+    for (let fajl of fajlok) {
         const formData = new FormData();
         formData.append('sablon', fajl);
-        formData.append('relativ_utvonal', fajl.webkitRelativePath || fajl.name);
+        const relPath = fajl.relPath || fajl.webkitRelativePath || fajl.name;
+        formData.append('relativ_utvonal', relPath);
+        if (!elsoFajlRelativ) elsoFajlRelativ = relPath;
 
         try {
-            // Megbizonyosodunk róla, hogy a URL abszolút vagy pontosan relatív
-            const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_feltoltes.php', {
-                method: 'POST',
-                body: formData,
-                mode: 'cors' // Biztosítjuk a megfelelő módot
-            });
-            const data = await r.json();
-            if (data.success) {
-                sikeresSzam++;
-                utolsoFajlNev = data.fajl_neve;
-            }
-        } catch (e) {
-            console.error("Hiba:", e);
-        }
+            const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_feltoltes.php', { method: 'POST', body: formData });
+            const d = await r.json();
+            if (d.success) sikeres++;
+        } catch (e) { console.error(e); }
     }
 
-    if (sikeresSzam > 0) {
-        alert(`Sikeresen feltöltve: ${sikeresSzam} fájl.`);
-        lista.innerHTML = fajlok.length === 1 ? `<li>📄 ${utolsoFajlNev}</li>` : `<li>📂 ${sikeresSzam} fájl a sablon mappában</li>`;
+    if (sikeres > 0) {
+        // Ha van benne per jel, akkor mappa volt
+        if (fajlok.length > 1 || elsoFajlRelativ.includes('/')) {
+            const mappaNev = elsoFajlRelativ.split('/')[0];
+            lista.innerHTML = `<li>📂 ${mappaNev} (${sikeres} fájl)</li>`;
+        } else {
+            lista.innerHTML = `<li>📄 ${fajlok[0].name}</li>`;
+        }
+        alert(`Sikeresen feltöltve: ${sikeres} fájl.`);
     } else {
         lista.innerHTML = `<li>❌ Sikertelen feltöltés</li>`;
     }
@@ -184,12 +203,11 @@ fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id)
                 document.getElementById('sztp_kod').value = data.adat.kod;
                 document.getElementById('sztp_szin').value = data.adat.hex_szin;
                 
-                // 📂 Ikon intelligens visszatöltése (ha mappa, akkor mappa ikon, ha fájl, akkor fájl ikon)
                 const lista = document.getElementById('sztp-fajl-lista');
                 const mentettNev = data.adat.sablon_neve || "";
-                
                 if (mentettNev) {
-                    const ikon = mentettNev.includes('fájl a sablon mappában') ? '📂' : '📄';
+                    // Ha zárójelben van fájlszám, akkor mappa
+                    const ikon = (mentettNev.includes('(') && mentettNev.includes('fájl)')) ? '📂' : '📄';
                     lista.innerHTML = `<li>${ikon} ${mentettNev}</li>`;
                 } else {
                     lista.innerHTML = `<li>📄 Jelenleg nincs fájl</li>`;
@@ -281,10 +299,10 @@ function beallitasokMentese() {
     const select = document.getElementById('sztp_megnevezes');
     const fajlLista = document.getElementById('sztp-fajl-lista');
     
-    // 🧹 Mindkét típusú ikont (📄 és 📂) eltávolítjuk mentés előtt
-    let sablonNeve = null;
+   let sablonNeve = null;
     if (!fajlLista.innerText.includes('Jelenleg nincs')) {
-        sablonNeve = fajlLista.innerText.replace('📄 ', '').replace('📂 ', '').trim();
+        // Precízebb csere, hogy ne maradjon szellem-ikon
+        sablonNeve = fajlLista.innerText.replace('📄', '').replace('📂', '').trim();
     }
 
     const adat = {
@@ -340,6 +358,7 @@ function szuresSztpMegnevezesre(szo) {
         options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
     }
 }
+
 
 
 
