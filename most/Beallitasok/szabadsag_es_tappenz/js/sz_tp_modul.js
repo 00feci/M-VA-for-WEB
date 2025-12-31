@@ -104,14 +104,13 @@ function adatokBetoltese(id) {
         frissitSztpElonezet('picker');
         return;
     }
-    fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id)
+fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id)
         .then(r => r.json())
         .then(data => {
-           if (data.success && data.adat) {
+            if (data.success && data.adat) {
                 document.getElementById('sztp_id').value = data.adat.id;
                 document.getElementById('sztp_kod').value = data.adat.kod;
-                // data.adat.szin helyett data.adat.hex_szin használata
-                document.getElementById('sztp_szin').value = data.adat.hex_szin;
+                document.getElementById('sztp_szin').value = data.adat.hex_szin; // hex_szin javítás
                 document.getElementById('sztp_hex').value = data.adat.hex_szin;
                 frissitSztpElonezet('picker');
             }
@@ -130,18 +129,25 @@ function modalBezaras() {
 function megnevezesekMentese() {
     const szoveg = document.getElementById('sztp_tomeges_bevitel').value;
     const elemek = szoveg.split(/[\n,]/).map(item => item.trim()).filter(item => item !== "");
-    const select = document.getElementById('sztp_megnevezes');
-    
-    select.innerHTML = '<option value="">-- Válassz a listából --</option>';
-    elemek.forEach(ertek => {
-        const opcio = document.createElement('option');
-        opcio.value = ertek; // Ideiglenes érték, mentéskor válik ID-vá
-        opcio.textContent = ertek;
-        select.appendChild(opcio);
-    });
-    modalBezaras();
-}
 
+    if (elemek.length === 0) return modalBezaras();
+
+    fetch('Beallitasok/szabadsag_es_tappenz/sztp_tomeges_mentes.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nevek: elemek })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            listaBetoltese(); // A lista betöltése az adatbázisból már a valódi ID-kkal fog történni
+        } else {
+            alert("Hiba: " + data.message);
+        }
+        modalBezaras();
+    });
+}
 function injektalGombokat() {
     const sor = document.getElementById('modul-gomb-sor');
     if (!sor) return;
@@ -228,4 +234,5 @@ function beallitasokTorlese() {
         });
     }
 }
+
 
