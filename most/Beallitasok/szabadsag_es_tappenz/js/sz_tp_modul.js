@@ -1,23 +1,20 @@
-// sz_tp_modul.js - Szabadság és Táppénz beállítások logikája
-
 function szTpModulBetoltese() {
     const kontener = document.getElementById('modul-tartalom');
     if (!kontener) return;
 
-    // Kétoszlopos elrendezés létrehozása
-   // Kétoszlopos elrendezés létrehozása
     kontener.innerHTML = `
-   <div class="sztp-keret" style="display: flex; gap: 50px; padding: 20px; align-items: flex-start;">
+        <div class="sztp-keret" style="display: flex; gap: 50px; padding: 20px; align-items: flex-start;">
             <input type="hidden" id="sztp_id" value=""> 
             
             <div style="width: 360px; display: flex; flex-direction: column; gap: 15px;">
                 
                 <div>
                     <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 3px;">Megnevezés:</label>
-                    injektalGombokat(); // Injektáljuk a Mentés és Törlés gombokat a felső sorba
-    console.log("Szabadság modul UI betöltve.");
-}
-<button onclick="megnevezesSzerkesztoMegnyitasa()" style="background: #2196F3; color: white; border: none; padding: 0 12px; cursor: pointer; border-radius: 4px; font-weight: bold;">+</button>
+                    <div style="display: flex; gap: 5px;">
+                        <select id="sztp_megnevezes" onchange="adatokBetoltese(this.value)" style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="">-- Kiválasztás --</option>
+                        </select>
+                        <button onclick="megnevezesSzerkesztoMegnyitasa()" style="background: #2196F3; color: white; border: none; padding: 0 12px; cursor: pointer; border-radius: 4px; font-weight: bold;">+</button>
                     </div>
                 </div>
 
@@ -28,12 +25,12 @@ function szTpModulBetoltese() {
                                style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;" placeholder="SZ">
                     </div>
                     <div style="flex: 1;">
-                        <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 3px;">Szín és Hex kód:</label>
+                        <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 3px;">Szín és Hex:</label>
                         <div style="display: flex; gap: 8px;">
                             <input type="color" id="sztp_szin" oninput="frissitSztpElonezet('picker')" 
                                    style="width: 40px; height: 32px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; padding: 2px;" value="#ffffff">
                             <input type="text" id="sztp_hex" oninput="frissitSztpElonezet('hex')" placeholder="#ffffff" maxlength="7"
-                                   style="width: 90px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-family: monospace; font-size: 0.9em;">
+                                   style="width: 85px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-family: monospace; font-size: 0.9em;">
                         </div>
                     </div>
                 </div>
@@ -45,125 +42,122 @@ function szTpModulBetoltese() {
                                 border: 1px solid #444; background: #ffffff; font-weight: bold; font-size: 13px; border-radius: 4px;">-</div>
                 </div>
             </div>
+
             <div style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
                 <label style="font-weight: bold; font-size: 0.9em;">📄 Sablon feltöltése:</label>
-                
                 <div id="sztp-feltolto-zona" 
                      style="border: 2px dashed #2196F3; background: #f0f7ff; padding: 20px; text-align: center; border-radius: 8px; cursor: pointer;">
                     <span style="color: #2196F3; font-size: 0.9em;">Húzd ide a fájlt vagy kattints</span>
                 </div>
-
                 <div style="background: #fff; border: 1px solid #eee; padding: 10px; border-radius: 4px;">
-                    <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: #555; line-height: 1.6;">
-                        <li>📄 a.ccv</li>
-                        <li>📄 sdas.fdsfed</li>
-                        <li>📄 gegge.vfdbdf</li>
+                    <ul id="sztp-fajl-lista" style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: #555; line-height: 1.6;">
+                        <li>📄 Jelenleg nincs fájl</li>
                     </ul>
                 </div>
             </div>
         </div>
-        `;
+
+        <div id="sztp-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
+            <div style="background: white; padding: 25px; border-radius: 8px; width: 450px;">
+                <h3 style="margin-top: 0;">Megnevezések kezelése</h3>
+                <textarea id="sztp_tomeges_bevitel" placeholder="Példa:&#10;Szabadság&#10;Táppénz" 
+                          style="width: 100%; height: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button onclick="modalBezaras()" style="padding: 8px 15px; cursor: pointer; border-radius: 4px; background: #eee; border: 1px solid #ccc;">Mégse</button>
+                    <button onclick="megnevezesekMentese()" style="padding: 8px 20px; cursor: pointer; border-radius: 4px; background: #4CAF50; color: white; border: none; font-weight: bold;">Frissítés</button>
+                </div>
+            </div>
+        </div>
+    `;
     
     injektalGombokat();
-    listaBetoltese(); // 👈 Lista feltöltése indításkor
+    setTimeout(listaBetoltese, 50); // 🛡️ Időzített betöltés a DOM szinkronizációhoz
     console.log("Szabadság modul UI betöltve.");
 }
 
-// Lista lekérése az adatbázisból
 function listaBetoltese() {
     fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php')
         .then(r => r.json())
         .then(data => {
             if (!data.success) return;
-            const select = document.getElementById('sztp_megnevezes');  
-            // 🛡️ Biztonsági ellenőrzés: ha az elem még nem létezik, ne fusson tovább a hiba
-            if (!select) return; 
-            const mentettErtek = select.value;
+            const select = document.getElementById('sztp_megnevezes');
+            if (!select) return; // 🛡️ Ha még nem létezik, nem futunk hibára
+
+            const mentettId = select.value;
             select.innerHTML = '<option value="">-- Kiválasztás --</option>';
             data.lista.forEach(i => {
-                select.innerHTML += `<option value="${i.id}">${i.megnevezes}</option>`;
+                const opt = document.createElement('option');
+                opt.value = i.id;
+                opt.textContent = i.megnevezes;
+                select.appendChild(opt);
             });
-            if (mentettErtek) select.value = mentettErtek;
+            if (mentettId) select.value = mentettId;
         });
 }
 
-// Egy konkrét elem adatainak betöltése a mezőkbe
 function adatokBetoltese(id) {
     if (!id) {
         document.getElementById('sztp_id').value = '';
         document.getElementById('sztp_kod').value = '';
         document.getElementById('sztp_szin').value = '#ffffff';
+        document.getElementById('sztp_hex').value = '#ffffff';
         frissitSztpElonezet('picker');
         return;
     }
     fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id)
         .then(r => r.json())
         .then(data => {
-            if (data.success) {
+            if (data.success && data.adat) {
                 document.getElementById('sztp_id').value = data.adat.id;
                 document.getElementById('sztp_kod').value = data.adat.kod;
                 document.getElementById('sztp_szin').value = data.adat.szin;
+                document.getElementById('sztp_hex').value = data.adat.szin;
                 frissitSztpElonezet('picker');
             }
         });
 }
 
-// Popup megnyitása
 function megnevezesSzerkesztoMegnyitasa() {
-    const modal = document.getElementById('sztp-modal');
-    modal.style.display = 'flex';
+    document.getElementById('sztp-modal').style.display = 'flex';
     document.getElementById('sztp_tomeges_bevitel').focus();
 }
 
-// Popup bezárása
 function modalBezaras() {
     document.getElementById('sztp-modal').style.display = 'none';
 }
 
-// Tömeges megnevezés feldolgozás
 function megnevezesekMentese() {
     const szoveg = document.getElementById('sztp_tomeges_bevitel').value;
-    
-    // Szétdarabolás vessző vagy Új sor mentén
-    // A trim() csak az elemek széléről veszi le a szóközöket, a közepét nem bántja!
-    const elemek = szoveg.split(/[\n,]/)
-                         .map(item => item.trim())
-                         .filter(item => item !== ""); // Üres sorok kiszűrése
-
+    const elemek = szoveg.split(/[\n,]/).map(item => item.trim()).filter(item => item !== "");
     const select = document.getElementById('sztp_megnevezes');
     
-    // Alaphelyzetbe állítás
     select.innerHTML = '<option value="">-- Válassz a listából --</option>';
-    
-    // Új opciók hozzáadása
     elemek.forEach(ertek => {
         const opcio = document.createElement('option');
-        opcio.value = ertek;
+        opcio.value = ertek; // Ideiglenes érték, mentéskor válik ID-vá
         opcio.textContent = ertek;
         select.appendChild(opcio);
     });
-
     modalBezaras();
-    console.log("Megnevezések frissítve:", elemek);
 }
 
 function injektalGombokat() {
     const sor = document.getElementById('modul-gomb-sor');
     if (!sor) return;
+    sor.innerHTML = ''; // Előző gombok törlése
 
-    // Minden gombnak flex: 1-et adunk, hogy egyforma méretűek legyenek
     const gombok = [
-        { id: 'btn_mentes', felirat: '💾 Mentés', szin: '#4CAF50', akcio: beallitasokMentese },
-        { id: 'btn_torles', felirat: '🗑️ Törlés', szin: '#f44336', akcio: beallitasokTorlese }
+        { felirat: '💾 Mentés', szin: '#4CAF50', akcio: beallitasokMentese },
+        { felirat: '🗑️ Törlés', szin: '#f44336', akcio: beallitasokTorlese }
     ];
 
     gombok.forEach(g => {
         const btn = document.createElement('div');
         btn.className = 'dashboard-gomb';
-        btn.style.flex = '1'; // 👈 Itt biztosítjuk az egyforma méretet
+        btn.style.flex = '1';
         btn.style.background = g.szin;
         btn.style.color = 'white';
-        btn.innerHTML = g.felirat;
+        btn.innerText = g.felirat;
         btn.onclick = g.akcio;
         sor.appendChild(btn);
     });
@@ -175,7 +169,6 @@ function frissitSztpElonezet(tipus) {
     const hexInput = document.getElementById('sztp_hex');
     const doboz = document.getElementById('szin-elonezet-doboz');
 
-    // Szinkronizáció a picker és a text mező között
     if (tipus === 'picker') hexInput.value = picker.value;
     if (tipus === 'hex' && hexInput.value.length === 7) picker.value = hexInput.value;
 
@@ -185,23 +178,22 @@ function frissitSztpElonezet(tipus) {
     if (doboz) {
         doboz.style.backgroundColor = szin;
         doboz.textContent = kod;
-        
-        // Kontraszt logika
         const r = parseInt(szin.substr(1,2), 16), g = parseInt(szin.substr(3,2), 16), b = parseInt(szin.substr(5,2), 16);
         doboz.style.color = (((r*299)+(g*587)+(b*114))/1000 >= 128) ? 'black' : 'white';
     }
 }
 
 function beallitasokMentese() {
+    const select = document.getElementById('sztp_megnevezes');
     const adat = {
         id: document.getElementById('sztp_id').value,
-        megnevezes: document.getElementById('sztp_megnevezes').options[document.getElementById('sztp_megnevezes').selectedIndex]?.text,
+        megnevezes: select.options[select.selectedIndex]?.text,
         kod: document.getElementById('sztp_kod').value,
         szin: document.getElementById('sztp_szin').value,
-        extra_adatok: [] // Fájlkezelés majd ide jön
+        extra_adatok: [] 
     };
 
-    if (!adat.megnevezes || adat.megnevezes.startsWith('--')) return alert("Válassz megnevezést!");
+    if (!adat.megnevezes || select.selectedIndex === 0) return alert("Válassz vagy adj hozzá megnevezést!");
 
     fetch('Beallitasok/szabadsag_es_tappenz/sztp_mentes.php', {
         method: 'POST',
@@ -229,10 +221,9 @@ function beallitasokTorlese() {
         .then(data => {
             alert(data.message);
             if (data.success) {
-                adatokBetoltese(''); // Mezők ürítése
-                listaBetoltese();   // Lista frissítése
+                adatokBetoltese(''); 
+                listaBetoltese();   
             }
         });
     }
 }
-
