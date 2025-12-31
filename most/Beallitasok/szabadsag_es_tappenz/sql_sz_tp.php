@@ -6,7 +6,7 @@ $pdo = csatlakozasSzerver1();
 $sql = "CREATE TABLE IF NOT EXISTS `szabadsag_es_tappenz_beallitasok` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `megnevezes` VARCHAR(100) NOT NULL,          -- Pl. Apasági szabadság
-    `kod` VARCHAR(10) NOT NULL UNIQUE,          -- Pl. A, SZ, TP
+    `kod` VARCHAR(10) DEFAULT '',               -- Nem kötelező és nem egyedi (Pl. SZ, TP)
     `hex_szin` VARCHAR(7) DEFAULT '#ffffff',    -- Háttérszín (HEX)
     `generalljon_e` TINYINT(1) DEFAULT 0,       -- 0: Nem, 1: Igen (Word generálás)
     `sablon_neve` VARCHAR(255) DEFAULT NULL,    -- A Word sablon fájlneve
@@ -25,4 +25,5 @@ try {
 }
 
 ?>
+
 
