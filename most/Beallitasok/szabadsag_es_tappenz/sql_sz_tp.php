@@ -1,6 +1,6 @@
 <?php
 // Ez a fájl felel a Szabadság és Táppénz beállítások táblájáért
-require_once __DIR__ . '/../sql_config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/Iroda/sql_config.php';
 $pdo = csatlakozasSzerver1();
 
 $sql = "CREATE TABLE IF NOT EXISTS `szabadsag_es_tappenz_beallitasok` (
@@ -23,4 +23,5 @@ try {
 } catch (PDOException $e) {
     die("Hiba a tábla létrehozásakor: " . $e->getMessage());
 }
+
 ?>
