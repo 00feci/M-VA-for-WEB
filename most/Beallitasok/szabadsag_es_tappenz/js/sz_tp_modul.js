@@ -87,7 +87,6 @@ function inicializalFeltoltot() {
     const zona = document.getElementById('sztp-feltolto-zona');
     if (!zona) return;
 
-    // A zónára kattintás alapértelmezetten fájlokat tallóz (hogy ne legyen vak)
     zona.onclick = (e) => {
         if (e.target.tagName !== 'BUTTON') sztpTallozas(false);
     };
@@ -118,23 +117,6 @@ function sztpTallozas(mappaMod) {
     if (mappaMod) input.webkitdirectory = true;
     input.onchange = e => sztpFajlokFeltoltese(Array.from(e.target.files));
     input.click();
-}
-    zona.ondragover = e => { e.preventDefault(); zona.style.background = '#e1f0ff'; };
-    zona.ondragleave = () => { zona.style.background = '#f0f7ff'; };
-    zona.ondrop = async e => {
-        e.preventDefault();
-        zona.style.background = '#f0f7ff';
-        const items = e.dataTransfer.items;
-        let mindenFajl = [];
-        for (let i = 0; i < items.length; i++) {
-            const entry = items[i].webkitGetAsEntry();
-            if (entry) {
-                const fajlok = await rekurzivFajlOlvasas(entry);
-                mindenFajl = mindenFajl.concat(fajlok);
-            }
-        }
-        sztpFajlokFeltoltese(mindenFajl);
-    };
 }
 
 // 📂 Segédfüggvény a mappák mélyére ásáshoz
@@ -370,4 +352,3 @@ function szuresSztpMegnevezesre(szo) {
         options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
     }
 }
-
