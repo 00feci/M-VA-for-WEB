@@ -437,12 +437,22 @@ function szuresSztpMegnevezesre(szo) {
 
 async function sablonKezeleseOldal() {
     const kontener = document.getElementById('modul-tartalom');
+    const sel = document.getElementById('sztp_megnevezes');
+    const megnevezes = sel ? sel.options[sel.selectedIndex].text : "Sablonok";
+
+    // 1. Dashboard gombok elrejtése és egyedi Vissza gomb betétele
+    const gombSor = document.getElementById('modul-gomb-sor');
+    if (gombSor) {
+        gombSor.innerHTML = `
+            <div class="dashboard-gomb" style="flex: 1; background: #607d8b; color: white;" onclick="szTpModulBetoltese()">🔙 Vissza a beállításokhoz</div>
+        `;
+    }
+
     kontener.innerHTML = `
-        <div style="padding: 20px; background: #121212; min-height: 500px; border-radius: 8px;">
-            <button onclick="szTpModulBetoltese()" style="margin-bottom: 20px; padding: 8px 15px; cursor: pointer; background: #424242; color: white; border: 1px solid #555; border-radius: 4px;">🔙 Vissza</button>
-            <div style="background: #121212; padding: 25px; border-radius: 12px; border: 1px solid #2196F3; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                <h3 style="margin-top: 0; color: white;">📁 Sablonok mappaszerkezete</h3>
-                <div id="sztp-fajl-fa" style="margin-top: 15px; font-family: monospace;">⏳ Betöltés...</div>
+        <div style="padding: 10px; background: #121212; min-height: 500px; border-radius: 8px;">
+            <h3 style="margin: 0 0 15px 0; color: white; font-size: 1.1em;">📁 ${megnevezes} mappaszerkezete</h3>
+            <div id="sztp-fajl-fa-kontener" style="background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; resize: both; overflow: auto; min-height: 300px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
+                <div id="sztp-fajl-fa" style="font-family: monospace;">⏳ Betöltés...</div>
             </div>
         </div>
     `;
@@ -489,3 +499,4 @@ async function sztpElemTorlese(utvonal) {
         } catch (e) { console.error(e); }
     }
 }
+
