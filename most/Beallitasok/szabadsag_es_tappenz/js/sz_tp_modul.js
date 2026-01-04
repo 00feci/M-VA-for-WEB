@@ -65,11 +65,11 @@ function szTpModulBetoltese() {
         </div>
 
         <div id="sztp-feltolto-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;">
-            <div style="background: #f4f7f6; padding: 25px; border-radius: 12px; width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); border: 1px solid #ddd;">
-                <h3 style="margin-top: 0; color: #333; display: flex; align-items: center; gap: 10px;">📁 Sablon feltöltése</h3>
-                <p style="font-size: 0.85em; color: #555;">Válassz ki egy fájlt vagy egy teljes mappát a feltöltéshez.</p>
+            <div style="background: #eceff1; padding: 25px; border-radius: 12px; width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); border: 1px solid #cfd8dc;">
+                <h3 style="margin-top: 0; color: #263238; display: flex; align-items: center; gap: 10px;">📁 Sablon feltöltése</h3>
+                <p style="font-size: 0.85em; color: #455a64;">Válassz ki egy fájlt vagy egy teljes mappát a feltöltéshez.</p>
                 <div id="sztp-feltolto-zona" 
-                     style="border: 3px dashed #2196F3; background: #eef6ff; padding: 30px; text-align: center; border-radius: 12px; margin: 20px 0;">
+                     style="border: 3px dashed #2196F3; background: #cfd8dc; padding: 30px; text-align: center; border-radius: 12px; margin: 20px 0;">
                     <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
                         <button onclick="sztpTallozas(false)" style="padding: 8px 16px; cursor: pointer; background: #2196F3; color: white; border: none; border-radius: 4px; font-size: 0.9em;">📄 Fájlok</button>
                         <button onclick="sztpTallozas(true)" style="padding: 8px 16px; cursor: pointer; background: #2196F3; color: white; border: none; border-radius: 4px; font-size: 0.9em;">📂 Mappa</button>
@@ -87,9 +87,9 @@ function szTpModulBetoltese() {
             </div>
         </div>
 
-        <div id="sztp-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
-            <div style="background: white; padding: 25px; border-radius: 8px; width: 450px;">
-                <h3 style="margin-top: 0;">Megnevezések kezelése</h3>
+       <div id="sztp-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;">
+            <div style="background: #eceff1; padding: 25px; border-radius: 12px; width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); border: 1px solid #cfd8dc;">
+                <h3 style="margin-top: 0; color: #263238;">Megnevezések kezelése</h3>
                 <textarea id="sztp_tomeges_bevitel" placeholder="Példa:&#10;Szabadság&#10;Táppénz" 
                           style="width: 100%; height: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
                 <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
@@ -489,6 +489,7 @@ async function sztpElemTorlese(utvonal) {
         } catch (e) { console.error(e); }
     }
 }
+
 
 
 
