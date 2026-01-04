@@ -45,14 +45,14 @@ function szTpModulBetoltese() {
                 </div>
             </div>
             
-          <div style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
+         <div style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
                 <div style="display: flex; gap: 8px;">
-                    <button onclick="feltoltoModalMegnyitasa()" 
-                            style="flex: 1; padding: 10px; background: #2196F3; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
+                    <button id="btn-sztp-feltoltes" onclick="feltoltoModalMegnyitasa()" disabled
+                            style="flex: 1; padding: 10px; background: #ccc; color: white; border: none; border-radius: 6px; cursor: not-allowed; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
                         📁 Sablon feltöltése / felülírása
                     </button>
-                   <button onclick="sablonKezeleseOldal()" 
-                            style="flex: 1; padding: 10px; background: #607d8b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
+                   <button id="btn-sztp-kezeles" onclick="sablonKezeleseOldal()" disabled
+                            style="flex: 1; padding: 10px; background: #ccc; color: white; border: none; border-radius: 6px; cursor: not-allowed; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
                         ✏️ Sablon kezelése
                     </button>
                 </div>
@@ -64,24 +64,25 @@ function szTpModulBetoltese() {
             </div>
         </div>
 
-        <div id="sztp-feltolto-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
-            <div style="background: white; padding: 25px; border-radius: 8px; width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
-                <h3 style="margin-top: 0; display: flex; align-items: center; gap: 10px;">📁 Sablon feltöltése</h3>
-                <p style="font-size: 0.85em; color: #666;">Válassz ki egy fájlt vagy egy teljes mappát a feltöltéshez.</p>
+        <div id="sztp-feltolto-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;">
+            <div style="background: #f4f7f6; padding: 25px; border-radius: 12px; width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); border: 1px solid #ddd;">
+                <h3 style="margin-top: 0; color: #333; display: flex; align-items: center; gap: 10px;">📁 Sablon feltöltése</h3>
+                <p style="font-size: 0.85em; color: #555;">Válassz ki egy fájlt vagy egy teljes mappát a feltöltéshez.</p>
                 <div id="sztp-feltolto-zona" 
-                     style="border: 3px dashed #2196F3; background: #f0f7ff; padding: 30px; text-align: center; border-radius: 12px; margin: 20px 0;">
+                     style="border: 3px dashed #2196F3; background: #eef6ff; padding: 30px; text-align: center; border-radius: 12px; margin: 20px 0;">
                     <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
                         <button onclick="sztpTallozas(false)" style="padding: 8px 16px; cursor: pointer; background: #2196F3; color: white; border: none; border-radius: 4px; font-size: 0.9em;">📄 Fájlok</button>
                         <button onclick="sztpTallozas(true)" style="padding: 8px 16px; cursor: pointer; background: #2196F3; color: white; border: none; border-radius: 4px; font-size: 0.9em;">📂 Mappa</button>
                     </div>
                     <span style="color: #2196F3; font-weight: 500;">Vagy húzd ide a tartalmat</span>
                 </div>
-               <div id="sztp-modal-statusz" style="margin-bottom: 10px; font-size: 0.85em; color: #4CAF50; font-weight: bold; text-align: center; min-height: 1.2em;"></div>
-                <div id="sztp-modal-fajl-lista-kontener" style="max-height: 150px; overflow-y: auto; background: #f9f9f9; border: 1px solid #eee; border-radius: 4px; margin-bottom: 15px; display: none;">
-                    <ul id="sztp-modal-fajl-lista" style="list-style: none; padding: 10px; margin: 0; font-size: 0.8em; color: #666; line-height: 1.4;"></ul>
+               <div id="sztp-modal-statusz" style="margin-bottom: 10px; font-size: 0.85em; color: #2e7d32; font-weight: bold; text-align: center; min-height: 1.2em;"></div>
+                <div id="sztp-modal-fajl-lista-kontener" style="max-height: 150px; overflow-y: auto; background: #fff; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 15px; display: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
+                    <ul id="sztp-modal-fajl-lista" style="list-style: none; padding: 10px; margin: 0; font-size: 0.8em; color: #444; line-height: 1.4;"></ul>
                 </div>
                 <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                    <button onclick="feltoltoModalBezaras()" style="padding: 8px 20px; cursor: pointer; border-radius: 4px; background: #4CAF50; color: white; border: none; font-weight: bold;">Kész</button>
+                    <button onclick="feltoltoModalBezaras()" style="padding: 8px 15px; cursor: pointer; border-radius: 4px; background: #607d8b; color: white; border: none;">Mégse</button>
+                    <button onclick="beallitasokMentese(true)" style="padding: 8px 20px; cursor: pointer; border-radius: 4px; background: #4CAF50; color: white; border: none; font-weight: bold;">🚀 Feltöltés és Mentés</button>
                 </div>
             </div>
         </div>
@@ -207,7 +208,10 @@ function listaBetoltese() {
 }
 
 function adatokBetoltese(id) {
-    kivalasztottFajlokBuffer = []; // Minden váltáskor ürítjük az átmeneti listát
+    kivalasztottFajlokBuffer = []; 
+    const btnFeltolt = document.getElementById('btn-sztp-feltoltes');
+    const btnKezel = document.getElementById('btn-sztp-kezeles');
+
     if (!id) {
         document.getElementById('sztp_id').value = '';
         document.getElementById('sztp_kod').value = '';
@@ -215,9 +219,16 @@ function adatokBetoltese(id) {
         document.getElementById('sztp_hex').value = '#ffffff';
         const lista = document.getElementById('sztp-fajl-lista');
         if (lista) lista.innerHTML = '<li>📄 Jelenleg nincs fájl</li>';
+        
+        if (btnFeltolt) { btnFeltolt.disabled = true; btnFeltolt.style.background = '#ccc'; btnFeltolt.style.cursor = 'not-allowed'; }
+        if (btnKezel) { btnKezel.disabled = true; btnKezel.style.background = '#ccc'; btnKezel.style.cursor = 'not-allowed'; }
+
         frissitSztpElonezet('picker');
         return;
     }
+
+    if (btnFeltolt) { btnFeltolt.disabled = false; btnFeltolt.style.background = '#2196F3'; btnFeltolt.style.cursor = 'pointer'; }
+    if (btnKezel) { btnKezel.disabled = false; btnKezel.style.background = '#607d8b'; btnKezel.style.cursor = 'pointer'; }
 fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id)
         .then(r => r.json())
         .then(data => {
@@ -328,7 +339,7 @@ function frissitSztpElonezet(tipus) {
     }
 }
 
- async function beallitasokMentese() {
+ async function beallitasokMentese(modalbol = false) {
     const select = document.getElementById('sztp_megnevezes');
     const fajlLista = document.getElementById('sztp-fajl-lista');
     let sablonNeve = null;
@@ -389,6 +400,7 @@ function frissitSztpElonezet(tipus) {
         if (data.success) {
             listaBetoltese();
             if (adat.id) adatokBetoltese(adat.id);
+            if (modalbol) feltoltoModalBezaras();
         }
     });
 }
@@ -477,6 +489,7 @@ async function sztpElemTorlese(utvonal) {
         } catch (e) { console.error(e); }
     }
 }
+
 
 
 
