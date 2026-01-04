@@ -541,15 +541,17 @@ function sztpGyorsFeltoltesInditasa(utvonal, mappaE) {
         formData.append('megnevezes', megnevezes);
         formData.append('relativ_utvonal', relPath);
 
-        try {
+       try {
             const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_feltoltes.php', { method: 'POST', body: formData });
             const d = await r.json();
             alert(d.message);
-            if (d.success) sablonKezeleseOldal();
+            // Frissítéskor átadjuk a mappanevet, hogy ne legyen "üres" a nézet
+            if (d.success) sablonKezeleseOldal(megnevezes);
         } catch (err) { alert("Hiba a feltöltés során!"); }
     };
     input.click();
 }
+
 
 
 
