@@ -439,11 +439,17 @@ function szuresSztpMegnevezesre(szo) {
     }
 }
 
-async function sablonKezeleseOldal() {
+async function sablonKezeleseOldal(frissitendoMappa = null) {
     const kontener = document.getElementById('modul-tartalom');
     const sel = document.getElementById('sztp_megnevezes');
-    // Csak akkor használjuk a megnevezést mappaként, ha ténylegesen ki van választva valami
-    const megnevezesValue = (sel && sel.selectedIndex > 0) ? sel.options[sel.selectedIndex].text : "";
+    
+    // Ha frissítés van, a kapott nevet használjuk, különben a választómezőt
+    let megnevezesValue = "";
+    if (frissitendoMappa !== null) {
+        megnevezesValue = frissitendoMappa;
+    } else {
+        megnevezesValue = (sel && sel.selectedIndex > 0) ? sel.options[sel.selectedIndex].text : "";
+    }
     const megjelenitettCim = megnevezesValue || "Sablonok";
 
     const gombSor = document.getElementById('modul-gomb-sor');
@@ -544,6 +550,7 @@ function sztpGyorsFeltoltesInditasa(utvonal, mappaE) {
     };
     input.click();
 }
+
 
 
 
