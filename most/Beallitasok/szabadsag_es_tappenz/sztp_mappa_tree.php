@@ -46,5 +46,5 @@ function getDirTree($dir, $base, $filter = []) {
 }
 
 // A relPath továbbra is a /Sablonok/ mappához képest generálódik a helyes törléshez
-echo json_encode(['success' => true, 'tree' => getDirTree($baseDir, $root)]);
+echo json_encode(['success' => true, 'tree' => getDirTree($baseDir, $root, $vedettek)]);
 ?>
