@@ -2,11 +2,11 @@
 header('Content-Type: application/json');
 $data = json_decode(file_get_contents('php://input'), true);
 $relPath = $data['path'] ?? '';
-$baseDir = "../../../Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/";
+$baseDir = $_SERVER['DOCUMENT_ROOT'] . "/Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/";
 $target = realpath($baseDir . $relPath);
 
-// Biztonsági ellenőrzés: csak a kijelölt bázismappán belül engedünk törölni
-if (!$target || strpos($target, realpath($baseDir)) !== 0) {
+// Biztonsági ellenőrzés: csak a Sablonok mappán belül engedünk törölni
+if (!$target || strpos($target, $baseDir) !== 0) {
     echo json_encode(['success' => false, 'message' => 'Érvénytelen vagy tiltott útvonal!']);
     exit;
 }
