@@ -5,11 +5,18 @@ try {
     $root = $_SERVER['DOCUMENT_ROOT'] . "/Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/";
     $baseDir = (!empty($megnevezes)) ? $root . $megnevezes . "/" : $root;
 
-    if (!is_dir($baseDir)) { @mkdir($baseDir, 0777, true); }
+  if (!is_dir($baseDir)) { @mkdir($baseDir, 0777, true); }
 
-    require_once $_SERVER['DOCUMENT_ROOT'] . '/Iroda/sql_config.php';
-    $pdo_tree = csatlakozasSzerver1();
-    $vedettek = $pdo_tree->query("SELECT megnevezes FROM szabadsag_es_tappenz_beallitasok")->fetchAll(PDO::FETCH_COLUMN);
+    // Ellenőrizzük, hogy létezik-e a konfigurációs fájl
+    $configPath = $_SERVER['DOCUMENT_ROOT'] . '/Iroda/sql_config.php';
+    $vedettek = [];
+    if (file_exists($configPath)) {
+        require_once $configPath;
+        $pdo_tree = csatlakozasSzerver1();
+        if ($pdo_tree) {
+            $vedettek = $pdo_tree->query("SELECT megnevezes FROM szabadsag_es_tappenz_beallitasok")->fetchAll(PDO::FETCH_COLUMN);
+        }
+    }
 
     function getDirTree($dir, $base, $filter = []) {
         $tree = [];
