@@ -405,6 +405,46 @@ function szuresSztpMegnevezesre(szo) {
     }
 }
 
+async function sablonKezeleseOldal() {
+    const kontener = document.getElementById('modul-tartalom');
+    kontener.innerHTML = `
+        <div style="padding: 20px;">
+            <button onclick="szTpModulBetoltese()" style="margin-bottom: 20px; padding: 8px 15px; cursor: pointer; background: #607d8b; color: white; border: none; border-radius: 4px;">🔙 Vissza a beállításokhoz</button>
+            <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #ddd;">
+                <h3 style="margin-top: 0;">📁 Sablonok mappaszerkezete</h3>
+                <div id="sztp-fajl-fa" style="margin-top: 15px;">⏳ Betöltés...</div>
+            </div>
+        </div>
+    `;
 
+    try {
+        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_mappa_tree.php');
+        const d = await r.json();
+        if (d.success) {
+            const faKontener = document.getElementById('sztp-fajl-fa');
+            faKontener.innerHTML = renderelFa(d.tree);
+        }
+    } catch (e) { console.error(e); }
+}
 
+function renderelFa(elemek) {
+    if (!elemek || elemek.length === 0) return '<p style="color: #999;">A mappa üres.</p>';
+    let html = '<ul style="list-style: none; padding-left: 20px; line-height: 2;">';
+    elemek.forEach(i => {
+        const ikon = i.type === 'folder' ? '📂' : '📄';
+        html += `<li>
+            <span style="cursor: default;">${ikon} ${i.name}</span>
+            <button onclick="sztpElemTorlese('${i.path.replace(/\\/g, '/')}')" style="margin-left: 10px; border: none; background: none; cursor: pointer; color: #f44336; font-size: 0.9em;">🗑️</button>
+            ${i.children ? renderelFa(i.children) : ''}
+        </li>`;
+    });
+    html += '</ul>';
+    return html;
+}
 
+function sztpElemTorlese(utvonal) {
+    if (confirm("Biztosan törölni szeretnéd? \n" + utvonal)) {
+        console.log("Törlés indítása:", utvonal);
+        // Itt hívjuk majd meg a törlő PHP-t a következő lépésben
+    }
+}
