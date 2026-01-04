@@ -438,11 +438,11 @@ function szuresSztpMegnevezesre(szo) {
 async function sablonKezeleseOldal() {
     const kontener = document.getElementById('modul-tartalom');
     kontener.innerHTML = `
-        <div style="padding: 20px;">
-            <button onclick="szTpModulBetoltese()" style="margin-bottom: 20px; padding: 8px 15px; cursor: pointer; background: #607d8b; color: white; border: none; border-radius: 4px;">🔙 Vissza a beállításokhoz</button>
-            <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #ddd;">
-                <h3 style="margin-top: 0;">📁 Sablonok mappaszerkezete</h3>
-                <div id="sztp-fajl-fa" style="margin-top: 15px;">⏳ Betöltés...</div>
+        <div style="padding: 20px; background: #121212; min-height: 500px; border-radius: 8px;">
+            <button onclick="szTpModulBetoltese()" style="margin-bottom: 20px; padding: 8px 15px; cursor: pointer; background: #424242; color: white; border: 1px solid #555; border-radius: 4px;">🔙 Vissza</button>
+            <div style="background: #121212; padding: 25px; border-radius: 12px; border: 1px solid #2196F3; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                <h3 style="margin-top: 0; color: white;">📁 Sablonok mappaszerkezete</h3>
+                <div id="sztp-fajl-fa" style="margin-top: 15px; font-family: monospace;">⏳ Betöltés...</div>
             </div>
         </div>
     `;
@@ -458,13 +458,13 @@ async function sablonKezeleseOldal() {
 }
 
 function renderelFa(elemek) {
-    if (!elemek || elemek.length === 0) return '<p style="color: #999;">A mappa üres.</p>';
+    if (!elemek || elemek.length === 0) return '<p style="color: #666;">A mappa üres.</p>';
     let html = '<ul style="list-style: none; padding-left: 20px; line-height: 2;">';
     elemek.forEach(i => {
         const ikon = i.type === 'folder' ? '📂' : '📄';
-        html += `<li>
-            <span style="cursor: default;">${ikon} ${i.name}</span>
-            <button onclick="sztpElemTorlese('${i.path.replace(/\\/g, '/')}')" style="margin-left: 10px; border: none; background: none; cursor: pointer; color: #f44336; font-size: 0.9em;">🗑️</button>
+        html += `<li style="color: #2196F3;">
+            <span style="cursor: default; font-weight: bold;">${ikon} ${i.name}</span>
+            <button onclick="sztpElemTorlese('${i.path.replace(/\\/g, '/')}')" style="margin-left: 10px; border: none; background: none; cursor: pointer; color: #f44336; font-size: 1.1em;" title="Törlés">🗑️</button>
             ${i.children ? renderelFa(i.children) : ''}
         </li>`;
     });
@@ -489,11 +489,3 @@ async function sztpElemTorlese(utvonal) {
         } catch (e) { console.error(e); }
     }
 }
-
-
-
-
-
-
-
-
