@@ -5,7 +5,7 @@ $baseDir = $_SERVER['DOCUMENT_ROOT'] . "/Iroda/Dokumentum_tar/Szabadsag_es_tappe
 
 if (!is_dir($baseDir)) { mkdir($baseDir, 0777, true); }
 
-// Lekérjük a védett (rendszer által kezelt) mappaneveket
+// Adatbázisban lévő megnevezések lekérése, hogy elrejthessük a mappáikat
 require_once $_SERVER['DOCUMENT_ROOT'] . '/Iroda/sql_config.php';
 $pdo_tree = csatlakozasSzerver1();
 $vedett_mappak = $pdo_tree->query("SELECT megnevezes FROM szabadsag_es_tappenz_beallitasok")->fetchAll(PDO::FETCH_COLUMN);
@@ -15,14 +15,9 @@ function getDirTree($dir, $base, $vedettek = []) {
     if (!is_dir($dir)) return $tree;
     $files = scandir($dir);
     foreach ($files as $file) {
+        // Kiszűrjük a pontokat és a megnevezésként már létező mappákat
         if ($file === '.' || $file === '..' || in_array($file, $vedettek)) continue;
         
-    }
-    $tree = [];
-    if (!is_dir($dir)) return $tree;
-    $files = scandir($dir);
-    foreach ($files as $file) {
-        if ($file === '.' || $file === '..') continue;
         $path = $dir . $file;
         if (is_dir($path)) {
             $path .= "/";
