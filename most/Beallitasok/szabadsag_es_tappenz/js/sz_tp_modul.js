@@ -448,7 +448,7 @@ async function sablonKezeleseOldal() {
     kontener.innerHTML = `
         <div style="padding: 10px; background: #121212; min-height: 500px; border-radius: 8px;">
             <h3 style="margin: 0 0 15px 0; color: white; font-size: 1.1em;">📁 ${megjelenitettCim} mappaszerkezete</h3>
-           <div id="sztp-fajl-fa-kontener" style="background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; resize: both; overflow: auto; min-height: 300px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
+          <div id="sztp-fajl-fa-kontener" style="background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; resize: both; overflow: auto; min-height: 300px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
                 <div id="sztp-fajl-fa" style="font-family: monospace;">⏳ Betöltés...</div>
             </div>
             <p style="color: #666; font-size: 0.8em; margin-top: 15px; font-style: italic;">A jövöben a webes szerkeztés a cél</p>
@@ -534,6 +534,7 @@ function sztpGyorsFeltoltesInditasa(utvonal, mappaE) {
     };
     input.click();
 }
+
 
 
 
