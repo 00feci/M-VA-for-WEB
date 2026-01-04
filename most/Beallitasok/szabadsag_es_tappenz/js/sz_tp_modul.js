@@ -46,7 +46,6 @@ function szTpModulBetoltese() {
             </div>
             
            <div style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
-                <label style="font-weight: bold; font-size: 0.9em;">📄 Sablon kezelése:</label>
                 <button onclick="feltoltoModalMegnyitasa()" 
                         style="width: 100%; padding: 10px; background: #2196F3; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;">
                     📁 Sablon feltöltése / módosítása
@@ -393,4 +392,5 @@ function szuresSztpMegnevezesre(szo) {
         options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
     }
 }
+
 
