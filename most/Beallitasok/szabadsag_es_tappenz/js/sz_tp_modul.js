@@ -76,6 +76,7 @@ function szTpModulBetoltese() {
                     </div>
                     <span style="color: #2196F3; font-weight: 500;">Vagy húzd ide a tartalmat</span>
                 </div>
+                <div id="sztp-modal-statusz" style="margin-bottom: 15px; font-size: 0.85em; color: #4CAF50; font-weight: bold; text-align: center; min-height: 1.2em;"></div>
                 <div style="display: flex; justify-content: flex-end; gap: 10px;">
                     <button onclick="feltoltoModalBezaras()" style="padding: 8px 20px; cursor: pointer; border-radius: 4px; background: #4CAF50; color: white; border: none; font-weight: bold;">Kész</button>
                 </div>
@@ -162,12 +163,19 @@ function sztpFajlokFeltoltese(fajlok) {
     
     kivalasztottFajlokBuffer = fajlok; 
     const lista = document.getElementById('sztp-fajl-lista');
-    lista.innerHTML = ''; 
+    const statusz = document.getElementById('sztp-modal-statusz');
+    
+    if (lista) lista.innerHTML = ''; 
     
     fajlok.forEach(f => {
         const relPath = f.relPath || f.webkitRelativePath || f.name;
-        lista.innerHTML += `<li>📄 ${relPath} <span style="color: #f39c12; font-size: 0.9em;">(Mentésre vár...)</span></li>`;
+        if (lista) lista.innerHTML += `<li>📄 ${relPath} <span style="color: #f39c12; font-size: 0.9em;">(Mentésre vár...)</span></li>`;
     });
+
+    // Visszajelzés a popupban
+    if (statusz) {
+        statusz.innerHTML = `✅ ${fajlok.length} fájl sikeresen csatolva.`;
+    }
 }
 
 function listaBetoltese() {
@@ -238,6 +246,8 @@ function modalBezaras() {
 }
 
 function feltoltoModalMegnyitasa() {
+    const statusz = document.getElementById('sztp-modal-statusz');
+    if (statusz) statusz.innerHTML = ''; // Előző üzenet törlése
     document.getElementById('sztp-feltolto-modal').style.display = 'flex';
 }
 
@@ -453,4 +463,5 @@ async function sztpElemTorlese(utvonal) {
         } catch (e) { console.error(e); }
     }
 }
+
 
