@@ -1,22 +1,18 @@
 <?php
 header('Content-Type: application/json');
 // Egységesítjük az útvonalat az upload scripttel (abszolút elérés)
-$baseDir = $_SERVER['DOCUMENT_ROOT'] . "/Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/";
+$megnevezes = $_GET['megnevezes'] ?? '';
+$root = $_SERVER['DOCUMENT_ROOT'] . "/Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/";
+$baseDir = $root . $megnevezes . "/";
 
 if (!is_dir($baseDir)) { mkdir($baseDir, 0777, true); }
 
-// Adatbázisban lévő megnevezések lekérése, hogy elrejthessük a mappáikat
-require_once $_SERVER['DOCUMENT_ROOT'] . '/Iroda/sql_config.php';
-$pdo_tree = csatlakozasSzerver1();
-$vedett_mappak = $pdo_tree->query("SELECT megnevezes FROM szabadsag_es_tappenz_beallitasok")->fetchAll(PDO::FETCH_COLUMN);
-
-function getDirTree($dir, $base, $vedettek = []) {
+function getDirTree($dir, $base) {
     $tree = [];
     if (!is_dir($dir)) return $tree;
     $files = scandir($dir);
     foreach ($files as $file) {
-        // Kiszűrjük a pontokat és a megnevezésként már létező mappákat
-        if ($file === '.' || $file === '..' || in_array($file, $vedettek)) continue;
+        if ($file === '.' || $file === '..') continue;
         
         $path = $dir . $file;
         if (is_dir($path)) {
@@ -41,5 +37,6 @@ function getDirTree($dir, $base, $vedettek = []) {
     return $tree;
 }
 
-echo json_encode(['success' => true, 'tree' => getDirTree($baseDir, $baseDir, $vedett_mappak)]);
+// A relPath továbbra is a /Sablonok/ mappához képest generálódik a helyes törléshez
+echo json_encode(['success' => true, 'tree' => getDirTree($baseDir, $root)]);
 ?>
