@@ -434,9 +434,10 @@ function szuresSztpMegnevezesre(szo) {
 async function sablonKezeleseOldal() {
     const kontener = document.getElementById('modul-tartalom');
     const sel = document.getElementById('sztp_megnevezes');
-    const megnevezes = sel ? sel.options[sel.selectedIndex].text : "Sablonok";
+    // Csak akkor használjuk a megnevezést mappaként, ha ténylegesen ki van választva valami
+    const megnevezesValue = (sel && sel.selectedIndex > 0) ? sel.options[sel.selectedIndex].text : "";
+    const megjelenitettCim = megnevezesValue || "Sablonok";
 
-    // 1. Dashboard gombok elrejtése és egyedi Vissza gomb betétele
     const gombSor = document.getElementById('modul-gomb-sor');
     if (gombSor) {
         gombSor.innerHTML = `
@@ -446,15 +447,15 @@ async function sablonKezeleseOldal() {
 
     kontener.innerHTML = `
         <div style="padding: 10px; background: #121212; min-height: 500px; border-radius: 8px;">
-            <h3 style="margin: 0 0 15px 0; color: white; font-size: 1.1em;">📁 ${megnevezes} mappaszerkezete</h3>
+            <h3 style="margin: 0 0 15px 0; color: white; font-size: 1.1em;">📁 ${megjelenitettCim} mappaszerkezete</h3>
             <div id="sztp-fajl-fa-kontener" style="background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; resize: both; overflow: auto; min-height: 300px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
                 <div id="sztp-fajl-fa" style="font-family: monospace;">⏳ Betöltés...</div>
             </div>
         </div>
     `;
 
- try {
-        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_mappa_tree.php?megnevezes=' + encodeURIComponent(megnevezes));
+    try {
+        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_mappa_tree.php?megnevezes=' + encodeURIComponent(megnevezesValue));
         const d = await r.json();
         if (d.success) {
             const faKontener = document.getElementById('sztp-fajl-fa');
@@ -495,6 +496,7 @@ async function sztpElemTorlese(utvonal) {
         } catch (e) { console.error(e); }
     }
 }
+
 
 
 
