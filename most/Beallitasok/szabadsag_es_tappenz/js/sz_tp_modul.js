@@ -448,9 +448,10 @@ async function sablonKezeleseOldal() {
     kontener.innerHTML = `
         <div style="padding: 10px; background: #121212; min-height: 500px; border-radius: 8px;">
             <h3 style="margin: 0 0 15px 0; color: white; font-size: 1.1em;">📁 ${megjelenitettCim} mappaszerkezete</h3>
-            <div id="sztp-fajl-fa-kontener" style="background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; resize: both; overflow: auto; min-height: 300px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
+           <div id="sztp-fajl-fa-kontener" style="background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; resize: both; overflow: auto; min-height: 300px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
                 <div id="sztp-fajl-fa" style="font-family: monospace;">⏳ Betöltés...</div>
             </div>
+            <p style="color: #666; font-size: 0.8em; margin-top: 15px; font-style: italic;">A jövöben a webes szerkeztés a cél</p>
         </div>
     `;
 
@@ -466,12 +467,21 @@ async function sablonKezeleseOldal() {
 
 function renderelFa(elemek) {
     if (!elemek || elemek.length === 0) return '<p style="color: #666;">A mappa üres.</p>';
-    let html = '<ul style="list-style: none; padding-left: 20px; line-height: 2;">';
+    let html = '<ul style="list-style: none; padding-left: 20px; line-height: 2.2;">';
     elemek.forEach(i => {
         const ikon = i.type === 'folder' ? '📂' : '📄';
-        html += `<li style="color: #2196F3;">
-            <span style="cursor: default; font-weight: bold;">${ikon} ${i.name}</span>
-            <button onclick="sztpElemTorlese('${i.path.replace(/\\/g, '/')}')" style="margin-left: 10px; border: none; background: none; cursor: pointer; color: #f44336; font-size: 1.1em;" title="Törlés">🗑️</button>
+        const tisztaUtvonal = i.path.replace(/\\/g, '/');
+        const datumHtml = i.date ? `<span style="color: #777; font-size: 0.8em; margin-left: 15px; font-family: monospace;">🕒 ${i.date}</span>` : '';
+        
+        html += `<li style="color: #2196F3; border-bottom: 1px solid #222; padding: 2px 0;">
+            <span style="cursor: default; font-weight: bold; min-width: 250px; display: inline-block;">${ikon} ${i.name}</span>
+            
+            <span style="display: inline-flex; gap: 12px; align-items: center; margin-left: 10px; vertical-align: middle;">
+                ${i.type === 'file' ? `<a href="Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/${tisztaUtvonal}" download style="text-decoration: none; font-size: 1.2em;" title="Letöltés">📥</a>` : ''}
+                <button onclick="sztpGyorsFeltoltesInditasa('${tisztaUtvonal}', ${i.type === 'folder'})" style="border: none; background: none; cursor: pointer; color: #4CAF50; font-size: 1.2em; padding: 0;" title="Feltöltés / Felülírás">📤</button>
+                <button onclick="sztpElemTorlese('${tisztaUtvonal}')" style="border: none; background: none; cursor: pointer; color: #f44336; font-size: 1.2em; padding: 0;" title="Törlés">🗑️</button>
+            </span>
+            ${datumHtml}
             ${i.children ? renderelFa(i.children) : ''}
         </li>`;
     });
@@ -489,13 +499,42 @@ async function sztpElemTorlese(utvonal) {
             });
             const d = await r.json();
             if (d.success) {
-                sablonKezeleseOldal(); // Lista frissítése
+                sablonKezeleseOldal(); 
             } else {
                 alert("Hiba: " + d.message);
             }
         } catch (e) { console.error(e); }
     }
 }
+
+function sztpGyorsFeltoltesInditasa(utvonal, mappaE) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = async e => {
+        const fajl = e.target.files[0];
+        if (!fajl) return;
+
+        const formData = new FormData();
+        formData.append('sablon', fajl);
+        
+        const reszek = utvonal.split('/');
+        let megnevezes = reszek[0] || "Vegyes";
+        // Ha fájlra kattintott (felülírás), az eredeti relatív utat használjuk, különben csak a fájlnevet a mappába
+        let relPath = mappaE ? fajl.name : (reszek.slice(1).join('/') || fajl.name);
+
+        formData.append('megnevezes', megnevezes);
+        formData.append('relativ_utvonal', relPath);
+
+        try {
+            const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_feltoltes.php', { method: 'POST', body: formData });
+            const d = await r.json();
+            alert(d.message);
+            if (d.success) sablonKezeleseOldal();
+        } catch (err) { alert("Hiba a feltöltés során!"); }
+    };
+    input.click();
+}
+
 
 
 
