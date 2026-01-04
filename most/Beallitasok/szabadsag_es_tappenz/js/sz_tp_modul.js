@@ -49,11 +49,11 @@ function szTpModulBetoltese() {
                 <div style="display: flex; gap: 8px;">
                     <button onclick="feltoltoModalMegnyitasa()" 
                             style="flex: 1; padding: 10px; background: #2196F3; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
-                        📁 Sablon feltöltése
+                        📁 Sablon feltöltése / felülírása
                     </button>
                     <button onclick="sablonModositasaOldal()" 
                             style="flex: 1; padding: 10px; background: #607d8b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
-                        ✏️ Sablon módosítása
+                        ✏️ Sablon kezelése
                     </button>
                 </div>
                 <div style="background: #fff; border: 1px solid #eee; padding: 10px; border-radius: 4px;">
@@ -404,6 +404,7 @@ function szuresSztpMegnevezesre(szo) {
         options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
     }
 }
+
 
 
 
