@@ -51,7 +51,7 @@ function szTpModulBetoltese() {
                             style="flex: 1; padding: 10px; background: #2196F3; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
                         📁 Sablon feltöltése / felülírása
                     </button>
-                    <button onclick="sablonModositasaOldal()" 
+                    <button onclick="sablonKezeleseOldal()" 
                             style="flex: 1; padding: 10px; background: #607d8b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
                         ✏️ Sablon kezelése
                     </button>
@@ -245,12 +245,6 @@ function feltoltoModalBezaras() {
     document.getElementById('sztp-feltolto-modal').style.display = 'none';
 }
 
-function sablonModositasaOldal() {
-    // Ez a függvény kezeli majd az új oldal megnyitását a fájlfa nézettel
-    console.log("Sablon módosítása oldal megnyitása...");
-    alert("Hamarosan: Sablon szerkesztő felület fájlfa nézettel.");
-}
-
 function megnevezesekMentese() {
     const szoveg = document.getElementById('sztp_tomeges_bevitel').value;
     const elemek = szoveg.split(/[\n,]/).map(item => item.trim()).filter(item => item !== "");
@@ -442,9 +436,20 @@ function renderelFa(elemek) {
     return html;
 }
 
-function sztpElemTorlese(utvonal) {
-    if (confirm("Biztosan törölni szeretnéd? \n" + utvonal)) {
-        console.log("Törlés indítása:", utvonal);
-        // Itt hívjuk majd meg a törlő PHP-t a következő lépésben
+async function sztpElemTorlese(utvonal) {
+    if (confirm("BIZTOSAN törölni szeretnéd ezt az elemet?\n" + utvonal)) {
+        try {
+            const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_fajl_torlese.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path: utvonal })
+            });
+            const d = await r.json();
+            if (d.success) {
+                sablonKezeleseOldal(); // Lista frissítése
+            } else {
+                alert("Hiba: " + d.message);
+            }
+        } catch (e) { console.error(e); }
     }
 }
