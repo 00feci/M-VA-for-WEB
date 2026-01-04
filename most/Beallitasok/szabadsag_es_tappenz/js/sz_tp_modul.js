@@ -112,7 +112,7 @@ function inicializalFeltoltot() {
 function sztpTallozas(mappaMod) {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.doc,.docx';
+    // Az accept szűrő eltávolítva, hogy minden fájl látható legyen
     input.multiple = true;
     if (mappaMod) input.webkitdirectory = true;
     input.onchange = e => sztpFajlokFeltoltese(Array.from(e.target.files));
@@ -352,3 +352,4 @@ function szuresSztpMegnevezesre(szo) {
         options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
     }
 }
+
