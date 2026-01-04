@@ -23,6 +23,7 @@ function getDirTree($dir, $base, $filter = []) {
         if ($file === '.' || $file === '..' || in_array($file, $filter)) continue;
         
         $path = $dir . $file;
+        $mtime = date("Y.m.d H:i:s", filemtime($path));
         if (is_dir($path)) {
             $path .= "/";
             $relPath = str_replace($base, '', $path);
@@ -30,14 +31,16 @@ function getDirTree($dir, $base, $filter = []) {
                 'name' => $file, 
                 'path' => $relPath,
                 'type' => 'folder',
-                'children' => getDirTree($path, $base)
+                'date' => $mtime,
+                'children' => getDirTree($path, $base, $vedettek)
             ];
         } else {
             $relPath = str_replace($base, '', $path);
             $item = [
                 'name' => $file, 
                 'path' => $relPath,
-                'type' => 'file'
+                'type' => 'file',
+                'date' => $mtime
             ];
         }
         $tree[] = $item;
