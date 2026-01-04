@@ -136,24 +136,20 @@ async function rekurzivFajlOlvasas(entry, path = "") {
     return fajlok;
 }
 
-async function sztpFajlokFeltoltese(fajlok) {
+let kivalasztottFajlokBuffer = []; // Átmeneti tároló a mentés előtti fájloknak
+
+function sztpFajlokFeltoltese(fajlok) {
     if (!fajlok || fajlok.length === 0) return;
+    
+    kivalasztottFajlokBuffer = fajlok; // Eltároljuk a fájlokat a pufferben
     const lista = document.getElementById('sztp-fajl-lista');
-    lista.innerHTML = '<li>⏳ Feltöltés...</li>';
-    let sikeres = 0;
-    let elsoFajlRelativ = "";
-    for (let fajl of fajlok) {
-        const formData = new FormData();
-        formData.append('sablon', fajl);
-        const relPath = fajl.relPath || fajl.webkitRelativePath || fajl.name;
-        formData.append('relativ_utvonal', relPath);
-        if (!elsoFajlRelativ) elsoFajlRelativ = relPath;
-        try {
-            const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_feltoltes.php', { method: 'POST', body: formData });
-            const d = await r.json();
-            if (d.success) sikeres++;
-        } catch (e) { console.error(e); }
-    }
+    lista.innerHTML = ''; 
+    
+    fajlok.forEach(f => {
+        const relPath = f.relPath || f.webkitRelativePath || f.name;
+        lista.innerHTML += `<li>📄 ${relPath} <span style="color: #f39c12; font-size: 0.9em;">(Mentésre vár...)</span></li>`;
+    });
+}
 
     if (sikeres > 0) {
         lista.innerHTML = ''; 
@@ -188,6 +184,7 @@ function listaBetoltese() {
 }
 
 function adatokBetoltese(id) {
+    kivalasztottFajlokBuffer = []; // Minden betöltésnél ürítjük a puffert
     if (!id) {
         document.getElementById('sztp_id').value = '';
         document.getElementById('sztp_kod').value = '';
@@ -292,25 +289,59 @@ function frissitSztpElonezet(tipus) {
     }
 }
 
-function beallitasokMentese() {
+async function beallitasokMentese() {
     const select = document.getElementById('sztp_megnevezes');
     const fajlLista = document.getElementById('sztp-fajl-lista');
-let sablonNeve = null;
-    const elsoFajl = fajlLista.querySelector('li');
-    if (elsoFajl && !elsoFajl.innerText.includes('Jelenleg nincs')) {
-        // Ha mappa, akkor a gyökérmappát mentjük, ha fájl, akkor a fájlt
-        const teljesNev = elsoFajl.innerText.replace('📄 ', '').replace('📂 ', '').trim();
-        sablonNeve = teljesNev.includes('/') ? teljesNev.split('/')[0] : teljesNev;
+    let sablonNeve = null;
+
+    // 1. Ha vannak új fájlok a pufferben, először azokat feltöltjük
+    if (kivalasztottFajlokBuffer.length > 0) {
+        const lista = document.getElementById('sztp-fajl-lista');
+        lista.innerHTML = '<li>⏳ Feltöltés folyamatban...</li>';
+        
+        for (let fajl of kivalasztottFajlokBuffer) {
+            const formData = new FormData();
+            formData.append('sablon', fajl);
+            const relPath = fajl.relPath || fajl.webkitRelativePath || fajl.name;
+            formData.append('relativ_utvonal', relPath);
+            
+            try {
+                const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_feltoltes.php', { method: 'POST', body: formData });
+                const d = await r.json();
+                if (!d.success) throw new Error(d.message);
+            } catch (e) {
+                alert("Hiba a feltöltés során: " + e.message);
+                lista.innerHTML = '<li>❌ Hiba történt, mentés megszakítva.</li>';
+                return;
+            }
+        }
+        
+        // Sablon név meghatározása az első fájl alapján
+        const elsoFajl = kivalasztottFajlokBuffer[0];
+        const relPath = elsoFajl.relPath || elsoFajl.webkitRelativePath || elsoFajl.name;
+        sablonNeve = relPath.includes('/') ? relPath.split('/')[0] : relPath;
+        
+        kivalasztottFajlokBuffer = []; // Feltöltés után ürítjük a puffert
+    } else {
+        // Ha nincs új feltöltés, megnézzük mi van már a listában (régi fájl megtartása)
+        const elsoSor = fajlLista.querySelector('li');
+        if (elsoSor && !elsoSor.innerText.includes('Jelenleg nincs')) {
+            const tisztaNev = elsoSor.innerText.replace('📄 ', '').replace(' (Mentésre vár...)', '').trim();
+            sablonNeve = tisztaNev.includes('/') ? tisztaNev.split('/')[0] : tisztaNev;
+        }
     }
+
     const adat = {
         id: document.getElementById('sztp_id').value,
         megnevezes: select.options[select.selectedIndex]?.text,
         kod: document.getElementById('sztp_kod').value,
         szin: document.getElementById('sztp_szin').value,
-        sablon_neve: sablonNeve, // Mentjük a fájl nevét is az adatbázisba
+        sablon_neve: sablonNeve,
         extra_adatok: [] 
     };
+
     if (!adat.megnevezes || select.selectedIndex === 0) return alert("Válassz vagy adj hozzá megnevezést!");
+
     fetch('Beallitasok/szabadsag_es_tappenz/sztp_mentes.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -319,10 +350,12 @@ let sablonNeve = null;
     .then(r => r.json())
     .then(data => {
         alert(data.message);
-        if (data.success) listaBetoltese();
+        if (data.success) {
+            listaBetoltese();
+            if (adat.id) adatokBetoltese(adat.id); // Lista frissítése a szerverről
+        }
     });
 }
-
 function beallitasokTorlese() {
     const id = document.getElementById('sztp_id').value;
     if (!id) return alert("Nincs kiválasztva mentett beállítás!");
@@ -352,4 +385,5 @@ function szuresSztpMegnevezesre(szo) {
         options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
     }
 }
+
 
