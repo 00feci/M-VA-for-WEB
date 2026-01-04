@@ -76,7 +76,10 @@ function szTpModulBetoltese() {
                     </div>
                     <span style="color: #2196F3; font-weight: 500;">Vagy húzd ide a tartalmat</span>
                 </div>
-                <div id="sztp-modal-statusz" style="margin-bottom: 15px; font-size: 0.85em; color: #4CAF50; font-weight: bold; text-align: center; min-height: 1.2em;"></div>
+               <div id="sztp-modal-statusz" style="margin-bottom: 10px; font-size: 0.85em; color: #4CAF50; font-weight: bold; text-align: center; min-height: 1.2em;"></div>
+                <div id="sztp-modal-fajl-lista-kontener" style="max-height: 150px; overflow-y: auto; background: #f9f9f9; border: 1px solid #eee; border-radius: 4px; margin-bottom: 15px; display: none;">
+                    <ul id="sztp-modal-fajl-lista" style="list-style: none; padding: 10px; margin: 0; font-size: 0.8em; color: #666; line-height: 1.4;"></ul>
+                </div>
                 <div style="display: flex; justify-content: flex-end; gap: 10px;">
                     <button onclick="feltoltoModalBezaras()" style="padding: 8px 20px; cursor: pointer; border-radius: 4px; background: #4CAF50; color: white; border: none; font-weight: bold;">Kész</button>
                 </div>
@@ -163,18 +166,23 @@ function sztpFajlokFeltoltese(fajlok) {
     
     kivalasztottFajlokBuffer = fajlok; 
     const lista = document.getElementById('sztp-fajl-lista');
+    const modalLista = document.getElementById('sztp-modal-fajl-lista');
+    const modalListaKontener = document.getElementById('sztp-modal-fajl-lista-kontener');
     const statusz = document.getElementById('sztp-modal-statusz');
     
     if (lista) lista.innerHTML = ''; 
+    if (modalLista) modalLista.innerHTML = '';
+    if (modalListaKontener) modalListaKontener.style.display = 'block';
     
     fajlok.forEach(f => {
         const relPath = f.relPath || f.webkitRelativePath || f.name;
-        if (lista) lista.innerHTML += `<li>📄 ${relPath} <span style="color: #f39c12; font-size: 0.9em;">(Mentésre vár...)</span></li>`;
+        const liHtml = `<li>📄 ${relPath} <span style="color: #f39c12; font-size: 0.8em;">(Mentésre vár...)</span></li>`;
+        if (lista) lista.innerHTML += liHtml;
+        if (modalLista) modalLista.innerHTML += liHtml;
     });
 
-    // Visszajelzés a popupban
     if (statusz) {
-        statusz.innerHTML = `✅ ${fajlok.length} fájl sikeresen csatolva.`;
+        statusz.innerHTML = `✅ ${fajlok.length} fájl csatolva.`;
     }
 }
 
@@ -247,7 +255,13 @@ function modalBezaras() {
 
 function feltoltoModalMegnyitasa() {
     const statusz = document.getElementById('sztp-modal-statusz');
-    if (statusz) statusz.innerHTML = ''; // Előző üzenet törlése
+    const modalLista = document.getElementById('sztp-modal-fajl-lista');
+    const modalListaKontener = document.getElementById('sztp-modal-fajl-lista-kontener');
+    
+    if (statusz) statusz.innerHTML = ''; 
+    if (modalLista) modalLista.innerHTML = '';
+    if (modalListaKontener) modalListaKontener.style.display = 'none';
+    
     document.getElementById('sztp-feltolto-modal').style.display = 'flex';
 }
 
@@ -463,5 +477,6 @@ async function sztpElemTorlese(utvonal) {
         } catch (e) { console.error(e); }
     }
 }
+
 
 
