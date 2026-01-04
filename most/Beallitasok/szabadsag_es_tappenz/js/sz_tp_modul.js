@@ -471,6 +471,8 @@ function renderelFa(elemek) {
     elemek.forEach(i => {
         const ikon = i.type === 'folder' ? '📂' : '📄';
         const tisztaUtvonal = i.path.replace(/\\/g, '/');
+        // Itt definiáljuk a változót, ami hiányzott:
+        const kodoltUtvonal = encodeURI(tisztaUtvonal);
         const datumHtml = i.date ? `<span style="color: #777; font-size: 0.8em; margin-left: 15px; font-family: monospace;">🕒 ${i.date}</span>` : '';
         
         html += `<li style="color: #2196F3; border-bottom: 1px solid #222; padding: 2px 0;">
@@ -534,6 +536,7 @@ function sztpGyorsFeltoltesInditasa(utvonal, mappaE) {
     };
     input.click();
 }
+
 
 
 
