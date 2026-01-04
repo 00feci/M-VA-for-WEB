@@ -209,14 +209,18 @@ function listaBetoltese() {
 
 function adatokBetoltese(id) {
     kivalasztottFajlokBuffer = []; 
+    // Ellenőrizzük, hogy a főoldalon vagyunk-e, különben nem futtatjuk
+    const idInput = document.getElementById('sztp_id');
+    if (!idInput) return;
+
     const btnFeltolt = document.getElementById('btn-sztp-feltoltes');
     const btnKezel = document.getElementById('btn-sztp-kezeles');
 
     if (!id) {
-        document.getElementById('sztp_id').value = '';
-        document.getElementById('sztp_kod').value = '';
-        document.getElementById('sztp_szin').value = '#ffffff';
-        document.getElementById('sztp_hex').value = '#ffffff';
+        idInput.value = '';
+        if (document.getElementById('sztp_kod')) document.getElementById('sztp_kod').value = '';
+        if (document.getElementById('sztp_szin')) document.getElementById('sztp_szin').value = '#ffffff';
+        if (document.getElementById('sztp_hex')) document.getElementById('sztp_hex').value = '#ffffff';
         const lista = document.getElementById('sztp-fajl-lista');
         if (lista) lista.innerHTML = '<li>📄 Jelenleg nincs fájl</li>';
         
@@ -327,6 +331,10 @@ function frissitSztpElonezet(tipus) {
     const picker = document.getElementById('sztp_szin');
     const hexInput = document.getElementById('sztp_hex');
     const doboz = document.getElementById('szin-elonezet-doboz');
+    
+    // Ha nem léteznek az elemek, nem csinálunk semmit
+    if (!kodInput || !picker || !hexInput) return;
+
     if (tipus === 'picker') hexInput.value = picker.value;
     if (tipus === 'hex' && hexInput.value.length === 7) picker.value = hexInput.value;
     const kod = kodInput.value || '-';
@@ -478,9 +486,9 @@ function renderelFa(elemek) {
         html += `<li style="color: #2196F3; border-bottom: 1px solid #222; padding: 2px 0;">
             <span style="cursor: default; font-weight: bold; min-width: 250px; display: inline-block;">${ikon} ${i.name}</span>
             
-            <span style="display: inline-flex; gap: 12px; align-items: center; margin-left: 10px; vertical-align: middle;">
-${i.type === 'file' ? `<a href="/Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/${kodoltUtvonal}" download style="text-decoration: none; font-size: 1.25em;" title="Letöltés">📥</a>` : ''}
-<button onclick="sztpGyorsFeltoltesInditasa('${tisztaUtvonal}', ${i.type === 'folder'})" style="border: none; background: none; cursor: pointer; color: #4CAF50; font-size: 1.25em; padding: 0;" title="Feltöltés / Felülírás">📤</button>
+         <span style="display: inline-flex; gap: 12px; align-items: center; margin-left: 10px; vertical-align: middle;">
+                ${i.type === 'file' ? `<a href="/Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/${kodoltUtvonal}" download style="text-decoration: none; font-size: 1.25em;" title="Letöltés">📥</a>` : ''}
+                <button onclick="sztpGyorsFeltoltesInditasa('${tisztaUtvonal}', ${i.type === 'folder'})" style="border: none; background: none; cursor: pointer; color: #4CAF50; font-size: 1.25em; padding: 0;" title="Feltöltés / Felülírás">📤</button>
                 <button onclick="sztpElemTorlese('${tisztaUtvonal}')" style="border: none; background: none; cursor: pointer; color: #f44336; font-size: 1.2em; padding: 0;" title="Törlés">🗑️</button>
             </span>
             ${datumHtml}
@@ -536,6 +544,7 @@ function sztpGyorsFeltoltesInditasa(utvonal, mappaE) {
     };
     input.click();
 }
+
 
 
 
