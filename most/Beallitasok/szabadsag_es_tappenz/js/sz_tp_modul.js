@@ -51,7 +51,7 @@ function szTpModulBetoltese() {
                             style="flex: 1; padding: 10px; background: #2196F3; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
                         📁 Sablon feltöltése / felülírása
                     </button>
-                    <button onclick="sablonKezeleseOldal()" 
+                   <button onclick="sablonKezeleseOldal()" 
                             style="flex: 1; padding: 10px; background: #607d8b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
                         ✏️ Sablon kezelése
                     </button>
@@ -453,3 +453,4 @@ async function sztpElemTorlese(utvonal) {
         } catch (e) { console.error(e); }
     }
 }
+
