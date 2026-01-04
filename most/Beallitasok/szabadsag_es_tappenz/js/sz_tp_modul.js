@@ -45,20 +45,34 @@ function szTpModulBetoltese() {
                 </div>
             </div>
             
-            <div style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
-                <label style="font-weight: bold; font-size: 0.9em;">📄 Sablon feltöltése:</label>
-                <div id="sztp-feltolto-zona" 
-                     style="border: 2px dashed #2196F3; background: #f0f7ff; padding: 15px; text-align: center; border-radius: 8px;">
-                    <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 10px;">
-                        <button onclick="sztpTallozas(false)" style="padding: 6px 12px; cursor: pointer; background: #2196F3; color: white; border: none; border-radius: 4px; font-size: 0.85em;">📄 Fájlok kiválasztása</button>
-                        <button onclick="sztpTallozas(true)" style="padding: 6px 12px; cursor: pointer; background: #2196F3; color: white; border: none; border-radius: 4px; font-size: 0.85em;">📂 Mappa kiválasztása</button>
-                    </div>
-                    <span style="color: #2196F3; font-size: 0.8em;">Vagy húzd ide a tartalmat</span>
-                </div>
+           <div style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
+                <label style="font-weight: bold; font-size: 0.9em;">📄 Sablon kezelése:</label>
+                <button onclick="feltoltoModalMegnyitasa()" 
+                        style="width: 100%; padding: 10px; background: #2196F3; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    📁 Sablon feltöltése / módosítása
+                </button>
                 <div style="background: #fff; border: 1px solid #eee; padding: 10px; border-radius: 4px;">
                     <ul id="sztp-fajl-lista" style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: #555; line-height: 1.6;">
                         <li>📄 Jelenleg nincs fájl</li>
                     </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="sztp-feltolto-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
+            <div style="background: white; padding: 25px; border-radius: 8px; width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+                <h3 style="margin-top: 0; display: flex; align-items: center; gap: 10px;">📁 Sablon feltöltése</h3>
+                <p style="font-size: 0.85em; color: #666;">Válassz ki egy fájlt vagy egy teljes mappát a feltöltéshez.</p>
+                <div id="sztp-feltolto-zona" 
+                     style="border: 3px dashed #2196F3; background: #f0f7ff; padding: 30px; text-align: center; border-radius: 12px; margin: 20px 0;">
+                    <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
+                        <button onclick="sztpTallozas(false)" style="padding: 8px 16px; cursor: pointer; background: #2196F3; color: white; border: none; border-radius: 4px; font-size: 0.9em;">📄 Fájlok</button>
+                        <button onclick="sztpTallozas(true)" style="padding: 8px 16px; cursor: pointer; background: #2196F3; color: white; border: none; border-radius: 4px; font-size: 0.9em;">📂 Mappa</button>
+                    </div>
+                    <span style="color: #2196F3; font-weight: 500;">Vagy húzd ide a tartalmat</span>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                    <button onclick="feltoltoModalBezaras()" style="padding: 8px 20px; cursor: pointer; border-radius: 4px; background: #4CAF50; color: white; border: none; font-weight: bold;">Kész</button>
                 </div>
             </div>
         </div>
@@ -141,7 +155,7 @@ let kivalasztottFajlokBuffer = []; // Átmeneti tároló a mentés előtti fájl
 function sztpFajlokFeltoltese(fajlok) {
     if (!fajlok || fajlok.length === 0) return;
     
-    kivalasztottFajlokBuffer = fajlok; // Eltároljuk a fájlokat a pufferben
+    kivalasztottFajlokBuffer = fajlok; 
     const lista = document.getElementById('sztp-fajl-lista');
     lista.innerHTML = ''; 
     
@@ -149,18 +163,6 @@ function sztpFajlokFeltoltese(fajlok) {
         const relPath = f.relPath || f.webkitRelativePath || f.name;
         lista.innerHTML += `<li>📄 ${relPath} <span style="color: #f39c12; font-size: 0.9em;">(Mentésre vár...)</span></li>`;
     });
-}
-
-    if (sikeres > 0) {
-        lista.innerHTML = ''; 
-        fajlok.forEach(f => {
-            const relPath = f.relPath || f.webkitRelativePath || f.name;
-            lista.innerHTML += `<li>📄 ${relPath}</li>`;
-        });
-        alert(`Sikeresen feltöltve: ${sikeres} fájl.`);
-    } else {
-        lista.innerHTML = `<li>❌ Sikertelen feltöltés</li>`;
-    }
 }
 
 function listaBetoltese() {
@@ -228,6 +230,14 @@ function modalBezaras() {
     document.getElementById('sztp-modal').style.display = 'none';
     // 🧹 Kiürítjük a textareát, hogy legközelebb tiszta legyen
     document.getElementById('sztp_tomeges_bevitel').value = ''; 
+}
+
+function feltoltoModalMegnyitasa() {
+    document.getElementById('sztp-feltolto-modal').style.display = 'flex';
+}
+
+function feltoltoModalBezaras() {
+    document.getElementById('sztp-feltolto-modal').style.display = 'none';
 }
 
 function megnevezesekMentese() {
@@ -352,6 +362,7 @@ function frissitSztpElonezet(tipus) {
             if (adat.id) adatokBetoltese(adat.id);
         }
     });
+}
      
 function beallitasokTorlese() {
     const id = document.getElementById('sztp_id').value;
@@ -382,3 +393,4 @@ function szuresSztpMegnevezesre(szo) {
         options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
     }
 }
+
