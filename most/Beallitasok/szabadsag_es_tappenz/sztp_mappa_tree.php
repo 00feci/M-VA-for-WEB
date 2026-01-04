@@ -1,6 +1,7 @@
 <?php
 header('Content-Type: application/json');
-$baseDir = "../../../Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/";
+// Egységesítjük az útvonalat az upload scripttel (abszolút elérés)
+$baseDir = $_SERVER['DOCUMENT_ROOT'] . "/Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/";
 
 function getDirTree($dir, $base) {
     $tree = [];
@@ -8,14 +9,23 @@ function getDirTree($dir, $base) {
     $files = scandir($dir);
     foreach ($files as $file) {
         if ($file === '.' || $file === '..') continue;
-        $path = $dir . DIRECTORY_SEPARATOR . $file;
-        $relPath = str_replace($base, '', $path);
-        $item = ['name' => $file, 'path' => $relPath];
+        $path = $dir . $file;
         if (is_dir($path)) {
-            $item['type'] = 'folder';
-            $item['children'] = getDirTree($path, $base);
+            $path .= "/";
+            $relPath = str_replace($base, '', $path);
+            $item = [
+                'name' => $file, 
+                'path' => $relPath,
+                'type' => 'folder',
+                'children' => getDirTree($path, $base)
+            ];
         } else {
-            $item['type'] = 'file';
+            $relPath = str_replace($base, '', $path);
+            $item = [
+                'name' => $file, 
+                'path' => $relPath,
+                'type' => 'file'
+            ];
         }
         $tree[] = $item;
     }
