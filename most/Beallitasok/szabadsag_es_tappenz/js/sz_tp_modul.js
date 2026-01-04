@@ -453,8 +453,8 @@ async function sablonKezeleseOldal() {
         </div>
     `;
 
-    try {
-        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_mappa_tree.php');
+ try {
+        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_mappa_tree.php?megnevezes=' + encodeURIComponent(megnevezes));
         const d = await r.json();
         if (d.success) {
             const faKontener = document.getElementById('sztp-fajl-fa');
@@ -495,6 +495,7 @@ async function sztpElemTorlese(utvonal) {
         } catch (e) { console.error(e); }
     }
 }
+
 
 
 
