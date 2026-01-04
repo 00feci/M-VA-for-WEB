@@ -1,5 +1,6 @@
 <?php
 header('Content-Type: application/json');
+date_default_timezone_set('Europe/Budapest'); // 🕒 Időzóna beállítása a magyar időhöz
 try {
     $megnevezes = $_GET['megnevezes'] ?? '';
     $root = $_SERVER['DOCUMENT_ROOT'] . "/Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/";
