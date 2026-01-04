@@ -3,7 +3,6 @@ header('Content-Type: application/json');
 // Egységesítjük az útvonalat az upload scripttel (abszolút elérés)
 $baseDir = $_SERVER['DOCUMENT_ROOT'] . "/Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/";
 
-// Biztosítjuk a mappa létezését
 if (!is_dir($baseDir)) { mkdir($baseDir, 0777, true); }
 
 // Lekérjük a védett (rendszer által kezelt) mappaneveket
@@ -17,6 +16,8 @@ function getDirTree($dir, $base, $vedettek = []) {
     $files = scandir($dir);
     foreach ($files as $file) {
         if ($file === '.' || $file === '..' || in_array($file, $vedettek)) continue;
+        
+    }
     $tree = [];
     if (!is_dir($dir)) return $tree;
     $files = scandir($dir);
@@ -46,4 +47,4 @@ function getDirTree($dir, $base, $vedettek = []) {
 }
 
 echo json_encode(['success' => true, 'tree' => getDirTree($baseDir, $baseDir, $vedett_mappak)]);
-    ?>
+?>
