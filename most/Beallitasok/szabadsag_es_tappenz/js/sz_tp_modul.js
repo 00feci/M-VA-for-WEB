@@ -64,10 +64,10 @@ function szTpModulBetoltese() {
             </div>
         </div>
 
-        <div id="sztp-feltolto-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;">
-            <div style="background: #121212; color: white; padding: 25px; border-radius: 12px; width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333;">
-                <h3 style="margin-top: 0; color: white; display: flex; align-items: center; gap: 10px;">📁 Sablon feltöltése</h3>
-                <p style="font-size: 0.85em; color: #bbb;">Válassz ki egy fájlt vagy egy teljes mappát a feltöltéshez.</p>
+        <div id="sztp-feltolto-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center;">
+            <div style="background: #121212; color: #2196F3; padding: 25px; border-radius: 12px; width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #2196F3;">
+                <h3 style="margin-top: 0; color: #2196F3; display: flex; align-items: center; gap: 10px;">📁 Sablon feltöltése</h3>
+                <p style="font-size: 0.85em; color: #2196F3; opacity: 0.8;">Válassz ki egy fájlt vagy egy teljes mappát a feltöltéshez.</p>
                 <div id="sztp-feltolto-zona" 
                      style="border: 3px dashed #2196F3; background: #1e1e1e; padding: 30px; text-align: center; border-radius: 12px; margin: 20px 0;">
                     <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
@@ -87,9 +87,9 @@ function szTpModulBetoltese() {
             </div>
         </div>
 
-      <div id="sztp-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;">
-            <div style="background: #121212; color: white; padding: 25px; border-radius: 12px; width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333;">
-                <h3 style="margin-top: 0; color: white;">Megnevezések kezelése</h3>
+     <div id="sztp-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center;">
+            <div style="background: #121212; color: #2196F3; padding: 25px; border-radius: 12px; width: 450px; border: 1px solid #2196F3; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                <h3 style="margin-top: 0; color: #2196F3;">Megnevezések kezelése</h3>
                 <textarea id="sztp_tomeges_bevitel" placeholder="Példa:&#10;Szabadság&#10;Táppénz" 
                           style="width: 100%; height: 200px; padding: 10px; border: 1px solid #333; border-radius: 6px; background: #1e1e1e; color: white;"></textarea>
                 <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
@@ -489,6 +489,7 @@ async function sztpElemTorlese(utvonal) {
         } catch (e) { console.error(e); }
     }
 }
+
 
 
 
