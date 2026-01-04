@@ -4,11 +4,19 @@ header('Content-Type: application/json');
 $baseDir = $_SERVER['DOCUMENT_ROOT'] . "/Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/";
 
 // Biztosítjuk a mappa létezését
-if (!is_dir($baseDir)) {
-    mkdir($baseDir, 0777, true);
-}
+if (!is_dir($baseDir)) { mkdir($baseDir, 0777, true); }
 
-function getDirTree($dir, $base) {
+// Lekérjük a védett (rendszer által kezelt) mappaneveket
+require_once $_SERVER['DOCUMENT_ROOT'] . '/Iroda/sql_config.php';
+$pdo_tree = csatlakozasSzerver1();
+$vedett_mappak = $pdo_tree->query("SELECT megnevezes FROM szabadsag_es_tappenz_beallitasok")->fetchAll(PDO::FETCH_COLUMN);
+
+function getDirTree($dir, $base, $vedettek = []) {
+    $tree = [];
+    if (!is_dir($dir)) return $tree;
+    $files = scandir($dir);
+    foreach ($files as $file) {
+        if ($file === '.' || $file === '..' || in_array($file, $vedettek)) continue;
     $tree = [];
     if (!is_dir($dir)) return $tree;
     $files = scandir($dir);
@@ -37,5 +45,5 @@ function getDirTree($dir, $base) {
     return $tree;
 }
 
-echo json_encode(['success' => true, 'tree' => getDirTree($baseDir, $baseDir)]);
-?>
+echo json_encode(['success' => true, 'tree' => getDirTree($baseDir, $baseDir, $vedett_mappak)]);
+    ?>
