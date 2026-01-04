@@ -27,9 +27,30 @@ if (!$id) {
 }
 
 try {
+    // 1. Megkeressük a mappát a törlés előtt
+    $stmt_f = $pdo->prepare("SELECT megnevezes FROM szabadsag_es_tappenz_beallitasok WHERE id = :id");
+    $stmt_f->execute(['id' => $id]);
+    $mappa_nev = $stmt_f->fetchColumn();
+
+    // 2. Törlés az adatbázisból
     $stmt = $pdo->prepare("DELETE FROM szabadsag_es_tappenz_beallitasok WHERE id = :id");
     $stmt->execute(['id' => $id]);
-    echo json_encode(['success' => true, 'message' => 'Sikeresen törölve!']);
+
+    // 3. Fizikai mappa törlése
+    if ($mappa_nev) {
+        $cel = $_SERVER['DOCUMENT_ROOT'] . '/Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/' . $mappa_nev;
+        if (is_dir($cel)) {
+            $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($cel, RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST);
+            foreach ($files as $fileinfo) {
+                $todo = ($fileinfo->isDir() ? 'rmdir' : 'unlink');
+                $todo($fileinfo->getRealPath());
+            }
+            rmdir($cel);
+        }
+    }
+
+    echo json_encode(['success' => true, 'message' => 'Sikeresen törölve a beállítás és a hozzá tartozó mappa is!']);
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+
 }
