@@ -351,6 +351,7 @@ function frissitSztpElonezet(tipus) {
         for (let fajl of kivalasztottFajlokBuffer) {
             const formData = new FormData();
             formData.append('sablon', fajl);
+            formData.append('megnevezes', adat.megnevezes); // Átadjuk a mappanevet
             const relPath = fajl.relPath || fajl.webkitRelativePath || fajl.name;
             formData.append('relativ_utvonal', relPath);
             
@@ -499,4 +500,5 @@ async function sztpElemTorlese(utvonal) {
         } catch (e) { console.error(e); }
     }
 }
+
 
