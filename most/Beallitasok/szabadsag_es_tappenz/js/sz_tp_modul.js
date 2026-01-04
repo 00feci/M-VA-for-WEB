@@ -184,7 +184,7 @@ function listaBetoltese() {
 }
 
 function adatokBetoltese(id) {
-    kivalasztottFajlokBuffer = []; // Minden betöltésnél ürítjük a puffert
+    kivalasztottFajlokBuffer = []; // Minden váltáskor ürítjük az átmeneti listát
     if (!id) {
         document.getElementById('sztp_id').value = '';
         document.getElementById('sztp_kod').value = '';
@@ -192,8 +192,8 @@ function adatokBetoltese(id) {
         document.getElementById('sztp_hex').value = '#ffffff';
         const lista = document.getElementById('sztp-fajl-lista');
         if (lista) lista.innerHTML = '<li>📄 Jelenleg nincs fájl</li>';
-    frissitSztpElonezet('picker');
-       return;
+        frissitSztpElonezet('picker');
+        return;
     }
 fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id)
         .then(r => r.json())
@@ -289,15 +289,14 @@ function frissitSztpElonezet(tipus) {
     }
 }
 
-async function beallitasokMentese() {
+ async function beallitasokMentese() {
     const select = document.getElementById('sztp_megnevezes');
     const fajlLista = document.getElementById('sztp-fajl-lista');
     let sablonNeve = null;
 
-    // 1. Ha vannak új fájlok a pufferben, először azokat feltöltjük
+    // 1. Ha vannak fájlok a pufferben, először feltöltjük őket a szerverre
     if (kivalasztottFajlokBuffer.length > 0) {
-        const lista = document.getElementById('sztp-fajl-lista');
-        lista.innerHTML = '<li>⏳ Feltöltés folyamatban...</li>';
+        fajlLista.innerHTML = '<li>⏳ Feltöltés folyamatban...</li>';
         
         for (let fajl of kivalasztottFajlokBuffer) {
             const formData = new FormData();
@@ -311,19 +310,17 @@ async function beallitasokMentese() {
                 if (!d.success) throw new Error(d.message);
             } catch (e) {
                 alert("Hiba a feltöltés során: " + e.message);
-                lista.innerHTML = '<li>❌ Hiba történt, mentés megszakítva.</li>';
+                fajlLista.innerHTML = '<li>❌ Hiba történt, mentés megszakítva.</li>';
                 return;
             }
         }
         
-        // Sablon név meghatározása az első fájl alapján
         const elsoFajl = kivalasztottFajlokBuffer[0];
         const relPath = elsoFajl.relPath || elsoFajl.webkitRelativePath || elsoFajl.name;
         sablonNeve = relPath.includes('/') ? relPath.split('/')[0] : relPath;
-        
-        kivalasztottFajlokBuffer = []; // Feltöltés után ürítjük a puffert
+        kivalasztottFajlokBuffer = []; // Ürítjük a puffert
     } else {
-        // Ha nincs új feltöltés, megnézzük mi van már a listában (régi fájl megtartása)
+        // Ha nincs új választás, megnézzük a már mentett fájlt
         const elsoSor = fajlLista.querySelector('li');
         if (elsoSor && !elsoSor.innerText.includes('Jelenleg nincs')) {
             const tisztaNev = elsoSor.innerText.replace('📄 ', '').replace(' (Mentésre vár...)', '').trim();
@@ -352,10 +349,10 @@ async function beallitasokMentese() {
         alert(data.message);
         if (data.success) {
             listaBetoltese();
-            if (adat.id) adatokBetoltese(adat.id); // Lista frissítése a szerverről
+            if (adat.id) adatokBetoltese(adat.id);
         }
     });
-}
+     
 function beallitasokTorlese() {
     const id = document.getElementById('sztp_id').value;
     if (!id) return alert("Nincs kiválasztva mentett beállítás!");
@@ -385,5 +382,3 @@ function szuresSztpMegnevezesre(szo) {
         options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
     }
 }
-
-
