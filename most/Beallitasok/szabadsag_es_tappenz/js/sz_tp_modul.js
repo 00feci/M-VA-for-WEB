@@ -45,11 +45,17 @@ function szTpModulBetoltese() {
                 </div>
             </div>
             
-           <div style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
-                <button onclick="feltoltoModalMegnyitasa()" 
-                        style="width: 100%; padding: 10px; background: #2196F3; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    📁 Sablon feltöltése / módosítása
-                </button>
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: flex; gap: 8px;">
+                    <button onclick="feltoltoModalMegnyitasa()" 
+                            style="flex: 1; padding: 10px; background: #2196F3; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
+                        📁 Sablon feltöltése
+                    </button>
+                    <button onclick="sablonModositasaOldal()" 
+                            style="flex: 1; padding: 10px; background: #607d8b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
+                        ✏️ Sablon módosítása
+                    </button>
+                </div>
                 <div style="background: #fff; border: 1px solid #eee; padding: 10px; border-radius: 4px;">
                     <ul id="sztp-fajl-lista" style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: #555; line-height: 1.6;">
                         <li>📄 Jelenleg nincs fájl</li>
@@ -239,6 +245,12 @@ function feltoltoModalBezaras() {
     document.getElementById('sztp-feltolto-modal').style.display = 'none';
 }
 
+function sablonModositasaOldal() {
+    // Ez a függvény kezeli majd az új oldal megnyitását a fájlfa nézettel
+    console.log("Sablon módosítása oldal megnyitása...");
+    alert("Hamarosan: Sablon szerkesztő felület fájlfa nézettel.");
+}
+
 function megnevezesekMentese() {
     const szoveg = document.getElementById('sztp_tomeges_bevitel').value;
     const elemek = szoveg.split(/[\n,]/).map(item => item.trim()).filter(item => item !== "");
@@ -392,5 +404,6 @@ function szuresSztpMegnevezesre(szo) {
         options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
     }
 }
+
 
 
