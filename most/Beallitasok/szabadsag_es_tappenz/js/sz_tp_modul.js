@@ -87,7 +87,11 @@ function inicializalFeltoltot() {
     const zona = document.getElementById('sztp-feltolto-zona');
     if (!zona) return;
 
-    // A zónára kattintás már nem indít alapértelmezett mappaválasztást, a gombok kezelik
+    // A zónára kattintás alapértelmezetten fájlokat tallóz (hogy ne legyen vak)
+    zona.onclick = (e) => {
+        if (e.target.tagName !== 'BUTTON') sztpTallozas(false);
+    };
+
     zona.ondragover = e => { e.preventDefault(); zona.style.background = '#e1f0ff'; };
     zona.ondragleave = () => { zona.style.background = '#f0f7ff'; };
     zona.ondrop = async e => {
@@ -104,16 +108,16 @@ function inicializalFeltoltot() {
         }
         sztpFajlokFeltoltese(mindenFajl);
     };
-}
-  function sztpTallozas(mappaMod) {
+    
+function sztpTallozas(mappaMod) {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.doc,.docx';
     input.multiple = true;
-    if (mappaMod) input.webkitdirectory = true;
+    if (mappaMod) input.webkitdirectory = true; // Csak akkor mappa mód, ha azt kértük
     input.onchange = e => sztpFajlokFeltoltese(Array.from(e.target.files));
     input.click();
-}  
+}
     zona.ondragover = e => { e.preventDefault(); zona.style.background = '#e1f0ff'; };
     zona.ondragleave = () => { zona.style.background = '#f0f7ff'; };
     zona.ondrop = async e => {
