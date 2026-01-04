@@ -108,13 +108,14 @@ function inicializalFeltoltot() {
         }
         sztpFajlokFeltoltese(mindenFajl);
     };
-    
+}
+
 function sztpTallozas(mappaMod) {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.doc,.docx';
     input.multiple = true;
-    if (mappaMod) input.webkitdirectory = true; // Csak akkor mappa mód, ha azt kértük
+    if (mappaMod) input.webkitdirectory = true;
     input.onchange = e => sztpFajlokFeltoltese(Array.from(e.target.files));
     input.click();
 }
@@ -369,3 +370,4 @@ function szuresSztpMegnevezesre(szo) {
         options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
     }
 }
+
