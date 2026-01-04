@@ -339,9 +339,22 @@ function frissitSztpElonezet(tipus) {
     }
 }
 
- async function beallitasokMentese(modalbol = false) {
+async function beallitasokMentese(modalbol = false) {
     const select = document.getElementById('sztp_megnevezes');
     const fajlLista = document.getElementById('sztp-fajl-lista');
+    
+    // Előbb definiáljuk az adatokat, hogy a feltöltésnél is elérjük a megnevezést
+    const adat = {
+        id: document.getElementById('sztp_id').value,
+        megnevezes: select.options[select.selectedIndex]?.text,
+        kod: document.getElementById('sztp_kod').value,
+        szin: document.getElementById('sztp_szin').value,
+        sablon_neve: null, // Később frissítjük
+        extra_adatok: [] 
+    };
+
+    if (!adat.megnevezes || select.selectedIndex === 0) return alert("Válassz vagy adj hozzá megnevezést!");
+
     let sablonNeve = null;
 
     // 1. Ha vannak fájlok a pufferben, először feltöltjük őket a szerverre
@@ -351,7 +364,7 @@ function frissitSztpElonezet(tipus) {
         for (let fajl of kivalasztottFajlokBuffer) {
             const formData = new FormData();
             formData.append('sablon', fajl);
-            formData.append('megnevezes', adat.megnevezes); // Átadjuk a mappanevet
+            formData.append('megnevezes', adat.megnevezes); // Így már elérhető a változó
             const relPath = fajl.relPath || fajl.webkitRelativePath || fajl.name;
             formData.append('relativ_utvonal', relPath);
             
@@ -369,9 +382,8 @@ function frissitSztpElonezet(tipus) {
         const elsoFajl = kivalasztottFajlokBuffer[0];
         const relPath = elsoFajl.relPath || elsoFajl.webkitRelativePath || elsoFajl.name;
         sablonNeve = relPath.includes('/') ? relPath.split('/')[0] : relPath;
-        kivalasztottFajlokBuffer = []; // Ürítjük a puffert
+        kivalasztottFajlokBuffer = [];
     } else {
-        // Ha nincs új választás, megnézzük a már mentett fájlt
         const elsoSor = fajlLista.querySelector('li');
         if (elsoSor && !elsoSor.innerText.includes('Jelenleg nincs')) {
             const tisztaNev = elsoSor.innerText.replace('📄 ', '').replace(' (Mentésre vár...)', '').trim();
@@ -379,16 +391,7 @@ function frissitSztpElonezet(tipus) {
         }
     }
 
-    const adat = {
-        id: document.getElementById('sztp_id').value,
-        megnevezes: select.options[select.selectedIndex]?.text,
-        kod: document.getElementById('sztp_kod').value,
-        szin: document.getElementById('sztp_szin').value,
-        sablon_neve: sablonNeve,
-        extra_adatok: [] 
-    };
-
-    if (!adat.megnevezes || select.selectedIndex === 0) return alert("Válassz vagy adj hozzá megnevezést!");
+    adat.sablon_neve = sablonNeve; // Itt adjuk hozzá a mentés előtt
 
     fetch('Beallitasok/szabadsag_es_tappenz/sztp_mentes.php', {
         method: 'POST',
@@ -500,5 +503,6 @@ async function sztpElemTorlese(utvonal) {
         } catch (e) { console.error(e); }
     }
 }
+
 
 
