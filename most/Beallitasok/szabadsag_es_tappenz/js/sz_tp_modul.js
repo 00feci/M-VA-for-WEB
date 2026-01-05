@@ -604,20 +604,36 @@ async function hivatkozasokOldalMegnyitasa() {
 
     mintaAdatokBetoltese();
 }
-function mintaAdatokBetoltese() {
-    // Ez a függvény tölti majd fel a bal oldali táblázatot az SQL oszlopokkal és adatokkal
+async function mintaAdatokBetoltese() {
     const tbody = document.getElementById('sztp-minta-adatok-test');
-    // Példa statikus feltöltés, amíg a PHP nincs kész:
-    tbody.innerHTML = `
-        <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Név</td><td style="padding: 8px; border: 1px solid #ddd;">Alma (Minta)</td></tr>
-        <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">születés dátum</td><td style="padding: 8px; border: 1px solid #ddd;">2023.01.10</td></tr>
-        <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">státusz_dátum</td><td style="padding: 8px; border: 1px solid #ddd;">2025.12.30 10:00</td></tr>
-    `;
+    if (!tbody) return;
+    
+    try {
+        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_minta_adatok.php');
+        const d = await r.json();
+        
+        if (d.success && d.adat) {
+            let html = '';
+            // Végigmegyünk az összes SQL oszlopon, amit a PHP visszaadott
+            for (const [kulcs, ertek] of Object.entries(d.adat)) {
+                html += `<tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #333; font-weight: bold; color: #9c27b0;">${kulcs}</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #333; color: #ddd;">${ertek || '-'}</td>
+                </tr>`;
+            }
+            tbody.innerHTML = html;
+        } else {
+            tbody.innerHTML = `<tr><td colspan="2" style="text-align: center; padding: 20px; color: #f44336;">${d.message || 'Hiba az adatok betöltésekor'}</td></tr>`;
+        }
+    } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="2" style="text-align: center; padding: 20px; color: #f44336;">Hálózati hiba történt.</td></tr>`;
+    }
 }
 
 function ujHivatkozasPopup() {
     alert("Itt nyílik majd meg a popup a választómezővel és képletépítővel.");
 }
+
 
 
 
