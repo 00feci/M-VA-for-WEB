@@ -788,7 +788,6 @@ async function hivatkozasokListazasa() {
         }
     } catch (e) { console.error("Hiba a listázásnál:", e); }
 }
-
 async function hivatkozasTorlese(id) {
     if (!confirm("Biztosan törlöd ezt a hivatkozást?")) return;
     try {
@@ -802,4 +801,3 @@ async function hivatkozasTorlese(id) {
         alert(d.message);
     } catch (e) { alert("Hiba a törlés során!"); }
 }
-
