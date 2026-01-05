@@ -46,14 +46,20 @@ function szTpModulBetoltese() {
             </div>
             
          <div style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
-                <div style="display: flex; gap: 8px;">
-                    <button id="btn-sztp-feltoltes" onclick="feltoltoModalMegnyitasa()" disabled
-                            style="flex: 1; padding: 10px; background: #ccc; color: white; border: none; border-radius: 6px; cursor: not-allowed; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
-                        📁 Sablon feltöltése / felülírása
-                    </button>
-                   <button id="btn-sztp-kezeles" onclick="sablonKezeleseOldal()" disabled
-                            style="flex: 1; padding: 10px; background: #ccc; color: white; border: none; border-radius: 6px; cursor: not-allowed; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
-                        ✏️ Sablon kezelése
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; gap: 8px;">
+                        <button id="btn-sztp-feltoltes" onclick="feltoltoModalMegnyitasa()" disabled
+                                style="flex: 1; padding: 10px; background: #ccc; color: white; border: none; border-radius: 6px; cursor: not-allowed; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
+                            📁 Sablon feltöltése
+                        </button>
+                        <button id="btn-sztp-kezeles" onclick="sablonKezeleseOldal()" disabled
+                                style="flex: 1; padding: 10px; background: #ccc; color: white; border: none; border-radius: 6px; cursor: not-allowed; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
+                            ✏️ Sablon kezelése
+                        </button>
+                    </div>
+                    <button id="btn-sztp-hivatkozasok" onclick="hivatkozasokOldalMegnyitasa()" disabled
+                            style="width: 100%; padding: 10px; background: #ccc; color: white; border: none; border-radius: 6px; cursor: not-allowed; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
+                        🔗 Hivatkozások és értékek
                     </button>
                 </div>
                 <div style="background: #fff; border: 1px solid #eee; padding: 10px; border-radius: 4px;">
@@ -210,12 +216,11 @@ function listaBetoltese() {
 function adatokBetoltese(id) {
     kivalasztottFajlokBuffer = []; 
     const idInput = document.getElementById('sztp_id');
-    
-    // Csak akkor futunk tovább, ha a főoldalon vagyunk (megelőzzük a SyntaxError-t és TypeError-t)
     if (!idInput) return;
 
     const btnFeltolt = document.getElementById('btn-sztp-feltoltes');
     const btnKezel = document.getElementById('btn-sztp-kezeles');
+    const btnHiv = document.getElementById('btn-sztp-hivatkozasok');
 
     if (!id) {
         idInput.value = '';
@@ -225,8 +230,7 @@ function adatokBetoltese(id) {
         const lista = document.getElementById('sztp-fajl-lista');
         if (lista) lista.innerHTML = '<li>📄 Jelenleg nincs fájl</li>';
         
-        if (btnFeltolt) { btnFeltolt.disabled = true; btnFeltolt.style.background = '#ccc'; btnFeltolt.style.cursor = 'not-allowed'; }
-        if (btnKezel) { btnKezel.disabled = true; btnKezel.style.background = '#ccc'; btnKezel.style.cursor = 'not-allowed'; }
+        [btnFeltolt, btnKezel, btnHiv].forEach(b => { if(b) { b.disabled = true; b.style.background = '#ccc'; b.style.cursor = 'not-allowed'; }});
 
         frissitSztpElonezet('picker');
         return;
@@ -234,6 +238,8 @@ function adatokBetoltese(id) {
 
     if (btnFeltolt) { btnFeltolt.disabled = false; btnFeltolt.style.background = '#2196F3'; btnFeltolt.style.cursor = 'pointer'; }
     if (btnKezel) { btnKezel.disabled = false; btnKezel.style.background = '#607d8b'; btnKezel.style.cursor = 'pointer'; }
+    if (btnHiv) { btnHiv.disabled = false; btnHiv.style.background = '#9c27b0'; btnHiv.style.cursor = 'pointer'; }
+    
 fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id)
         .then(r => r.json())
         .then(data => {
@@ -559,3 +565,4 @@ function sztpGyorsFeltoltesInditasa(utvonal, mappaE, kategoria) {
     };
     input.click();
 }
+
