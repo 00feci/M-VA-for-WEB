@@ -656,14 +656,24 @@ async function hivatkozasokOldalMegnyitasa() {
                             <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Hivatkozás neve:</label>
                             <input type="text" id="hiv_nev" placeholder="pl: <Öregség>" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
                         </div>
-                        <div style="flex: 1;">
+                       <div style="flex: 1;">
                             <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">SQL forrás oszlop:</label>
                             <select id="hiv_sql_oszlop" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;"></select>
                         </div>
                     </div>
-                    <div>
-                        <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Művelet / Logika (pl: +60.00.00):</label>
-                        <input type="text" id="hiv_logika" placeholder="+00.00.00" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                    <div style="display: flex; gap: 10px;">
+                        <div style="width: 180px;">
+                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Művelet típusa:</label>
+                            <select id="hiv_muvelet_tipus" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                                <option value="add">➕ Érték növelése</option>
+                                <option value="sub">➖ Érték csökkentése</option>
+                                <option value="txt">🔤 Szöveg hozzátoldása</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Érték / Logika:</label>
+                            <input type="text" id="hiv_logika" placeholder="pl: 60.00.00 vagy ' év'" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                        </div>
                     </div>
                     <button onclick="hivatkozasMentese()" style="width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Hozzáadás a listához</button>
                 </div>
@@ -792,3 +802,4 @@ async function hivatkozasTorlese(id) {
         alert(d.message);
     } catch (e) { alert("Hiba a törlés során!"); }
 }
+
