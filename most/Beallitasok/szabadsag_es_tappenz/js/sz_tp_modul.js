@@ -53,15 +53,11 @@ function szTpModulBetoltese() {
                             📁 Sablon feltöltése
                         </button>
                         <button id="btn-sztp-kezeles" onclick="sablonKezeleseOldal()" disabled
-                                style="flex: 1; padding: 10px; background: #ccc; color: white; border: none; border-radius: 6px; cursor: not-allowed; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
-                            ✏️ Sablon kezelése
-                        </button>
-                    </div>
-                    <button id="btn-sztp-hivatkozasok" onclick="hivatkozasokOldalMegnyitasa()" disabled
-                            style="width: 100%; padding: 10px; background: #ccc; color: white; border: none; border-radius: 6px; cursor: not-allowed; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
-                        🔗 Hivatkozások és értékek
+                            style="flex: 1; padding: 10px; background: #ccc; color: white; border: none; border-radius: 6px; cursor: not-allowed; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
+                        ✏️ Sablon kezelése
                     </button>
                 </div>
+            </div>
                 <div style="background: #fff; border: 1px solid #eee; padding: 10px; border-radius: 4px;">
                     <ul id="sztp-fajl-lista" style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: #555; line-height: 1.6;">
                         <li>📄 Jelenleg nincs fájl</li>
@@ -220,7 +216,6 @@ function adatokBetoltese(id) {
 
     const btnFeltolt = document.getElementById('btn-sztp-feltoltes');
     const btnKezel = document.getElementById('btn-sztp-kezeles');
-    const btnHiv = document.getElementById('btn-sztp-hivatkozasok');
 
     if (!id) {
         idInput.value = '';
@@ -230,7 +225,7 @@ function adatokBetoltese(id) {
         const lista = document.getElementById('sztp-fajl-lista');
         if (lista) lista.innerHTML = '<li>📄 Jelenleg nincs fájl</li>';
         
-        [btnFeltolt, btnKezel, btnHiv].forEach(b => { if(b) { b.disabled = true; b.style.background = '#ccc'; b.style.cursor = 'not-allowed'; }});
+        [btnFeltolt, btnKezel].forEach(b => { if(b) { b.disabled = true; b.style.background = '#ccc'; b.style.cursor = 'not-allowed'; }});
 
         frissitSztpElonezet('picker');
         return;
@@ -238,7 +233,6 @@ function adatokBetoltese(id) {
 
     if (btnFeltolt) { btnFeltolt.disabled = false; btnFeltolt.style.background = '#2196F3'; btnFeltolt.style.cursor = 'pointer'; }
     if (btnKezel) { btnKezel.disabled = false; btnKezel.style.background = '#607d8b'; btnKezel.style.cursor = 'pointer'; }
-    if (btnHiv) { btnHiv.disabled = false; btnHiv.style.background = '#9c27b0'; btnHiv.style.cursor = 'pointer'; }
     
 fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id)
         .then(r => r.json())
@@ -316,8 +310,9 @@ function injektalGombokat() {
     const sor = document.getElementById('modul-gomb-sor');
     if (!sor) return;
     sor.innerHTML = ''; // Előző gombok törlése
-   const gombok = [
+  const gombok = [
         { felirat: '🔙 Vissza', szin: '#607d8b', akcio: () => navigacio('fomenu') },
+        { felirat: '🔗 Hivatkozások', szin: '#9c27b0', akcio: hivatkozasokOldalMegnyitasa },
         { felirat: '💾 Mentés', szin: '#4CAF50', akcio: beallitasokMentese },
         { felirat: '🗑️ Törlés', szin: '#f44336', akcio: beallitasokTorlese }
     ];
@@ -556,7 +551,7 @@ function sztpGyorsFeltoltesInditasa(utvonal, mappaE, kategoria) {
         formData.append('megnevezes', megnevezes);
         formData.append('relativ_utvonal', relPath);
 
-        try {
+       try {
             const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_feltoltes.php', { method: 'POST', body: formData });
             const d = await r.json();
             alert(d.message);
@@ -565,4 +560,10 @@ function sztpGyorsFeltoltesInditasa(utvonal, mappaE, kategoria) {
     };
     input.click();
 }
+
+function hivatkozasokOldalMegnyitasa() {
+    console.log("Hivatkozások és értékek oldal megnyitása...");
+    // Ide építjük majd a táblázatot és a kalkulátort
+}
+
 
