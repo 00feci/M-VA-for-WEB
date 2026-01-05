@@ -28,8 +28,15 @@ try {
         foreach ($files as $file) {
             if ($file === '.' || $file === '..' || in_array($file, $filter)) continue;
             
-            $path = $dir . $file;
-            $mtime = file_exists($path) ? date("Y.m.d H:i:s", filemtime($path)) : '-';
+          $path = $dir . $file;
+            // Kényszerített időzóna-alapú formázás a helyes magyar időhöz
+            $mtime = '-';
+            if (file_exists($path)) {
+                $dt = new DateTime();
+                $dt->setTimestamp(filemtime($path));
+                $dt->setTimezone(new DateTimeZone('Europe/Budapest'));
+                $mtime = $dt->format('Y.m.d H:i:s');
+            }
             
             if (is_dir($path)) {
                 $path .= "/";
