@@ -569,9 +569,10 @@ async function hivatkozasokOldalMegnyitasa() {
         gombSor.innerHTML = `<div class="dashboard-gomb" style="flex: 1; background: #607d8b; color: white;" onclick="szTpModulBetoltese()">🔙 Vissza a beállításokhoz</div>`;
     }
 
+    // max-height és overflow-y hozzáadása a görgethetőségért
     kontener.innerHTML = `
-        <div style="padding: 15px; background: #121212; min-height: 500px; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px;">
+        <div style="padding: 15px; background: #121212; max-height: 70vh; overflow-y: auto; border-radius: 8px; scrollbar-width: thin; scrollbar-color: #444 #121212;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; position: sticky; top: 0; background: #121212; z-index: 10;">
                 <h3 style="margin: 0; color: white; font-size: 1.1em;">🔗 Hivatkozások leképezése és számítások</h3>
                 <button onclick="ujHivatkozasPopup()" style="padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85em;">+ Új hivatkozás létrehozása</button>
             </div>
@@ -633,6 +634,7 @@ async function mintaAdatokBetoltese() {
 function ujHivatkozasPopup() {
     alert("Itt nyílik majd meg a popup a választómezővel és képletépítővel.");
 }
+
 
 
 
