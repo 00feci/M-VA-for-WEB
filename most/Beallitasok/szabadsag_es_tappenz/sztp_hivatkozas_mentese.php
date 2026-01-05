@@ -2,12 +2,28 @@
 header('Content-Type: application/json');
 require_once $_SERVER['DOCUMENT_ROOT'] . '/Iroda/sql_config.php';
 try {
-    $pdo = csatlakozasSzerver1();
+    $pdo = csatlakozasSzerver1(); // A beállítások a szerver1-en vannak
     $data = json_decode(file_get_contents('php://input'), true);
-    // Tábla létrehozása ha nem létezik
-    $pdo->exec("CREATE TABLE IF NOT EXISTS sztp_hivatkozasok (id INT AUTO_INCREMENT PRIMARY KEY, nev VARCHAR(255), oszlop VARCHAR(255), logika VARCHAR(255))");
-    $stmt = $pdo->prepare("INSERT INTO sztp_hivatkozasok (nev, oszlop, logika) VALUES (?, ?, ?)");
-    $stmt->execute([$data['nev'], $data['oszlop'], $data['logika']]);
-    echo json_encode(['success' => true, 'message' => 'Hivatkozás mentve!']);
+
+    // Lekérjük a globális hivatkozásokat tároló rekordot
+    $stmt = $pdo->prepare("SELECT extra_adatok FROM szabadsag_es_tappenz_beallitasok WHERE megnevezes = 'RENDSZER_HIVATKOZASOK'");
+    $stmt->execute();
+    $sor = $stmt->fetch(PDO::FETCH_ASSOC);
+    $lista = $sor ? json_decode($sor['extra_adatok'], true) : [];
+
+    // Új elem hozzáadása (egyedi ID generálásával)
+    $ujId = time();
+    $lista[] = ['id' => $ujId, 'nev' => $data['nev'], 'oszlop' => $data['oszlop'], 'logika' => $data['logika']];
+    $jsonLista = json_encode($lista, JSON_UNESCAPED_UNICODE);
+
+    if ($sor) {
+        $stmt = $pdo->prepare("UPDATE szabadsag_es_tappenz_beallitasok SET extra_adatok = ? WHERE megnevezes = 'RENDSZER_HIVATKOZASOK'");
+        $stmt->execute([$jsonLista]);
+    } else {
+        $stmt = $pdo->prepare("INSERT INTO szabadsag_es_tappenz_beallitasok (megnevezes, extra_adatok, kod, hex_szin) VALUES ('RENDSZER_HIVATKOZASOK', ?, 'SYSTEM', '#000000')");
+        $stmt->execute([$jsonLista]);
+    }
+
+    echo json_encode(['success' => true, 'message' => 'Hivatkozás mentve az extra_adatokba!']);
 } catch (Exception $e) { echo json_encode(['success' => false, 'message' => $e->getMessage()]); }
 ?>
