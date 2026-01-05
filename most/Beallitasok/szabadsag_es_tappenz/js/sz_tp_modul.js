@@ -209,9 +209,9 @@ function listaBetoltese() {
 
 function adatokBetoltese(id) {
     kivalasztottFajlokBuffer = []; 
-    // Ellenőrizzük, hogy a főoldalon vagyunk-e, különben nem futtatjuk
+    // Ha a fa-nézetben vagyunk, az elemek hiánya miatt megállunk, megelőzve a TypeError-t
     const idInput = document.getElementById('sztp_id');
-    if (!idInput) return;
+    if (!idInput || idInput.type === 'undefined') return;
 
     const btnFeltolt = document.getElementById('btn-sztp-feltoltes');
     const btnKezel = document.getElementById('btn-sztp-kezeles');
@@ -479,7 +479,7 @@ async function sablonKezeleseOldal(frissitendoMappa = null) {
     } catch (e) { console.error(e); }
 }
 
-function renderelFa(elemek) {
+function renderelFa(elemek, aktualisKategoria) {
     if (!elemek || elemek.length === 0) return '<p style="color: #666;">A mappa üres.</p>';
     let html = '<ul style="list-style: none; padding-left: 20px; line-height: 2.2;">';
     elemek.forEach(i => {
@@ -494,18 +494,18 @@ function renderelFa(elemek) {
             
          <span style="display: inline-flex; gap: 12px; align-items: center; margin-left: 10px; vertical-align: middle;">
                 ${i.type === 'file' ? `<a href="/Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/${kodoltUtvonal}" download style="text-decoration: none; font-size: 1.25em;" title="Letöltés">📥</a>` : ''}
-                <button onclick="sztpGyorsFeltoltesInditasa('${tisztaUtvonal}', ${i.type === 'folder'})" style="border: none; background: none; cursor: pointer; color: #4CAF50; font-size: 1.25em; padding: 0;" title="Feltöltés / Felülírás">📤</button>
-                <button onclick="sztpElemTorlese('${tisztaUtvonal}')" style="border: none; background: none; cursor: pointer; color: #f44336; font-size: 1.2em; padding: 0;" title="Törlés">🗑️</button>
+                <button onclick="sztpGyorsFeltoltesInditasa('${tisztaUtvonal}', ${i.type === 'folder'}, '${aktualisKategoria}')" style="border: none; background: none; cursor: pointer; color: #4CAF50; font-size: 1.25em; padding: 0;" title="Feltöltés / Felülírás">📤</button>
+                <button onclick="sztpElemTorlese('${tisztaUtvonal}', '${aktualisKategoria}')" style="border: none; background: none; cursor: pointer; color: #f44336; font-size: 1.2em; padding: 0;" title="Törlés">🗑️</button>
             </span>
             ${datumHtml}
-            ${i.children ? renderelFa(i.children) : ''}
+            ${i.children ? renderelFa(i.children, aktualisKategoria) : ''}
         </li>`;
     });
     html += '</ul>';
     return html;
 }
 
-async function sztpElemTorlese(utvonal) {
+async function sztpElemTorlese(utvonal, kategoria) {
     if (confirm("BIZTOSAN törölni szeretnéd ezt az elemet?\n" + utvonal)) {
         try {
             const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_fajl_torlese.php', {
@@ -515,7 +515,7 @@ async function sztpElemTorlese(utvonal) {
             });
             const d = await r.json();
             if (d.success) {
-                sablonKezeleseOldal(); 
+                sablonKezeleseOldal(kategoria); // Megtartjuk az aktuális mappát
             } else {
                 alert("Hiba: " + d.message);
             }
@@ -523,7 +523,7 @@ async function sztpElemTorlese(utvonal) {
     }
 }
 
-function sztpGyorsFeltoltesInditasa(utvonal, mappaE) {
+function sztpGyorsFeltoltesInditasa(utvonal, mappaE, kategoria) {
     const input = document.createElement('input');
     input.type = 'file';
     input.onchange = async e => {
@@ -533,24 +533,30 @@ function sztpGyorsFeltoltesInditasa(utvonal, mappaE) {
         const formData = new FormData();
         formData.append('sablon', fajl);
         
-        const reszek = utvonal.split('/');
-        let megnevezes = reszek[0] || "Vegyes";
-        // Ha fájlra kattintott (felülírás), az eredeti relatív utat használjuk, különben csak a fájlnevet a mappába
-        let relPath = mappaE ? fajl.name : (reszek.slice(1).join('/') || fajl.name);
+        const reszek = utvonal.split('/').filter(p => p !== "");
+        let megnevezes = kategoria || reszek[0] || "Vegyes";
+        
+        // Ha mappára kattintottunk, beleillesztjük a fájlt, ha fájlra, akkor felülírjuk
+        let relPath = "";
+        if (mappaE) {
+            relPath = utvonal.replace(megnevezes + "/", "") + fajl.name;
+        } else {
+            relPath = utvonal.replace(megnevezes + "/", "");
+        }
 
         formData.append('megnevezes', megnevezes);
         formData.append('relativ_utvonal', relPath);
 
-       try {
+        try {
             const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_feltoltes.php', { method: 'POST', body: formData });
             const d = await r.json();
             alert(d.message);
-            // Frissítéskor átadjuk a mappanevet, hogy ne legyen "üres" a nézet
             if (d.success) sablonKezeleseOldal(megnevezes);
         } catch (err) { alert("Hiba a feltöltés során!"); }
     };
     input.click();
 }
+
 
 
 
