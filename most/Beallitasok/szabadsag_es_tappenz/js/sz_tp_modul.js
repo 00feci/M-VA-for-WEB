@@ -474,7 +474,7 @@ async function sablonKezeleseOldal(frissitendoMappa = null) {
         const d = await r.json();
         if (d.success) {
             const faKontener = document.getElementById('sztp-fajl-fa');
-            faKontener.innerHTML = renderelFa(d.tree);
+            faKontener.innerHTML = renderelFa(d.tree, megnevezesValue);
         }
     } catch (e) { console.error(e); }
 }
@@ -556,6 +556,7 @@ function sztpGyorsFeltoltesInditasa(utvonal, mappaE, kategoria) {
     };
     input.click();
 }
+
 
 
 
