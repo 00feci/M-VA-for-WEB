@@ -758,7 +758,6 @@ async function hivatkozasokListazasa() {
         const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_hivatkozasok_lekerese.php');
         const d = await r.json();
         if (d.success) {
-          if (d.success) {
             const ikonok = { add: '➕', sub: '➖', txt: '🔤' };
             const html = d.lista.map(i => `
                 <tr style="border-bottom: 1px solid #333;">
@@ -771,14 +770,13 @@ async function hivatkozasokListazasa() {
             `).join('');
             tbody.innerHTML = html;
             
-            // A főoldali listát is frissítjük
             if (foLista) {
                 foLista.innerHTML = d.lista.length > 0 
-                    ? d.lista.map(i => `<li style="padding: 5px 10px; border-bottom: 1px solid #333;"><b style="color: #2196F3;">${i.nev}</b>: ${i.oszlop} ${i.logika}</li>`).join('')
+                    ? d.lista.map(i => `<li style="padding: 5px 10px; border-bottom: 1px solid #333;"><b style="color: #2196F3;">${i.nev}</b>: ${i.oszlop} <span style="color: #4CAF50;">${ikonok[i.tipus] || ''}</span> ${i.logika}</li>`).join('')
                     : '<li style="color: #666; font-style: italic; padding: 10px;">Nincs még létrehozott hivatkozás.</li>';
             }
         }
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error("Hiba a listázásnál:", e); }
 }
 
 async function hivatkozasTorlese(id) {
@@ -787,11 +785,10 @@ async function hivatkozasTorlese(id) {
         const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_hivatkozas_torlese.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id })
+            body: JSON.stringify({ id: id })
         });
         const d = await r.json();
         if (d.success) hivatkozasokListazasa();
         alert(d.message);
     } catch (e) { alert("Hiba a törlés során!"); }
 }
-
