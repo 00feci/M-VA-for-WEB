@@ -98,6 +98,40 @@ function szTpModulBetoltese() {
                     <button onclick="modalBezaras()" style="padding: 8px 15px; cursor: pointer; border-radius: 4px; background: #eee; border: 1px solid #ccc;">Mégse</button>
                     <button onclick="megnevezesekMentese()" style="padding: 8px 20px; cursor: pointer; border-radius: 4px; background: #4CAF50; color: white; border: none; font-weight: bold;">Frissítés</button>
                 </div>
+          </div>
+        </div>
+
+        <div id="sztp-hivatkozas-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center;">
+            <div style="background: #1e1e1e; color: white; padding: 25px; border-radius: 12px; width: 600px; border: 1px solid #333; box-shadow: 0 15px 40px rgba(0,0,0,0.6);">
+                <h3 style="margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;">🔗 Hivatkozás és szabály létrehozása</h3>
+                
+                <div style="display: flex; flex-direction: column; gap: 15px; margin: 20px 0;">
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Hivatkozás neve:</label>
+                            <input type="text" id="hiv_nev" placeholder="pl: <Öregség>" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">SQL forrás oszlop:</label>
+                            <select id="hiv_sql_oszlop" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;"></select>
+                        </div>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Művelet / Logika (pl: +60.00.00):</label>
+                        <input type="text" id="hiv_logika" placeholder="+00.00.00" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                    </div>
+                    <button onclick="hivatkozasMentese()" style="width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Hozzáadás a listához</button>
+                </div>
+
+                <div style="max-height: 200px; overflow-y: auto; background: #121212; border-radius: 8px; border: 1px solid #333; padding: 10px;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85em;">
+                        <tbody id="hiv_lista_test"></tbody>
+                    </table>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button onclick="document.getElementById('sztp-hivatkozas-modal').style.display='none'" style="padding: 8px 20px; background: #444; color: white; border: none; border-radius: 4px; cursor: pointer;">Bezárás</button>
+                </div>
             </div>
         </div>
     `;
@@ -162,7 +196,8 @@ async function rekurzivFajlOlvasas(entry, path = "") {
     return fajlok;
 }
 
-let kivalasztottFajlokBuffer = []; // Átmeneti tároló a mentés előtti fájloknak
+let kivalasztottFajlokBuffer = []; 
+let aktualisSqlOszlopok = []; // 👈 Itt tároljuk az elérhető SQL oszlopneveket
 
 function sztpFajlokFeltoltese(fajlok) {
     if (!fajlok || fajlok.length === 0) return;
@@ -614,8 +649,8 @@ async function mintaAdatokBetoltese() {
         const d = await r.json();
         
         if (d.success && d.adat) {
+            aktualisSqlOszlopok = Object.keys(d.adat); // 👈 Elmentjük az oszlopneveket a választóhoz
             let html = '';
-            // Végigmegyünk az összes SQL oszlopon, amit a PHP visszaadott
             for (const [kulcs, ertek] of Object.entries(d.adat)) {
                 html += `<tr>
                     <td style="padding: 8px; border-bottom: 1px solid #333; font-weight: bold; color: #9c27b0;">${kulcs}</td>
@@ -632,11 +667,60 @@ async function mintaAdatokBetoltese() {
 }
 
 function ujHivatkozasPopup() {
-    alert("Itt nyílik majd meg a popup a választómezővel és képletépítővel.");
+    const modal = document.getElementById('sztp-hivatkozas-modal');
+    const select = document.getElementById('hiv_sql_oszlop');
+    
+    if (modal && select) {
+        // Dropdown feltöltése az SQL oszlopokkal
+        select.innerHTML = aktualisSqlOszlopok.map(o => `<option value="${o}">${o}</option>`).join('');
+        modal.style.display = 'flex';
+        hivatkozasokListazasa(); // Frissítjük a modalban lévő listát is
+    }
 }
 
+async function hivatkozasMentese() {
+    const nev = document.getElementById('hiv_nev').value;
+    const oszlop = document.getElementById('hiv_sql_oszlop').value;
+    const logika = document.getElementById('hiv_logika').value;
 
+    if (!nev) return alert("Adj meg egy hivatkozás nevet!");
 
+    const adat = { nev, oszlop, logika };
 
+    try {
+        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_hivatkozas_mentese.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(adat)
+        });
+        const d = await r.json();
+        if (d.success) {
+            document.getElementById('hiv_nev').value = '';
+            document.getElementById('hiv_logika').value = '';
+            hivatkozasokListazasa(); // Popup lista frissítése
+            // A főoldali "Aktív hivatkozások" listát is frissíteni kell majd itt
+        }
+        alert(d.message);
+    } catch (e) { alert("Hiba a mentés során!"); }
+}
 
+async function hivatkozasokListazasa() {
+    const tbody = document.getElementById('hiv_lista_test');
+    if (!tbody) return;
 
+    try {
+        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_hivatkozasok_lekerese.php');
+        const d = await r.json();
+        if (d.success) {
+            tbody.innerHTML = d.lista.map(i => `
+                <tr style="border-bottom: 1px solid #333;">
+                    <td style="padding: 8px; color: #2196F3; font-weight: bold;">${i.nev}</td>
+                    <td style="padding: 8px; color: #aaa;">${i.oszlop} ${i.logika}</td>
+                    <td style="padding: 8px; text-align: right;">
+                        <button onclick="hivatkozasTorlese(${i.id})" style="background: none; border: none; cursor: pointer; color: #f44336;">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+    } catch (e) { console.error(e); }
+}
