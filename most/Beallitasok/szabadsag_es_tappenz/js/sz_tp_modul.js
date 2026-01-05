@@ -210,11 +210,9 @@ function listaBetoltese() {
 function adatokBetoltese(id) {
     kivalasztottFajlokBuffer = []; 
     const idInput = document.getElementById('sztp_id');
-    // Csak akkor futunk tovább, ha az elem létezik (megelőzzük a TypeError-t)
+    
+    // Csak akkor futunk tovább, ha a főoldalon vagyunk (megelőzzük a SyntaxError-t és TypeError-t)
     if (!idInput) return;
-
-    const btnFeltolt = document.getElementById('btn-sztp-feltoltes');
-    if (!idInput || idInput.type === 'undefined') return;
 
     const btnFeltolt = document.getElementById('btn-sztp-feltoltes');
     const btnKezel = document.getElementById('btn-sztp-kezeles');
@@ -446,9 +444,11 @@ async function sablonKezeleseOldal(frissitendoMappa = null) {
     const kontener = document.getElementById('modul-tartalom');
     const sel = document.getElementById('sztp_megnevezes');
     
-    // Biztosítjuk, hogy a kategória soha ne legyen undefined vagy null
+    // Szigorúbb ellenőrzés a szöveges "undefined" érték ellen a fejlécben
     let megnevezesValue = "";
-    if (frissitendoMappa && frissitendoMappa !== "undefined") {
+    const isMappaValid = frissitendoMappa && String(frissitendoMappa) !== "undefined" && String(frissitendoMappa) !== "null";
+
+    if (isMappaValid) {
         megnevezesValue = frissitendoMappa;
     } else if (sel && sel.selectedIndex > 0) {
         megnevezesValue = sel.options[sel.selectedIndex].text;
@@ -559,4 +559,3 @@ function sztpGyorsFeltoltesInditasa(utvonal, mappaE, kategoria) {
     };
     input.click();
 }
-
