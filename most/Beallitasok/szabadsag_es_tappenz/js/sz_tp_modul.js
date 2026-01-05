@@ -604,7 +604,6 @@ async function hivatkozasokOldalMegnyitasa() {
         gombSor.innerHTML = `<div class="dashboard-gomb" style="flex: 1; background: #607d8b; color: white;" onclick="szTpModulBetoltese()">🔙 Vissza a beállításokhoz</div>`;
     }
 
-    // max-height és overflow-y hozzáadása a görgethetőségért
     kontener.innerHTML = `
         <div style="padding: 15px; background: #121212; max-height: 70vh; overflow-y: auto; border-radius: 8px; scrollbar-width: thin; scrollbar-color: #444 #121212;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; position: sticky; top: 0; background: #121212; z-index: 10;">
@@ -631,14 +630,49 @@ async function hivatkozasokOldalMegnyitasa() {
                 <div style="flex: 1; background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
                     <h4 style="margin-top: 0; color: #2196F3; font-size: 0.9em; border-bottom: 1px solid #444; padding-bottom: 5px;">Aktív hivatkozások és szabályok</h4>
                     <ul id="sztp-aktiv-hivatkozasok" style="list-style: none; padding: 0; margin: 0; color: #ddd; font-size: 0.85em;">
-                        <li style="color: #666; font-style: italic; padding: 10px;">Nincs még létrehozott hivatkozás.</li>
+                        <li style="color: #666; font-style: italic; padding: 10px;">⏳ Hivatkozások betöltése...</li>
                     </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="sztp-hivatkozas-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center;">
+            <div style="background: #1e1e1e; color: white; padding: 25px; border-radius: 12px; width: 600px; border: 1px solid #333; box-shadow: 0 15px 40px rgba(0,0,0,0.6);">
+                <h3 style="margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;">🔗 Hivatkozás és szabály létrehozása</h3>
+                
+                <div style="display: flex; flex-direction: column; gap: 15px; margin: 20px 0;">
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Hivatkozás neve:</label>
+                            <input type="text" id="hiv_nev" placeholder="pl: <Öregség>" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">SQL forrás oszlop:</label>
+                            <select id="hiv_sql_oszlop" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;"></select>
+                        </div>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Művelet / Logika (pl: +60.00.00):</label>
+                        <input type="text" id="hiv_logika" placeholder="+00.00.00" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                    </div>
+                    <button onclick="hivatkozasMentese()" style="width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Hozzáadás a listához</button>
+                </div>
+
+                <div style="max-height: 200px; overflow-y: auto; background: #121212; border-radius: 8px; border: 1px solid #333; padding: 10px;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85em;">
+                        <tbody id="hiv_lista_test"></tbody>
+                    </table>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button onclick="document.getElementById('sztp-hivatkozas-modal').style.display='none'" style="padding: 8px 20px; background: #444; color: white; border: none; border-radius: 4px; cursor: pointer;">Bezárás</button>
                 </div>
             </div>
         </div>
     `;
 
     mintaAdatokBetoltese();
+    hivatkozasokListazasa(); // 👈 Azonnal lekérjük a hivatkozásokat a megnyitáskor
 }
 async function mintaAdatokBetoltese() {
     const tbody = document.getElementById('sztp-minta-adatok-test');
