@@ -12,10 +12,16 @@ try {
     $lista = $sor ? json_decode($sor['extra_adatok'], true) : [];
 
     // Új elem hozzáadása (egyedi ID generálásával)
+   // Új elem hozzáadása típus információval együtt
     $ujId = time();
-    $lista[] = ['id' => $ujId, 'nev' => $data['nev'], 'oszlop' => $data['oszlop'], 'logika' => $data['logika']];
+    $lista[] = [
+        'id' => $ujId, 
+        'nev' => $data['nev'], 
+        'oszlop' => $data['oszlop'], 
+        'tipus' => $data['tipus'], // ➕ Művelet típusa
+        'logika' => $data['logika']
+    ];
     $jsonLista = json_encode($lista, JSON_UNESCAPED_UNICODE);
-
     if ($sor) {
         $stmt = $pdo->prepare("UPDATE szabadsag_es_tappenz_beallitasok SET extra_adatok = ? WHERE megnevezes = 'RENDSZER_HIVATKOZASOK'");
         $stmt->execute([$jsonLista]);
