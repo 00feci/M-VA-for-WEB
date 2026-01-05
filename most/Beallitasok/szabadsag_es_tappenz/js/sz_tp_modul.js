@@ -216,7 +216,7 @@ function adatokBetoltese(id) {
 
     const btnFeltolt = document.getElementById('btn-sztp-feltoltes');
     const btnKezel = document.getElementById('btn-sztp-kezeles');
-
+    
     if (!id) {
         idInput.value = '';
         if (document.getElementById('sztp_kod')) document.getElementById('sztp_kod').value = '';
@@ -570,42 +570,40 @@ async function hivatkozasokOldalMegnyitasa() {
     }
 
     kontener.innerHTML = `
-        <div style="padding: 20px; background: #f9f9f9; border-radius: 8px; border: 1px solid #ddd;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="margin: 0; color: #333;">🔗 Hivatkozások leképezése és számítások</h3>
-                <button onclick="ujHivatkozasPopup()" style="padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">+ Új hivatkozás létrehozása</button>
+        <div style="padding: 15px; background: #121212; min-height: 500px; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px;">
+                <h3 style="margin: 0; color: white; font-size: 1.1em;">🔗 Hivatkozások leképezése és számítások</h3>
+                <button onclick="ujHivatkozasPopup()" style="padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85em;">+ Új hivatkozás létrehozása</button>
             </div>
             
-            <div style="display: flex; gap: 30px;">
-                <div style="flex: 1; background: white; padding: 15px; border-radius: 6px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                    <h4 style="margin-top: 0; border-bottom: 2px solid #9c27b0; padding-bottom: 5px;">Adatbázis minta (Legfrissebb rekord)</h4>
-                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+            <div style="display: flex; gap: 20px;">
+                <div style="flex: 1; background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
+                    <h4 style="margin-top: 0; color: #9c27b0; font-size: 0.9em; border-bottom: 1px solid #444; padding-bottom: 5px;">Adatbázis minta (Legfrissebb rekord)</h4>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85em; color: #ddd; font-family: monospace;">
                         <thead>
-                            <tr style="background: #f2f2f2; text-align: left;">
-                                <th style="padding: 8px; border: 1px solid #ddd;">SQL oszlop</th>
-                                <th style="padding: 8px; border: 1px solid #ddd;">Aktuális adat (Példa)</th>
+                            <tr style="background: #252525; text-align: left;">
+                                <th style="padding: 10px; border-bottom: 2px solid #333;">SQL oszlop</th>
+                                <th style="padding: 10px; border-bottom: 2px solid #333;">Aktuális adat (Példa)</th>
                             </tr>
                         </thead>
                         <tbody id="sztp-minta-adatok-test">
-                            <tr><td colspan="2" style="text-align: center; padding: 20px;">⏳ Adatok betöltése...</td></tr>
+                            <tr><td colspan="2" style="text-align: center; padding: 20px; color: #666;">⏳ Adatok betöltése...</td></tr>
                         </tbody>
                     </table>
                 </div>
                 
-                <div style="flex: 1; background: white; padding: 15px; border-radius: 6px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                    <h4 style="margin-top: 0; border-bottom: 2px solid #2196F3; padding-bottom: 5px;">Aktív hivatkozások és szabályok</h4>
-                    <ul id="sztp-aktiv-hivatkozasok" style="list-style: none; padding: 0; margin: 0;">
-                        <li style="color: #888; font-style: italic;">Nincs még létrehozott hivatkozás.</li>
+                <div style="flex: 1; background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
+                    <h4 style="margin-top: 0; color: #2196F3; font-size: 0.9em; border-bottom: 1px solid #444; padding-bottom: 5px;">Aktív hivatkozások és szabályok</h4>
+                    <ul id="sztp-aktiv-hivatkozasok" style="list-style: none; padding: 0; margin: 0; color: #ddd; font-size: 0.85em;">
+                        <li style="color: #666; font-style: italic; padding: 10px;">Nincs még létrehozott hivatkozás.</li>
                     </ul>
                 </div>
             </div>
         </div>
     `;
 
-    // Itt hívjuk majd meg a minta adatok lekérését
     mintaAdatokBetoltese();
 }
-
 function mintaAdatokBetoltese() {
     // Ez a függvény tölti majd fel a bal oldali táblázatot az SQL oszlopokkal és adatokkal
     const tbody = document.getElementById('sztp-minta-adatok-test');
@@ -620,6 +618,7 @@ function mintaAdatokBetoltese() {
 function ujHivatkozasPopup() {
     alert("Itt nyílik majd meg a popup a választómezővel és képletépítővel.");
 }
+
 
 
 
