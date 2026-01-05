@@ -405,7 +405,7 @@ async function beallitasokMentese(modalbol = false) {
         alert(data.message);
         if (data.success) {
             listaBetoltese();
-            if (adat.id) adatokBetoltese(adat.id);
+            if (adat.id) (adat.id);
             if (modalbol) feltoltoModalBezaras();
         }
     });
@@ -561,9 +561,65 @@ function sztpGyorsFeltoltesInditasa(utvonal, mappaE, kategoria) {
     input.click();
 }
 
-function hivatkozasokOldalMegnyitasa() {
-    console.log("Hivatkozások és értékek oldal megnyitása...");
-    // Ide építjük majd a táblázatot és a kalkulátort
+async function hivatkozasokOldalMegnyitasa() {
+    const kontener = document.getElementById('modul-tartalom');
+    const gombSor = document.getElementById('modul-gomb-sor');
+    
+    if (gombSor) {
+        gombSor.innerHTML = `<div class="dashboard-gomb" style="flex: 1; background: #607d8b; color: white;" onclick="szTpModulBetoltese()">🔙 Vissza a beállításokhoz</div>`;
+    }
+
+    kontener.innerHTML = `
+        <div style="padding: 20px; background: #f9f9f9; border-radius: 8px; border: 1px solid #ddd;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: #333;">🔗 Hivatkozások leképezése és számítások</h3>
+                <button onclick="ujHivatkozasPopup()" style="padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">+ Új hivatkozás létrehozása</button>
+            </div>
+            
+            <div style="display: flex; gap: 30px;">
+                <div style="flex: 1; background: white; padding: 15px; border-radius: 6px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                    <h4 style="margin-top: 0; border-bottom: 2px solid #9c27b0; padding-bottom: 5px;">Adatbázis minta (Legfrissebb rekord)</h4>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+                        <thead>
+                            <tr style="background: #f2f2f2; text-align: left;">
+                                <th style="padding: 8px; border: 1px solid #ddd;">SQL oszlop</th>
+                                <th style="padding: 8px; border: 1px solid #ddd;">Aktuális adat (Példa)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sztp-minta-adatok-test">
+                            <tr><td colspan="2" style="text-align: center; padding: 20px;">⏳ Adatok betöltése...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div style="flex: 1; background: white; padding: 15px; border-radius: 6px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                    <h4 style="margin-top: 0; border-bottom: 2px solid #2196F3; padding-bottom: 5px;">Aktív hivatkozások és szabályok</h4>
+                    <ul id="sztp-aktiv-hivatkozasok" style="list-style: none; padding: 0; margin: 0;">
+                        <li style="color: #888; font-style: italic;">Nincs még létrehozott hivatkozás.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Itt hívjuk majd meg a minta adatok lekérését
+    mintaAdatokBetoltese();
 }
+
+function mintaAdatokBetoltese() {
+    // Ez a függvény tölti majd fel a bal oldali táblázatot az SQL oszlopokkal és adatokkal
+    const tbody = document.getElementById('sztp-minta-adatok-test');
+    // Példa statikus feltöltés, amíg a PHP nincs kész:
+    tbody.innerHTML = `
+        <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Név</td><td style="padding: 8px; border: 1px solid #ddd;">Alma (Minta)</td></tr>
+        <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">születés dátum</td><td style="padding: 8px; border: 1px solid #ddd;">2023.01.10</td></tr>
+        <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">státusz_dátum</td><td style="padding: 8px; border: 1px solid #ddd;">2025.12.30 10:00</td></tr>
+    `;
+}
+
+function ujHivatkozasPopup() {
+    alert("Itt nyílik majd meg a popup a választómezővel és képletépítővel.");
+}
+
 
 
