@@ -209,8 +209,11 @@ function listaBetoltese() {
 
 function adatokBetoltese(id) {
     kivalasztottFajlokBuffer = []; 
-    // Ha a fa-nézetben vagyunk, az elemek hiánya miatt megállunk, megelőzve a TypeError-t
     const idInput = document.getElementById('sztp_id');
+    // Csak akkor futunk tovább, ha az elem létezik (megelőzzük a TypeError-t)
+    if (!idInput) return;
+
+    const btnFeltolt = document.getElementById('btn-sztp-feltoltes');
     if (!idInput || idInput.type === 'undefined') return;
 
     const btnFeltolt = document.getElementById('btn-sztp-feltoltes');
@@ -443,12 +446,12 @@ async function sablonKezeleseOldal(frissitendoMappa = null) {
     const kontener = document.getElementById('modul-tartalom');
     const sel = document.getElementById('sztp_megnevezes');
     
-    // Ha frissítés van, a kapott nevet használjuk, különben a választómezőt
+    // Biztosítjuk, hogy a kategória soha ne legyen undefined vagy null
     let megnevezesValue = "";
-    if (frissitendoMappa !== null) {
+    if (frissitendoMappa && frissitendoMappa !== "undefined") {
         megnevezesValue = frissitendoMappa;
-    } else {
-        megnevezesValue = (sel && sel.selectedIndex > 0) ? sel.options[sel.selectedIndex].text : "";
+    } else if (sel && sel.selectedIndex > 0) {
+        megnevezesValue = sel.options[sel.selectedIndex].text;
     }
     const megjelenitettCim = megnevezesValue || "Sablonok";
 
@@ -479,7 +482,7 @@ async function sablonKezeleseOldal(frissitendoMappa = null) {
     } catch (e) { console.error(e); }
 }
 
-function renderelFa(elemek, aktualisKategoria) {
+function renderelFa(elemek, aktualisKategoria = "") {
     if (!elemek || elemek.length === 0) return '<p style="color: #666;">A mappa üres.</p>';
     let html = '<ul style="list-style: none; padding-left: 20px; line-height: 2.2;">';
     elemek.forEach(i => {
@@ -556,3 +559,4 @@ function sztpGyorsFeltoltesInditasa(utvonal, mappaE, kategoria) {
     };
     input.click();
 }
+
