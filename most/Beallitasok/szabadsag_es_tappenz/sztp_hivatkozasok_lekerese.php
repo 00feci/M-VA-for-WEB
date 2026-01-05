@@ -9,4 +9,5 @@ try {
     $lista = $sor ? json_decode($sor['extra_adatok'], true) : [];
     
     echo json_encode(['success' => true, 'lista' => $lista]);
+} catch (Exception $e) { echo json_encode(['success' => false, 'lista' => []]); }
 ?>
