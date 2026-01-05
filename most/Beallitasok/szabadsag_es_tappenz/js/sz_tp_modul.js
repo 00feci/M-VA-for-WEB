@@ -706,13 +706,14 @@ async function hivatkozasMentese() {
 
 async function hivatkozasokListazasa() {
     const tbody = document.getElementById('hiv_lista_test');
+    const foLista = document.getElementById('sztp-aktiv-hivatkozasok');
     if (!tbody) return;
 
     try {
         const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_hivatkozasok_lekerese.php');
         const d = await r.json();
         if (d.success) {
-            tbody.innerHTML = d.lista.map(i => `
+            const html = d.lista.map(i => `
                 <tr style="border-bottom: 1px solid #333;">
                     <td style="padding: 8px; color: #2196F3; font-weight: bold;">${i.nev}</td>
                     <td style="padding: 8px; color: #aaa;">${i.oszlop} ${i.logika}</td>
@@ -721,6 +722,28 @@ async function hivatkozasokListazasa() {
                     </td>
                 </tr>
             `).join('');
+            tbody.innerHTML = html;
+            
+            // A főoldali listát is frissítjük
+            if (foLista) {
+                foLista.innerHTML = d.lista.length > 0 
+                    ? d.lista.map(i => `<li style="padding: 5px 10px; border-bottom: 1px solid #333;"><b style="color: #2196F3;">${i.nev}</b>: ${i.oszlop} ${i.logika}</li>`).join('')
+                    : '<li style="color: #666; font-style: italic; padding: 10px;">Nincs még létrehozott hivatkozás.</li>';
+            }
         }
     } catch (e) { console.error(e); }
+}
+
+async function hivatkozasTorlese(id) {
+    if (!confirm("Biztosan törlöd ezt a hivatkozást?")) return;
+    try {
+        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_hivatkozas_torlese.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id })
+        });
+        const d = await r.json();
+        if (d.success) hivatkozasokListazasa();
+        alert(d.message);
+    } catch (e) { alert("Hiba a törlés során!"); }
 }
