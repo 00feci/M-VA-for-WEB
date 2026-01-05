@@ -3,7 +3,10 @@ header('Content-Type: application/json');
 require_once $_SERVER['DOCUMENT_ROOT'] . '/Iroda/sql_config.php';
 try {
     $pdo = csatlakozasSzerver1();
-    $stmt = $pdo->query("SELECT * FROM sztp_hivatkozasok ORDER BY id DESC");
-    echo json_encode(['success' => true, 'lista' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
-} catch (Exception $e) { echo json_encode(['success' => false, 'lista' => []]); }
+    $stmt = $pdo->prepare("SELECT extra_adatok FROM szabadsag_es_tappenz_beallitasok WHERE megnevezes = 'RENDSZER_HIVATKOZASOK'");
+    $stmt->execute();
+    $sor = $stmt->fetch(PDO::FETCH_ASSOC);
+    $lista = $sor ? json_decode($sor['extra_adatok'], true) : [];
+    
+    echo json_encode(['success' => true, 'lista' => $lista]);
 ?>
