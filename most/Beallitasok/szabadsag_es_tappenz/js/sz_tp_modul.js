@@ -659,15 +659,15 @@ async function hivatkozasokOldalMegnyitasa() {
                             <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Hivatkozás neve:</label>
                             <input type="text" id="hiv_nev" placeholder="pl: <Öregség>" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
                         </div>
-                       <div style="flex: 1;">
+                      <div style="flex: 1;">
                             <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">SQL forrás oszlop:</label>
-                            <select id="hiv_sql_oszlop" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;"></select>
+                            <select id="hiv_sql_oszlop" onchange="frissitHivatkozasElonezet()" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;"></select>
                         </div>
                     </div>
                     <div style="display: flex; gap: 10px;">
-                        <div style="width: 180px;">
-                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Művelet típusa:</label>
-                            <select id="hiv_muvelet_tipus" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                        <div style="width: 140px;">
+                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Művelet:</label>
+                            <select id="hiv_muvelet_tipus" onchange="frissitHivatkozasElonezet()" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
                                 <option value="add">➕ Összeadás (+)</option>
                                 <option value="sub">➖ Kivonás (-)</option>
                                 <option value="mul">✖️ Szorzás (*)</option>
@@ -677,9 +677,14 @@ async function hivatkozasokOldalMegnyitasa() {
                         </div>
                         <div style="flex: 1;">
                             <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Érték / Logika:</label>
-                            <input type="text" id="hiv_logika" placeholder="pl: 60 év vagy 2 nap" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                            <input type="text" id="hiv_logika" oninput="frissitHivatkozasElonezet()" placeholder="pl: 60 év vagy 2 nap" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                        </div>
+                        <div style="width: 120px;">
+                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Formátum:</label>
+                            <input type="text" id="hiv_formatum" oninput="frissitHivatkozasElonezet()" placeholder="pl: ÉÉÉÉ" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
                         </div>
                     </div>
+                    <div id="hiv_live_eredmeny" style="padding: 10px; background: #121212; border-radius: 6px; border: 1px solid #333; text-align: center; color: #ffeb3b; font-weight: bold; font-family: monospace; border-left: 4px solid #ffeb3b;">Élő eredmény: -</div>
                     <button onclick="hivatkozasMentese()" style="width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Hozzáadás a listához</button>
                 </div>
 
@@ -743,10 +748,11 @@ async function hivatkozasMentese() {
     const oszlop = document.getElementById('hiv_sql_oszlop').value;
     const tipus = document.getElementById('hiv_muvelet_tipus').value;
     const logika = document.getElementById('hiv_logika').value;
+    const formatum = document.getElementById('hiv_formatum').value;
 
     if (!nev) return alert("Adj meg egy hivatkozás nevet!");
 
-    const adat = { nev, oszlop, tipus, logika };
+    const adat = { nev, oszlop, tipus, logika, formatum };
 
     try {
         const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_hivatkozas_mentese.php', {
@@ -817,11 +823,12 @@ async function hivatkozasTorlese(id) {
     } catch (e) { alert("Hiba a törlés során!"); }
 }
 
-function szamolHivatkozasErteket(oszlop, tipus, logika) {
+function szamolHivatkozasErteket(oszlop, tipus, logika, formatum = "") {
     const alapErtek = mintaAdatRekord[oszlop];
     if (alapErtek === undefined || alapErtek === null) return "Nincs adat";
     
     let ertek = String(alapErtek).trim();
+    let vegEredmeny = "";
     let log = String(logika).toLowerCase().trim();
 
     if (tipus === 'txt') return ertek + logika;
@@ -859,10 +866,29 @@ function szamolHivatkozasErteket(oszlop, tipus, logika) {
     if (isNaN(n1)) return ertek;
 
     switch(tipus) {
-        case 'add': return (n1 + n2).toFixed(2).replace(/\.00$/, '').replace('.', ',');
-        case 'sub': return (n1 - n2).toFixed(2).replace(/\.00$/, '').replace('.', ',');
-        case 'mul': return (n1 * n2).toFixed(2).replace(/\.00$/, '').replace('.', ',');
-        case 'div': return n2 !== 0 ? (n1 / n2).toFixed(2).replace(/\.00$/, '').replace('.', ',') : "Osztás 0-val!";
-        default: return ertek;
+        case 'add': vegEredmeny = (n1 + n2).toFixed(2).replace(/\.00$/, ''); break;
+        case 'sub': vegEredmeny = (n1 - n2).toFixed(2).replace(/\.00$/, ''); break;
+        case 'mul': vegEredmeny = (n1 * n2).toFixed(2).replace(/\.00$/, ''); break;
+        case 'div': vegEredmeny = n2 !== 0 ? (n1 / n2).toFixed(2).replace(/\.00$/, '') : "Hiba"; break;
+        default: vegEredmeny = ertek;
+    }
+
+    // "A csavar": Formátum kezelése
+    if (formatum.toUpperCase() === 'ÉÉÉÉ' && vegEredmeny.includes('.')) {
+        return vegEredmeny.split('.')[0]; // Csak az évszám
+    }
+    return vegEredmeny.replace('.', ',');
+}
+
+function frissitHivatkozasElonezet() {
+    const oszlop = document.getElementById('hiv_sql_oszlop').value;
+    const tipus = document.getElementById('hiv_muvelet_tipus').value;
+    const logika = document.getElementById('hiv_logika').value;
+    const formatum = document.getElementById('hiv_formatum').value;
+    const kijelzo = document.getElementById('hiv_live_eredmeny');
+    
+    if (kijelzo) {
+        const res = szamolHivatkozasErteket(oszlop, tipus, logika, formatum);
+        kijelzo.innerText = "Élő eredmény: " + res;
     }
 }
