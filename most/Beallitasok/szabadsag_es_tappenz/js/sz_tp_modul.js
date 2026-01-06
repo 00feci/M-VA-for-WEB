@@ -120,14 +120,16 @@ function szTpModulBetoltese() {
                         <div style="width: 180px;">
                             <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Művelet típusa:</label>
                             <select id="hiv_muvelet_tipus" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
-                                <option value="add">➕ Érték növelése</option>
-                                <option value="sub">➖ Érték csökkentése</option>
-                                <option value="txt">🔤 Szöveg hozzátoldása</option>
+                                <option value="add">➕ Összeadás (+)</option>
+                                <option value="sub">➖ Kivonás (-)</option>
+                                <option value="mul">✖️ Szorzás (*)</option>
+                                <option value="div">➗ Osztás (/)</option>
+                                <option value="txt">🔤 Szöveg hozzáadása</option>
                             </select>
                         </div>
                         <div style="flex: 1;">
                             <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Érték / Logika:</label>
-                            <input type="text" id="hiv_logika" placeholder="pl: 60.00.00 vagy ' év'" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                            <input type="text" id="hiv_logika" placeholder="pl: 60 év vagy 2 nap" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
                         </div>
                     </div>
                     <button onclick="hivatkozasMentese()" style="width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Hozzáadás a listához</button>
@@ -768,7 +770,7 @@ async function hivatkozasokListazasa() {
         const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_hivatkozasok_lekerese.php');
         const d = await r.json();
         if (d.success) {
-            const ikonok = { add: '➕', sub: '➖', txt: '🔤' };
+            const ikonok = { add: '➕', sub: '➖', mul: '✖️', div: '➗', txt: '🔤' };
             const html = d.lista.map(i => `
                 <tr style="border-bottom: 1px solid #333;">
                     <td style="padding: 8px; color: #2196F3; font-weight: bold;">${i.nev}</td>
