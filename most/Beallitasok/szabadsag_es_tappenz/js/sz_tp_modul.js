@@ -208,6 +208,7 @@ async function rekurzivFajlOlvasas(entry, path = "") {
 
 let kivalasztottFajlokBuffer = []; 
 let aktualisSqlOszlopok = []; // 👈 Itt tároljuk az elérhető SQL oszlopneveket
+let mintaAdatRekord = {}; // 👈 Ebben tároljuk a teljes minta rekordot a számításokhoz
 
 function sztpFajlokFeltoltese(fajlok) {
     if (!fajlok || fajlok.length === 0) return;
@@ -704,8 +705,9 @@ async function mintaAdatokBetoltese() {
         const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_minta_adatok.php');
         const d = await r.json();
         
-        if (d.success && d.adat) {
-            aktualisSqlOszlopok = Object.keys(d.adat); // 👈 Elmentjük az oszlopneveket a választóhoz
+       if (d.success && d.adat) {
+            mintaAdatRekord = d.adat; // 👈 Mentés a számításokhoz
+            aktualisSqlOszlopok = Object.keys(d.adat);
             let html = '';
             for (const [kulcs, ertek] of Object.entries(d.adat)) {
                 html += `<tr>
@@ -771,20 +773,29 @@ async function hivatkozasokListazasa() {
         const d = await r.json();
         if (d.success) {
             const ikonok = { add: '➕', sub: '➖', mul: '✖️', div: '➗', txt: '🔤' };
-            const html = d.lista.map(i => `
+            const html = d.lista.map(i => {
+                const eredmeny = szamolHivatkozasErteket(i.oszlop, i.tipus, i.logika); // 👈 Számítás
+                return `
                 <tr style="border-bottom: 1px solid #333;">
                     <td style="padding: 8px; color: #2196F3; font-weight: bold;">${i.nev}</td>
                     <td style="padding: 8px; color: #aaa;">${i.oszlop} <span style="color: #4CAF50;">${ikonok[i.tipus] || ''}</span> ${i.logika}</td>
+                    <td style="padding: 8px; color: #ffeb3b; font-family: monospace; font-weight: bold; text-align: right;">=> ${eredmeny}</td>
                     <td style="padding: 8px; text-align: right;">
                         <button onclick="hivatkozasTorlese(${i.id})" style="background: none; border: none; cursor: pointer; color: #f44336;">🗑️</button>
                     </td>
-                </tr>
-            `).join('');
+                </tr>`;
+            }).join('');
             tbody.innerHTML = html;
             
             if (foLista) {
                 foLista.innerHTML = d.lista.length > 0 
-                    ? d.lista.map(i => `<li style="padding: 5px 10px; border-bottom: 1px solid #333;"><b style="color: #2196F3;">${i.nev}</b>: ${i.oszlop} <span style="color: #4CAF50;">${ikonok[i.tipus] || ''}</span> ${i.logika}</li>`).join('')
+                    ? d.lista.map(i => {
+                        const eredmeny = szamolHivatkozasErteket(i.oszlop, i.tipus, i.logika);
+                        return `<li style="padding: 5px 10px; border-bottom: 1px solid #333;">
+                            <b style="color: #2196F3;">${i.nev}</b>: <span style="color: #ffeb3b;">${eredmeny}</span>
+                            <div style="font-size: 0.75em; color: #777;">(${i.oszlop} ${ikonok[i.tipus] || ''} ${i.logika})</div>
+                        </li>`;
+                    }).join('')
                     : '<li style="color: #666; font-style: italic; padding: 10px;">Nincs még létrehozott hivatkozás.</li>';
             }
         }
@@ -800,6 +811,46 @@ async function hivatkozasTorlese(id) {
         });
         const d = await r.json();
         if (d.success) hivatkozasokListazasa();
-        alert(d.message);
+       alert(d.message);
     } catch (e) { alert("Hiba a törlés során!"); }
+}
+
+function szamolHivatkozasErteket(oszlop, tipus, logika) {
+    const alapErtek = mintaAdatRekord[oszlop];
+    if (alapErtek === undefined || alapErtek === null) return "Nincs adat";
+    
+    let ertek = String(alapErtek);
+    let log = String(logika).toLowerCase().trim();
+
+    // 1. Szöveg összefűzés (🔤)
+    if (tipus === 'txt') return ertek + logika;
+
+    // 2. Dátum műveletek (év/hónap/nap)
+    if (ertek.includes('-') && (log.includes('év') || log.includes('hónap') || log.includes('nap'))) {
+        let d = new Date(ertek);
+        if (isNaN(d.getTime())) return "Hibás dátum";
+        
+        let szam = parseInt(log.replace(/[^0-9]/g, '')) || 0;
+        let szorzo = (tipus === 'sub') ? -1 : 1;
+        
+        if (log.includes('év')) d.setFullYear(d.getFullYear() + (szam * szorzo));
+        if (log.includes('hónap')) d.setMonth(d.getMonth() + (szam * szorzo));
+        if (log.includes('nap')) d.setDate(d.getDate() + (szam * szorzo));
+        
+        return d.toISOString().split('T')[0].replace(/-/g, '.');
+    }
+
+    // 3. Matematikai műveletek (*, /, +, -)
+    let n1 = parseFloat(ertek.replace(',', '.'));
+    let n2 = parseFloat(log.replace(',', '.').replace(/[^0-9.]/g, '')) || 0;
+    
+    if (isNaN(n1)) return ertek; // Ha nem szám, adjuk vissza az eredetit
+
+    switch(tipus) {
+        case 'add': return (n1 + n2).toString().replace('.', ',');
+        case 'sub': return (n1 - n2).toString().replace('.', ',');
+        case 'mul': return (n1 * n2).toString().replace('.', ',');
+        case 'div': return n2 !== 0 ? (n1 / n2).toFixed(2).replace('.', ',') : "Osztás 0-val!";
+        default: return ertek;
+    }
 }
