@@ -18,8 +18,9 @@ try {
         'id' => $ujId, 
         'nev' => $data['nev'], 
         'oszlop' => $data['oszlop'], 
-        'tipus' => $data['tipus'], // ➕ Művelet típusa
-        'logika' => $data['logika']
+        'tipus' => $data['tipus'],
+        'logika' => $data['logika'],
+        'formatum' => $data['formatum'] // ➕ Formátum mentése
     ];
     $jsonLista = json_encode($lista, JSON_UNESCAPED_UNICODE);
     if ($sor) {
