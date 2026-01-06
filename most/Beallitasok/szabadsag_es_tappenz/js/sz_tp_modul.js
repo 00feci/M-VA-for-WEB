@@ -120,14 +120,16 @@ function szTpModulBetoltese() {
                         <div style="width: 180px;">
                             <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Művelet típusa:</label>
                             <select id="hiv_muvelet_tipus" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
-                                <option value="add">➕ Érték növelése</option>
-                                <option value="sub">➖ Érték csökkentése</option>
-                                <option value="txt">🔤 Szöveg hozzátoldása</option>
+                                <option value="add">➕ Összeadás (+)</option>
+                                <option value="sub">➖ Kivonás (-)</option>
+                                <option value="mul">✖️ Szorzás (*)</option>
+                                <option value="div">➗ Osztás (/)</option>
+                                <option value="txt">🔤 Szöveg hozzáadása</option>
                             </select>
                         </div>
                         <div style="flex: 1;">
                             <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Érték / Logika:</label>
-                            <input type="text" id="hiv_logika" placeholder="pl: 60.00.00 vagy ' év'" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                            <input type="text" id="hiv_logika" placeholder="pl: 60 év vagy 2 nap" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
                         </div>
                     </div>
                     <button onclick="hivatkozasMentese()" style="width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Hozzáadás a listához</button>
@@ -819,38 +821,48 @@ function szamolHivatkozasErteket(oszlop, tipus, logika) {
     const alapErtek = mintaAdatRekord[oszlop];
     if (alapErtek === undefined || alapErtek === null) return "Nincs adat";
     
-    let ertek = String(alapErtek);
+    let ertek = String(alapErtek).trim();
     let log = String(logika).toLowerCase().trim();
 
-    // 1. Szöveg összefűzés (🔤)
     if (tipus === 'txt') return ertek + logika;
 
-    // 2. Dátum műveletek (év/hónap/nap)
-    if (ertek.includes('-') && (log.includes('év') || log.includes('hónap') || log.includes('nap'))) {
-        let d = new Date(ertek);
-        if (isNaN(d.getTime())) return "Hibás dátum";
-        
-        let szam = parseInt(log.replace(/[^0-9]/g, '')) || 0;
-        let szorzo = (tipus === 'sub') ? -1 : 1;
-        
-        if (log.includes('év')) d.setFullYear(d.getFullYear() + (szam * szorzo));
-        if (log.includes('hónap')) d.setMonth(d.getMonth() + (szam * szorzo));
-        if (log.includes('nap')) d.setDate(d.getDate() + (szam * szorzo));
-        
-        return d.toISOString().split('T')[0].replace(/-/g, '.');
+    // Dátum felismerés (kezeli a pontot és a kötőjelet is)
+    const isDate = /^\d{4}[-.]\d{2}[-.]\d{2}/.test(ertek);
+    const isDateLogic = log.includes('év') || log.includes('hónap') || log.includes('nap');
+
+    if (isDate && isDateLogic) {
+        let normalizedDate = ertek.replace(/\./g, '-');
+        let d = new Date(normalizedDate);
+        if (!isNaN(d.getTime())) {
+            let szam = parseInt(log.replace(/[^0-9]/g, '')) || 0;
+            let szorzo = (tipus === 'sub') ? -1 : 1;
+            
+            if (log.includes('év')) {
+                d.setFullYear(d.getFullYear() + (szam * szorzo));
+            } else if (log.includes('hónap')) {
+                d.setMonth(d.getMonth() + (szam * szorzo));
+            } else if (log.includes('nap')) {
+                d.setDate(d.getDate() + (szam * szorzo));
+            }
+            
+            let ev = d.getFullYear();
+            let ho = String(d.getMonth() + 1).padStart(2, '0');
+            let nap = String(d.getDate()).padStart(2, '0');
+            return `${ev}.${ho}.${nap}`;
+        }
     }
 
-    // 3. Matematikai műveletek (*, /, +, -)
+    // Matematikai műveletek (*, /, +, -)
     let n1 = parseFloat(ertek.replace(',', '.'));
     let n2 = parseFloat(log.replace(',', '.').replace(/[^0-9.]/g, '')) || 0;
     
-    if (isNaN(n1)) return ertek; // Ha nem szám, adjuk vissza az eredetit
+    if (isNaN(n1)) return ertek;
 
     switch(tipus) {
-        case 'add': return (n1 + n2).toString().replace('.', ',');
-        case 'sub': return (n1 - n2).toString().replace('.', ',');
-        case 'mul': return (n1 * n2).toString().replace('.', ',');
-        case 'div': return n2 !== 0 ? (n1 / n2).toFixed(2).replace('.', ',') : "Osztás 0-val!";
+        case 'add': return (n1 + n2).toFixed(2).replace(/\.00$/, '').replace('.', ',');
+        case 'sub': return (n1 - n2).toFixed(2).replace(/\.00$/, '').replace('.', ',');
+        case 'mul': return (n1 * n2).toFixed(2).replace(/\.00$/, '').replace('.', ',');
+        case 'div': return n2 !== 0 ? (n1 / n2).toFixed(2).replace(/\.00$/, '').replace('.', ',') : "Osztás 0-val!";
         default: return ertek;
     }
 }
