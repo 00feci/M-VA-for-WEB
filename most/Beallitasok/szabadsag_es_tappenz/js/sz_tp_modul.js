@@ -309,6 +309,28 @@ function adatokBetoltese(id) {
                             : `<li>📄 Jelenleg nincs fájl</li>`;
                     }
                 });
+
+            // ✨ Nap típusok visszatöltése az extra_adatok JSON mezőből
+            const napTipusSelect = document.getElementById('sztp_nap_tipusa');
+            if (napTipusSelect) {
+                napTipusSelect.innerHTML = '<option value="">-- Kiválasztás --</option>';
+                try {
+                    const extra = typeof data.adat.extra_adatok === 'string' 
+                        ? JSON.parse(data.adat.extra_adatok) 
+                        : data.adat.extra_adatok;
+                    
+                    if (Array.isArray(extra)) {
+                        extra.forEach(tipus => {
+                            const opt = document.createElement('option');
+                            opt.value = tipus.jel;
+                            opt.text = `${tipus.nev} (${tipus.jel})`;
+                            napTipusSelect.appendChild(opt);
+                        });
+                    }
+                } catch (e) { console.error("Hiba a típusok betöltésekor:", e); }
+                frissitNapTipusElonezet();
+            }
+
             frissitSztpElonezet('picker');
         });
 }
@@ -407,6 +429,7 @@ function frissitSztpElonezet(tipus) {
 async function beallitasokMentese(modalbol = false) {
     const select = document.getElementById('sztp_megnevezes');
     const fajlLista = document.getElementById('sztp-fajl-lista');
+    const napTipusSelect = document.getElementById('sztp_nap_tipusa');
     
     const adat = {
         id: document.getElementById('sztp_id').value,
@@ -418,6 +441,18 @@ async function beallitasokMentese(modalbol = false) {
     };
 
     if (!adat.megnevezes || select.selectedIndex === 0) return alert("Válassz vagy adj hozzá megnevezést!");
+
+    // ✨ Nap típusok összegyűjtése a JSON mentéshez
+    if (napTipusSelect) {
+        for (let i = 1; i < napTipusSelect.options.length; i++) {
+            const opt = napTipusSelect.options[i];
+            const reszek = opt.text.match(/(.*) \((.*)\)/);
+            adat.extra_adatok.push({
+                nev: reszek ? reszek[1] : opt.text,
+                jel: opt.value
+            });
+        }
+    }
 
     let sablonNeve = null;
 
@@ -1080,4 +1115,5 @@ async function globalisSzabalyokMentese() {
     if (!fajlnev) return alert("Adj meg egy fájlnév szabályt!");
     alert("Szabályok rögzítve!");
 }
+
 
