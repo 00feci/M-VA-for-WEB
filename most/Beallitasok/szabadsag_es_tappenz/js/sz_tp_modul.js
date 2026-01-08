@@ -247,26 +247,32 @@ function sztpFajlokFeltoltese(fajlok) {
 }
 
 function listaBetoltese() {
-    // 🛡️ A ?v= kiegészítés megelőzi, hogy a böngésző a régi listát mutassa
     fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?v=' + new Date().getTime())
         .then(r => r.json())
         .then(data => {
             if (!data.success) return;
             const select = document.getElementById('sztp_megnevezes');
-            if (!select) return; // 🛡️ Ha még nem létezik, nem futunk hibára
+            if (!select) return;
             const mentettId = select.value;
             select.innerHTML = '<option value="">-- Kiválasztás --</option>';
+            
             data.lista.forEach(i => {
+                // ✨ Elrejtjük a globális rekordot a legördülőből
+                if (i.megnevezes === "GLOBAL_NAP_TIPUSOK") {
+                    // Ha ezt a rekordot látjuk, azonnal betöltjük az adatait a Nap típusokhoz
+                    adatokBetoltese(i.id, true); 
+                    return; 
+                }
                 const opt = document.createElement('option');
                 opt.value = i.id;
                 opt.textContent = i.megnevezes;
-             select.appendChild(opt);
+                select.appendChild(opt);
             });
             if (mentettId) select.value = mentettId;
         });
 }
 
-function adatokBetoltese(id) {
+function adatokBetoltese(id, globalisBetoltes = false) {
     kivalasztottFajlokBuffer = []; 
     const idInput = document.getElementById('sztp_id');
     if (!idInput) return; // 🛡️ Fix Point 4 hiba megelőzése
@@ -293,12 +299,14 @@ function adatokBetoltese(id) {
         .then(r => r.json())
         .then(data => {
             const idElem = document.getElementById('sztp_id');
-            if (!idElem || !data.success || !data.adat) return; // 🛡️ Biztonsági ellenőrzés
+            if (!idElem || !data.success || !data.adat) return;
 
-            idElem.value = data.adat.id;
-            document.getElementById('sztp_kod').value = data.adat.kod;
-            document.getElementById('sztp_szin').value = data.adat.hex_szin;
-            document.getElementById('sztp_hex').value = data.adat.hex_szin;
+            if (!globalisBetoltes) {
+                idElem.value = data.adat.id;
+                document.getElementById('sztp_kod').value = data.adat.kod;
+                document.getElementById('sztp_szin').value = data.adat.hex_szin;
+                document.getElementById('sztp_hex').value = data.adat.hex_szin;
+            }
 
             fetch('Beallitasok/szabadsag_es_tappenz/sztp_fajl_listazasa.php?id=' + data.adat.id)
                 .then(r => r.json())
@@ -1127,3 +1135,4 @@ async function globalisSzabalyokMentese() {
     if (!fajlnev) return alert("Adj meg egy fájlnév szabályt!");
     alert("Szabályok rögzítve!");
 }
+
