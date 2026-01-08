@@ -116,10 +116,11 @@ function szTpModulBetoltese() {
                             <select id="hiv_sql_oszlop" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;"></select>
                         </div>
                     </div>
+
                     <div style="display: flex; gap: 10px;">
-                        <div style="width: 180px;">
-                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Művelet típusa:</label>
-                            <select id="hiv_muvelet_tipus" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                        <div style="width: 140px;">
+                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Művelet:</label>
+                            <select id="hiv_muvelet_tipus" onchange="frissitHivatkozasElonezet()" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
                                 <option value="add">➕ Összeadás (+)</option>
                                 <option value="sub">➖ Kivonás (-)</option>
                                 <option value="mul">✖️ Szorzás (*)</option>
@@ -129,11 +130,16 @@ function szTpModulBetoltese() {
                         </div>
                         <div style="flex: 1;">
                             <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Érték / Logika:</label>
-                            <input type="text" id="hiv_logika" placeholder="pl: 60 év vagy 2 nap" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                            <input type="text" id="hiv_logika" oninput="frissitHivatkozasElonezet()" placeholder="pl: 60 év vagy 2 nap" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                        </div>
+                        <div style="width: 120px;">
+                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Formátum: <span title="Elérhető formátumok:&#10;ÉÉÉÉ - Csak az évszám (pl. 2024)&#10;Hamarosan bővül..." style="cursor: help; color: #2196F3; font-weight: bold;">ⓘ</span></label>
+                            <input type="text" id="hiv_formatum" oninput="frissitHivatkozasElonezet()" placeholder="pl: ÉÉÉÉ" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
                         </div>
                     </div>
+                    <div id="hiv_live_eredmeny" style="padding: 10px; background: #121212; border-radius: 6px; border: 1px solid #333; text-align: center; color: #ffeb3b; font-weight: bold; font-family: monospace; border-left: 4px solid #ffeb3b;">Élő eredmény: -</div>
                     <button onclick="hivatkozasMentese()" style="width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Hozzáadás a listához</button>
-                </div>
+                      </div>
 
                 <div style="max-height: 200px; overflow-y: auto; background: #121212; border-radius: 8px; border: 1px solid #333; padding: 10px;">
                     <table style="width: 100%; border-collapse: collapse; font-size: 0.85em;">
@@ -680,7 +686,7 @@ async function hivatkozasokOldalMegnyitasa() {
                             <input type="text" id="hiv_logika" oninput="frissitHivatkozasElonezet()" placeholder="pl: 60 év vagy 2 nap" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
                         </div>
                         <div style="width: 120px;">
-                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Formátum:</label>
+                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Formátum: <span title="Elérhető formátumok:&#10;ÉÉÉÉ - Csak az évszám (pl. 2024)&#10;Hamarosan bővül..." style="cursor: help; color: #2196F3; font-weight: bold;">ⓘ</span></label>
                             <input type="text" id="hiv_formatum" oninput="frissitHivatkozasElonezet()" placeholder="pl: ÉÉÉÉ" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
                         </div>
                     </div>
