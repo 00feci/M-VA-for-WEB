@@ -972,37 +972,61 @@ function napTipusSzerkesztoMegnyitasa() {
     document.getElementById('uj_nap_nev').focus();
 }
 
+let napTipusSzerkesztesAlatt = null;
+
+function napTipusSzerkesztese(nev, jel) {
+    napTipusSzerkesztesAlatt = jel;
+    document.getElementById('uj_nap_nev').value = nev;
+    document.getElementById('uj_nap_jel').value = jel;
+    // A gomb feliratát átmenetileg megváltoztathatjuk, ha szükséges
+    const modal = document.getElementById('sztp-nap-modal');
+    if (modal) modal.style.display = 'flex';
+}
+
 function napTipusMentese() {
-    const nev = document.getElementById('uj_nap_nev').value.trim();
-    const jel = document.getElementById('uj_nap_jel').value.trim().toUpperCase();
+    const nevInput = document.getElementById('uj_nap_nev');
+    const jelInput = document.getElementById('uj_nap_jel');
+    const nev = nevInput.value.trim();
+    const jel = jelInput.value.trim().toUpperCase();
     
     if (!nev || !jel) return alert("Kérlek töltsd ki mindkét mezőt!");
 
     const sel = document.getElementById('sztp_nap_tipusa');
-    if(sel) {
-        // Ellenőrizzük, hogy létezik-e már ez a jel
+    if (!sel) return;
+
+    if (napTipusSzerkesztesAlatt) {
+        // SZERKESZTÉS: Megkeressük a régi opciót és frissítjük
+        for (let i = 0; i < sel.options.length; i++) {
+            if (sel.options[i].value === napTipusSzerkesztesAlatt) {
+                sel.options[i].value = jel;
+                sel.options[i].text = `${nev} (${jel})`;
+                break;
+            }
+        }
+        napTipusSzerkesztesAlatt = null;
+        alert("Típus frissítve!");
+    } else {
+        // ÚJ HOZZÁADÁS
         let letezik = false;
         for (let i = 0; i < sel.options.length; i++) {
             if (sel.options[i].value === jel) { letezik = true; break; }
         }
 
-        if (letezik) {
-            alert("Ez a betűjel már használatban van!");
-        } else {
-            const opt = document.createElement('option');
-            opt.value = jel;
-            opt.text = `${nev} (${jel})`;
-            sel.appendChild(opt);
-            alert("Típus rögzítve!");
-        }
-        
-        document.getElementById('uj_nap_nev').value = '';
-        document.getElementById('uj_nap_jel').value = '';
-        napTipusListaFrissitese();
-        frissitNapTipusElonezet();
-    }
-}
+        if (letezik) return alert("Ez a betűjel már használatban van!");
 
+        const opt = document.createElement('option');
+        opt.value = jel;
+        opt.text = `${nev} (${jel})`;
+        sel.appendChild(opt);
+        alert("Típus rögzítve!");
+    }
+    
+    nevInput.value = '';
+    jelInput.value = '';
+    napTipusListaFrissitese();
+    frissitNapTipusElonezet();
+    document.getElementById('sztp-nap-modal').style.display = 'none';
+}
 function napTipusListaFrissitese() {
     const select = document.getElementById('sztp_nap_tipusa');
     const tbody = document.getElementById('sztp_nap_lista_test');
@@ -1019,8 +1043,9 @@ function napTipusListaFrissitese() {
             <tr style="border-bottom: 1px solid #222;">
                 <td style="padding: 8px; color: #ddd;">${nev}</td>
                 <td style="padding: 8px; text-align: center;"><b style="color: #ffeb3b;">${jel}</b></td>
-                <td style="padding: 8px; text-align: right;">
-                    <button onclick="napTipusTorlese('${jel}')" style="background: none; border: none; color: #f44336; cursor: pointer; font-size: 1.2em;" title="Törlés">🗑️</button>
+                <td style="padding: 8px; text-align: right; white-space: nowrap;">
+                    <button onclick="napTipusSzerkesztese('${nev.replace(/'/g, "\\'")}', '${jel}')" style="background: none; border: none; color: #2196F3; cursor: pointer; font-size: 1.1em; margin-right: 8px;" title="Szerkesztés">✏️</button>
+                    <button onclick="napTipusTorlese('${jel}')" style="background: none; border: none; color: #f44336; cursor: pointer; font-size: 1.1em;" title="Törlés">🗑️</button>
                 </td>
             </tr>`;
     }
@@ -1055,3 +1080,4 @@ async function globalisSzabalyokMentese() {
     if (!fajlnev) return alert("Adj meg egy fájlnév szabályt!");
     alert("Szabályok rögzítve!");
 }
+
