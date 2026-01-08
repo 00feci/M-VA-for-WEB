@@ -101,57 +101,7 @@ function szTpModulBetoltese() {
           </div>
         </div>
 
-        <div id="sztp-hivatkozas-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center;">
-            <div style="background: #1e1e1e; color: white; padding: 25px; border-radius: 12px; width: 600px; border: 1px solid #333; box-shadow: 0 15px 40px rgba(0,0,0,0.6);">
-                <h3 style="margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;">🔗 Hivatkozás és szabály létrehozása</h3>
-                
-                <div style="display: flex; flex-direction: column; gap: 15px; margin: 20px 0;">
-                    <div style="display: flex; gap: 10px;">
-                        <div style="flex: 1;">
-                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Hivatkozás neve:</label>
-                            <input type="text" id="hiv_nev" placeholder="pl: <Öregség>" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
-                        </div>
-                        <div style="flex: 1;">
-                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">SQL forrás oszlop:</label>
-                            <select id="hiv_sql_oszlop" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;"></select>
-                        </div>
-                    </div>
-
-                    <div style="display: flex; gap: 10px;">
-                        <div style="width: 140px;">
-                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Művelet:</label>
-                            <select id="hiv_muvelet_tipus" onchange="frissitHivatkozasElonezet()" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
-                                <option value="add">➕ Összeadás (+)</option>
-                                <option value="sub">➖ Kivonás (-)</option>
-                                <option value="mul">✖️ Szorzás (*)</option>
-                                <option value="div">➗ Osztás (/)</option>
-                                <option value="txt">🔤 Szöveg hozzáadása</option>
-                            </select>
-                        </div>
-                        <div style="flex: 1;">
-                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Érték / Logika:</label>
-                            <input type="text" id="hiv_logika" oninput="frissitHivatkozasElonezet()" placeholder="pl: 60 év vagy 2 nap" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
-                        </div>
-                        <div style="width: 120px;">
-                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Formátum: <span title="Elérhető formátumok:&#10;ÉÉÉÉ - Csak az évszám (pl. 2024)&#10;Hamarosan bővül..." style="cursor: help; color: #2196F3; font-weight: bold;">ⓘ</span></label>
-                            <input type="text" id="hiv_formatum" oninput="frissitHivatkozasElonezet()" placeholder="pl: ÉÉÉÉ" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
-                        </div>
-                    </div>
-                    <div id="hiv_live_eredmeny" style="padding: 10px; background: #121212; border-radius: 6px; border: 1px solid #333; text-align: center; color: #ffeb3b; font-weight: bold; font-family: monospace; border-left: 4px solid #ffeb3b;">Élő eredmény: -</div>
-                    <button onclick="hivatkozasMentese()" style="width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Hozzáadás a listához</button>
-                      </div>
-
-                <div style="max-height: 200px; overflow-y: auto; background: #121212; border-radius: 8px; border: 1px solid #333; padding: 10px;">
-                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85em;">
-                        <tbody id="hiv_lista_test"></tbody>
-                    </table>
-                </div>
-
-                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                    <button onclick="document.getElementById('sztp-hivatkozas-modal').style.display='none'" style="padding: 8px 20px; background: #444; color: white; border: none; border-radius: 4px; cursor: pointer;">Bezárás</button>
-                </div>
-            </div>
-        </div>
+       ${getHivatkozasModalHtml()}
     `;
    injektalGombokat();
     setTimeout(() => {
@@ -655,56 +605,7 @@ async function hivatkozasokOldalMegnyitasa() {
             </div>
         </div>
 
-        <div id="sztp-hivatkozas-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center;">
-            <div style="background: #1e1e1e; color: white; padding: 25px; border-radius: 12px; width: 600px; border: 1px solid #333; box-shadow: 0 15px 40px rgba(0,0,0,0.6);">
-                <h3 style="margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;">🔗 Hivatkozás és szabály létrehozása</h3>
-                
-                <div style="display: flex; flex-direction: column; gap: 15px; margin: 20px 0;">
-                    <div style="display: flex; gap: 10px;">
-                        <div style="flex: 1;">
-                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Hivatkozás neve:</label>
-                            <input type="text" id="hiv_nev" placeholder="pl: <Öregség>" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
-                        </div>
-                      <div style="flex: 1;">
-                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">SQL forrás oszlop:</label>
-                            <select id="hiv_sql_oszlop" onchange="frissitHivatkozasElonezet()" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;"></select>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 10px;">
-                        <div style="width: 140px;">
-                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Művelet:</label>
-                            <select id="hiv_muvelet_tipus" onchange="frissitHivatkozasElonezet()" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
-                                <option value="add">➕ Összeadás (+)</option>
-                                <option value="sub">➖ Kivonás (-)</option>
-                                <option value="mul">✖️ Szorzás (*)</option>
-                                <option value="div">➗ Osztás (/)</option>
-                                <option value="txt">🔤 Szöveg hozzáadása</option>
-                            </select>
-                        </div>
-                        <div style="flex: 1;">
-                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Érték / Logika:</label>
-                            <input type="text" id="hiv_logika" oninput="frissitHivatkozasElonezet()" placeholder="pl: 60 év vagy 2 nap" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
-                        </div>
-                        <div style="width: 120px;">
-                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Formátum: <span title="Elérhető formátumok:&#10;ÉÉÉÉ - Csak az évszám (pl. 2024)&#10;Hamarosan bővül..." style="cursor: help; color: #2196F3; font-weight: bold;">ⓘ</span></label>
-                            <input type="text" id="hiv_formatum" oninput="frissitHivatkozasElonezet()" placeholder="pl: ÉÉÉÉ" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
-                        </div>
-                    </div>
-                    <div id="hiv_live_eredmeny" style="padding: 10px; background: #121212; border-radius: 6px; border: 1px solid #333; text-align: center; color: #ffeb3b; font-weight: bold; font-family: monospace; border-left: 4px solid #ffeb3b;">Élő eredmény: -</div>
-                    <button onclick="hivatkozasMentese()" style="width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Hozzáadás a listához</button>
-                </div>
-
-                <div style="max-height: 200px; overflow-y: auto; background: #121212; border-radius: 8px; border: 1px solid #333; padding: 10px;">
-                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85em;">
-                        <tbody id="hiv_lista_test"></tbody>
-                    </table>
-                </div>
-
-                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                    <button onclick="document.getElementById('sztp-hivatkozas-modal').style.display='none'" style="padding: 8px 20px; background: #444; color: white; border: none; border-radius: 4px; cursor: pointer;">Bezárás</button>
-                </div>
-            </div>
-        </div>
+        ${getHivatkozasModalHtml()}
     `;
 
     mintaAdatokBetoltese();
@@ -929,10 +830,8 @@ async function hivatkozasSorrend(id, irany) {
         const ujIndex = index + irany;
         if (ujIndex < 0 || ujIndex >= lista.length) return;
 
-        // Csere
         [lista[index], lista[ujIndex]] = [lista[ujIndex], lista[index]];
 
-        // Mentés
         const sr = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_hivatkozasok_sorrendje.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -942,3 +841,59 @@ async function hivatkozasSorrend(id, irany) {
         if (sd.success) hivatkozasokListazasa();
     } catch (e) { console.error("Hiba a sorrendnél:", e); }
 }
+
+function getHivatkozasModalHtml() {
+    return `
+        <div id="sztp-hivatkozas-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center;">
+            <div style="background: #1e1e1e; color: white; padding: 25px; border-radius: 12px; width: 600px; border: 1px solid #333; box-shadow: 0 15px 40px rgba(0,0,0,0.6);">
+                <h3 style="margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;">🔗 Hivatkozás és szabály létrehozása</h3>
+                
+                <div style="display: flex; flex-direction: column; gap: 15px; margin: 20px 0;">
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Hivatkozás neve:</label>
+                            <input type="text" id="hiv_nev" placeholder="pl: <Öregség>" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">SQL forrás oszlop:</label>
+                            <select id="hiv_sql_oszlop" onchange="frissitHivatkozasElonezet()" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;"></select>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <div style="width: 140px;">
+                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Művelet:</label>
+                            <select id="hiv_muvelet_tipus" onchange="frissitHivatkozasElonezet()" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                                <option value="add">➕ Összeadás (+)</option>
+                                <option value="sub">➖ Kivonás (-)</option>
+                                <option value="mul">✖️ Szorzás (*)</option>
+                                <option value="div">➗ Osztás (/)</option>
+                                <option value="txt">🔤 Szöveg hozzáadása</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Érték / Logika:</label>
+                            <input type="text" id="hiv_logika" oninput="frissitHivatkozasElonezet()" placeholder="pl: 60 év vagy 2 nap" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                        </div>
+                        <div style="width: 120px;">
+                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Formátum: <span title="Elérhető formátumok:&#10;ÉÉÉÉ - Csak az évszám&#10;HH - Csak a hónap&#10;NN - Csak a nap&#10;TIZEDES0 - Egész szám (kerekítve)" style="cursor: help; color: #2196F3; font-weight: bold;">ⓘ</span></label>
+                            <input type="text" id="hiv_formatum" oninput="frissitHivatkozasElonezet()" placeholder="pl: ÉÉÉÉ" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                        </div>
+                    </div>
+                    <div id="hiv_live_eredmeny" style="padding: 10px; background: #121212; border-radius: 6px; border: 1px solid #333; text-align: center; color: #ffeb3b; font-weight: bold; font-family: monospace; border-left: 4px solid #ffeb3b; margin-bottom: 10px;">Élő eredmény: -</div>
+                    <button onclick="hivatkozasMentese()" style="width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Hozzáadás a listához</button>
+                </div>
+
+                <div style="max-height: 200px; overflow-y: auto; background: #121212; border-radius: 8px; border: 1px solid #333; padding: 10px;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85em;">
+                        <tbody id="hiv_lista_test"></tbody>
+                    </table>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button onclick="document.getElementById('sztp-hivatkozas-modal').style.display='none'" style="padding: 8px 20px; background: #444; color: white; border: none; border-radius: 4px; cursor: pointer;">Bezárás</button>
+                </div>
+            </div>
+        </div>`;
+}
+
