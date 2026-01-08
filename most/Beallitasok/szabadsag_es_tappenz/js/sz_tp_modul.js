@@ -796,6 +796,9 @@ function szamolHivatkozasErteket(oszlop, tipus, logika, formatum = "") {
         if (f === 'TIZEDES1' && !isNaN(parseFloat(vegEredmeny))) return parseFloat(vegEredmeny).toFixed(1).replace('.', ',');
     }
 
+    // Ha a végeredmény dátum (3 részből áll), ne cseréljük vesszőre a pontokat
+    if (vegEredmeny.split('.').length === 3) return vegEredmeny;
+
     return vegEredmeny.replace('.', ',');
 }
 
@@ -882,3 +885,4 @@ function getHivatkozasModalHtml() {
             </div>
         </div>`;
 }
+
