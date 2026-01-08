@@ -40,10 +40,12 @@ function szTpModulBetoltese() {
                     </div>
                 </div>
 
-                <div style="background: #f9f9f9; padding: 12px; border-radius: 8px; border: 1px solid #eee;">
-                    <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 5px;">Napok típusa:</label>
+               <div style="background: #f9f9f9; padding: 12px; border-radius: 8px; border: 1px solid #eee;">
+                    <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 3px;">Napok típusa:</label>
+                    <input type="text" id="sztp_nap_kereso" oninput="szuresSztpNapTipusra(this.value)" 
+                           placeholder="Keresés..." style="width: 100%; padding: 4px; border: 1px solid #ddd; border-bottom: none; border-radius: 4px 4px 0 0; font-size: 0.8em;">
                     <div style="display: flex; gap: 5px;">
-                        <select id="sztp_nap_tipusa" onchange="frissitNapTipusElonezet()" style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9em;">
+                        <select id="sztp_nap_tipusa" onchange="frissitNapTipusElonezet()" style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 0 0 4px 4px; font-size: 0.9em;">
                             <option value="">-- Kiválasztás --</option>
                         </select>
                         <button onclick="napTipusSzerkesztoMegnyitasa()" style="background: #4CAF50; color: white; border: none; padding: 0 10px; cursor: pointer; border-radius: 4px; font-weight: bold;">+</button>
@@ -115,8 +117,28 @@ function szTpModulBetoltese() {
             </div>
         </div>
 
+       <div id="sztp-nap-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10001; align-items: center; justify-content: center;">
+            <div style="background: white; padding: 25px; border-radius: 8px; width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+                <h3 style="margin-top: 0;">Új nap típus hozzáadása</h3>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div>
+                        <label style="display: block; font-size: 0.8em; font-weight: bold; margin-bottom: 3px;">Megnevezés:</label>
+                        <input type="text" id="uj_nap_nev" placeholder="pl: Fizetett szabadság" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.8em; font-weight: bold; margin-bottom: 3px;">Betűjel:</label>
+                        <input type="text" id="uj_nap_jel" placeholder="pl: SZ" maxlength="5" style="width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;">
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button onclick="document.getElementById('sztp-nap-modal').style.display='none'" style="padding: 8px 15px; background: #eee; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">Mégse</button>
+                    <button onclick="napTipusHozzaadasa()" style="padding: 8px 20px; background: #4CAF50; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer;">Hozzáadás</button>
+                </div>
+            </div>
+        </div>
+
         ${getHivatkozasModalHtml()}
-    `;
+    \`;
     injektalGombokat();
     setTimeout(() => {
         listaBetoltese();
@@ -923,20 +945,40 @@ async function globalisSzabalyokMentese() {
     alert("Szabályok rögzítve!");
 }
 
+function szuresSztpNapTipusra(szo) {
+    const select = document.getElementById('sztp_nap_tipusa');
+    const options = select.options;
+    const keresendo = szo.toLowerCase();
+    for (let i = 1; i < options.length; i++) {
+        const szoveg = options[i].text.toLowerCase();
+        options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
+    }
+}
+
 function napTipusSzerkesztoMegnyitasa() {
-    const nev = prompt("Új nap típus megnevezése (pl. Fizetett szabadság):");
-    if (!nev) return;
-    const jel = prompt("Betűjele (pl. SZ vagy TP):");
-    if (!jel) return;
+    document.getElementById('sztp-nap-modal').style.display = 'flex';
+    document.getElementById('uj_nap_nev').focus();
+}
+
+function napTipusHozzaadasa() {
+    const nev = document.getElementById('uj_nap_nev').value.trim();
+    const jel = document.getElementById('uj_nap_jel').value.trim().toUpperCase();
+    
+    if (!nev || !jel) return alert("Kérlek töltsd ki mindkét mezőt!");
 
     const sel = document.getElementById('sztp_nap_tipusa');
     if(sel) {
         const opt = document.createElement('option');
         opt.value = jel;
-        opt.text = nev + " (" + jel + ")";
+        opt.text = nev + " (" + jel + ")"; // Név (betűjel) formátum
         sel.appendChild(opt);
         sel.value = jel;
         frissitNapTipusElonezet();
+        
+        // Modal bezárása és ürítése
+        document.getElementById('sztp-nap-modal').style.display = 'none';
+        document.getElementById('uj_nap_nev').value = '';
+        document.getElementById('uj_nap_jel').value = '';
     }
 }
 
@@ -944,6 +986,13 @@ function frissitNapTipusElonezet() {
     const s = document.getElementById('sztp_nap_tipusa');
     const m = document.getElementById('nap-tipus-minta');
     if(s && m) {
-        m.innerText = s.value ? s.options[s.selectedIndex].text : "-";
+        m.innerText = (s.selectedIndex > 0) ? s.options[s.selectedIndex].text : "-";
     }
+}
+
+async function globalisSzabalyokMentese() {
+    const fajlnev = document.getElementById('sztp_fajlnev_szabaly').value;
+    const exportMod = document.getElementById('sztp_export_szabaly').value;
+    if (!fajlnev) return alert("Adj meg egy fájlnév szabályt!");
+    alert("Szabályok rögzítve!");
 }
