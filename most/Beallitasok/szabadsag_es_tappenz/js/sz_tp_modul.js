@@ -39,17 +39,12 @@ function szTpModulBetoltese() {
                         <div id="szin-elonezet-doboz" style="width: 100%; height: 32px; border: 1px solid #444; background: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 4px; font-size: 12px;">-</div>
                     </div>
                 </div>
-               <div style="background: #1e1e1e; padding: 12px; border-radius: 8px; border: 1px solid #333; color: white;">
-                    <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 5px; color: #aaa;">Napok típusa:</label>
-                    <input type="text" id="sztp_nap_kereso" oninput="szuresSztpNapTipusra(this.value)" 
-                           placeholder="Keresés a típusok között..." style="width: 100%; padding: 6px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px 4px 0 0; font-size: 0.8em;">
-                    <div style="display: flex; gap: 5px;">
-                        <select id="sztp_nap_tipusa" onchange="frissitNapTipusElonezet()" style="flex: 1; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 0 0 4px 4px; font-size: 0.9em;">
-                            <option value="">-- Kiválasztás --</option>
-                        </select>
-                        <button onclick="napTipusSzerkesztoMegnyitasa()" style="background: #4CAF50; color: white; border: none; padding: 0 12px; cursor: pointer; border-radius: 4px; font-weight: bold;" title="Típusok kezelése">⚙️</button>
-                    </div>
-                    <div id="nap-tipus-minta" style="margin-top: 10px; height: 38px; background: #121212; border: 1px solid #444; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-weight: bold; font-size: 13px; color: #ffeb3b; border-left: 4px solid #ffeb3b;">-</div>
+              <div style="margin-top: 5px;">
+                    <button onclick="napTipusSzerkesztoMegnyitasa()" style="width: 100%; padding: 10px; background: #252525; color: #ffeb3b; border: 1px solid #444; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s;">
+                        Napok típusa ⚙️
+                    </button>
+                    <select id="sztp_nap_tipusa" style="display: none;"></select>
+                    <div id="nap-tipus-minta" style="display: none;">-</div>
                 </div>
             </div>
             
@@ -124,7 +119,7 @@ function szTpModulBetoltese() {
                     <div style="display: flex; gap: 10px; align-items: flex-end;">
                         <div style="flex: 1;">
                             <label style="display: block; font-size: 0.75em; color: #aaa; margin-bottom: 3px;">Megnevezés:</label>
-                            <input type="text" id="uj_nap_nev" placeholder="pl: Fizetett szabadság" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                            <input type="text" id="uj_nap_nev" placeholder="Munkanap" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
                         </div>
                         <div style="width: 80px;">
                             <label style="display: block; font-size: 0.75em; color: #aaa; margin-bottom: 3px;">Betűjel:</label>
@@ -257,10 +252,8 @@ function listaBetoltese() {
             select.innerHTML = '<option value="">-- Kiválasztás --</option>';
             
             data.lista.forEach(i => {
-                // ✨ Elrejtjük a globális rekordot a legördülőből
                 if (i.megnevezes === "GLOBAL_NAP_TIPUSOK") {
-                    // Ha ezt a rekordot látjuk, azonnal betöltjük az adatait a Nap típusokhoz
-                    adatokBetoltese(i.id, true); 
+                    adatokBetoltese(i.id, true); // Globális betöltés
                     return; 
                 }
                 const opt = document.createElement('option');
@@ -504,7 +497,7 @@ async function beallitasokMentese(modalbol = false, napModalbol = false) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(adat)
     })
-    .then(r => r.json()) // ✨ Fix: csak egyetlen json hívás!
+    .then(r => r.json())
     .then(data => {
         if (data.success) {
             listaBetoltese();
@@ -512,7 +505,7 @@ async function beallitasokMentese(modalbol = false, napModalbol = false) {
             if (modalbol) feltoltoModalBezaras();
             if (napModalbol) {
                 document.getElementById('sztp-nap-modal').style.display = 'none';
-                alert("Nap típusok mentve!"); // ✨ Itt már biztosan bezáródik
+                alert("Nap típusok mentve!");
             } else {
                 alert(data.message);
             }
@@ -1135,4 +1128,5 @@ async function globalisSzabalyokMentese() {
     if (!fajlnev) return alert("Adj meg egy fájlnév szabályt!");
     alert("Szabályok rögzítve!");
 }
+
 
