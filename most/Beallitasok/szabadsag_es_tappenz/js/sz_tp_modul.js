@@ -229,7 +229,7 @@ function listaBetoltese() {
 function adatokBetoltese(id) {
     kivalasztottFajlokBuffer = []; 
     const idInput = document.getElementById('sztp_id');
-    if (!idInput) return;
+    if (!idInput) return; // 🛡️ Fix Point 4 hiba megelőzése
 
     const btnFeltolt = document.getElementById('btn-sztp-feltoltes');
     const btnKezel = document.getElementById('btn-sztp-kezeles');
@@ -241,9 +241,7 @@ function adatokBetoltese(id) {
         if (document.getElementById('sztp_hex')) document.getElementById('sztp_hex').value = '#ffffff';
         const lista = document.getElementById('sztp-fajl-lista');
         if (lista) lista.innerHTML = '<li>📄 Jelenleg nincs fájl</li>';
-        
         [btnFeltolt, btnKezel].forEach(b => { if(b) { b.disabled = true; b.style.background = '#ccc'; b.style.cursor = 'not-allowed'; }});
-
         frissitSztpElonezet('picker');
         return;
     }
@@ -251,11 +249,11 @@ function adatokBetoltese(id) {
     if (btnFeltolt) { btnFeltolt.disabled = false; btnFeltolt.style.background = '#2196F3'; btnFeltolt.style.cursor = 'pointer'; }
     if (btnKezel) { btnKezel.disabled = false; btnKezel.style.background = '#607d8b'; btnKezel.style.cursor = 'pointer'; }
     
-fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id)
+    fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id)
         .then(r => r.json())
         .then(data => {
             const idElem = document.getElementById('sztp_id');
-            if (!idElem || !data.success || !data.adat) return; // 🛡️ Fix Point 4
+            if (!idElem || !data.success || !data.adat) return; // 🛡️ Biztonsági ellenőrzés
 
             idElem.value = data.adat.id;
             document.getElementById('sztp_kod').value = data.adat.kod;
@@ -918,25 +916,11 @@ function getHivatkozasModalHtml() {
         </div>`;
 }
 
-function napTipusSzerkesztoMegnyitasa() {
-    const nev = prompt("Nap típus megnevezése (pl. Fizetett szabadság):");
-    const jel = prompt("Betűjele (pl. SZ):");
-    if (nev && jel) alert("Mentve: " + nev + " (" + jel + ")");
-    // Itt hívjuk majd a PHP mentést
-}
-
-function frissitNapTipusElonezet() {
-    const s = document.getElementById('sztp_nap_tipusa');
-    const m = document.getElementById('nap-tipus-minta');
-    if(s && m) m.innerText = s.options[s.selectedIndex].text || "-";
-}
-
 async function globalisSzabalyokMentese() {
     const fajlnev = document.getElementById('sztp_fajlnev_szabaly').value;
     const exportMod = document.getElementById('sztp_export_szabaly').value;
     if (!fajlnev) return alert("Adj meg egy fájlnév szabályt!");
-    
-    alert("Szabályok rögzítve!\nFájlnév: " + fajlnev + "\nExport: " + exportMod);
+    alert("Szabályok rögzítve!");
 }
 
 function napTipusSzerkesztoMegnyitasa() {
@@ -945,14 +929,15 @@ function napTipusSzerkesztoMegnyitasa() {
     const jel = prompt("Betűjele (pl. SZ vagy TP):");
     if (!jel) return;
 
-    // Itt hívjuk majd a PHP-t, egyelőre csak hozzáadjuk a listához szemléltetésnek
     const sel = document.getElementById('sztp_nap_tipusa');
-    const opt = document.createElement('option');
-    opt.value = jel;
-    opt.text = nev + " (" + jel + ")";
-    sel.appendChild(opt);
-    sel.value = jel;
-    frissitNapTipusElonezet();
+    if(sel) {
+        const opt = document.createElement('option');
+        opt.value = jel;
+        opt.text = nev + " (" + jel + ")";
+        sel.appendChild(opt);
+        sel.value = jel;
+        frissitNapTipusElonezet();
+    }
 }
 
 function frissitNapTipusElonezet() {
