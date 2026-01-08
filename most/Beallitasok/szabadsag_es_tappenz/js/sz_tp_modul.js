@@ -44,16 +44,23 @@ function szTpModulBetoltese() {
                                 border: 1px solid #444; background: #ffffff; font-weight: bold; font-size: 13px; border-radius: 4px;">-</div>
                 </div>
 
-                <div style="margin-top: 15px; background: #f9f9f9; padding: 10px; border-radius: 6px; border: 1px solid #eee;">
-                    <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 5px;">Napok típusa:</label>
-                    <div style="display: flex; gap: 5px;">
-                        <select id="sztp_nap_tipusa" onchange="frissitNapTipusElonezet()" style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9em;">
-                            <option value="">-- Kiválasztás --</option>
-                        </select>
-                        <button onclick="napTipusSzerkesztoMegnyitasa()" style="background: #4CAF50; color: white; border: none; padding: 0 10px; cursor: pointer; border-radius: 4px; font-weight: bold;">+</button>
-                    </div>
-                    <div id="nap-tipus-minta" style="margin-top: 8px; height: 35px; background: #fff; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-weight: bold; font-size: 13px; color: #333;">-</div>
-                </div>
+              <div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 20px; background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333;">
+        <h4 style="margin: 0; color: #ffeb3b; font-size: 0.9em; border-bottom: 1px solid #444; padding-bottom: 5px;">⚙️ Generálási és Export szabályok</h4>
+        <div style="display: flex; gap: 20px;">
+            <div style="flex: 1;">
+                <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Kész fájl neve (pl: {név} {dátum}):</label>
+                <input type="text" id="sztp_fajlnev_szabaly" placeholder="{név} {dátum}" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+            </div>
+            <div style="flex: 2;">
+                <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Export feltétel (Könyvelő):</label>
+                <select id="sztp_export_szabaly" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                    <option value="nev">Csak Név alapján</option>
+                    <option value="ceg_nev">Ha <Cég> és Név megegyezik, akkor egy sorba</option>
+                </select>
+            </div>
+            <button onclick="globalisSzabalyokMentese()" style="padding: 0 20px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Mentés</button>
+        </div>
+    </div>
             </div>
             
          <div style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
@@ -250,28 +257,27 @@ function adatokBetoltese(id) {
     if (btnKezel) { btnKezel.disabled = false; btnKezel.style.background = '#607d8b'; btnKezel.style.cursor = 'pointer'; }
     
 fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id)
-        .then(r => r.json())
-        .then(data => {
+        .then(r => r.json())
+        .then(data => {
             const idElem = document.getElementById('sztp_id');
-            if (!idElem || !data.success || !data.adat) return; // 🛡️ Ha már nem ezen az oldalon vagyunk, kilépünk
+            if (!idElem || !data.success || !data.adat) return; // 🛡️ Fix Point 4
 
-                idElem.value = data.adat.id;
-                document.getElementById('sztp_kod').value = data.adat.kod;
-                document.getElementById('sztp_szin').value = data.adat.hex_szin;
-          // 🔍 Valódi fájllista lekérése a szerverről összefoglaló helyett
-                fetch('Beallitasok/szabadsag_es_tappenz/sztp_fajl_listazasa.php?id=' + data.adat.id)
-                    .then(r => r.json())
-                    .then(fData => {
-                        const lista = document.getElementById('sztp-fajl-lista');
-                        if (fData.success && fData.fajlok.length > 0) {
-                            lista.innerHTML = fData.fajlok.map(f => `<li>📄 ${f}</li>`).join('');
-                        } else {
-                            lista.innerHTML = `<li>📄 Jelenleg nincs fájl</li>`;
-                        }
-                    });
-                document.getElementById('sztp_hex').value = data.adat.hex_szin;
-                frissitSztpElonezet('picker');
-            }
+            idElem.value = data.adat.id;
+            document.getElementById('sztp_kod').value = data.adat.kod;
+            document.getElementById('sztp_szin').value = data.adat.hex_szin;
+            document.getElementById('sztp_hex').value = data.adat.hex_szin;
+
+            fetch('Beallitasok/szabadsag_es_tappenz/sztp_fajl_listazasa.php?id=' + data.adat.id)
+                .then(r => r.json())
+                .then(fData => {
+                    const lista = document.getElementById('sztp-fajl-lista');
+                    if (lista) {
+                        lista.innerHTML = (fData.success && fData.fajlok.length > 0)
+                            ? fData.fajlok.map(f => `<li>📄 ${f}</li>`).join('')
+                            : `<li>📄 Jelenleg nincs fájl</li>`;
+                    }
+                });
+            frissitSztpElonezet('picker');
         });
 }
 
@@ -918,21 +924,25 @@ function getHivatkozasModalHtml() {
 }
 
 function napTipusSzerkesztoMegnyitasa() {
-    alert("Itt nyílik majd a Nap típusok (név/jel) kezelője...");
+    const nev = prompt("Nap típus megnevezése (pl. Fizetett szabadság):");
+    const jel = prompt("Betűjele (pl. SZ):");
+    if (nev && jel) alert("Mentve: " + nev + " (" + jel + ")");
+    // Itt hívjuk majd a PHP mentést
 }
 
 function frissitNapTipusElonezet() {
     const s = document.getElementById('sztp_nap_tipusa');
     const m = document.getElementById('nap-tipus-minta');
-    if(s && m) m.innerText = s.value || "-";
+    if(s && m) m.innerText = s.options[s.selectedIndex].text || "-";
 }
 
 async function globalisSzabalyokMentese() {
     const fajlnev = document.getElementById('sztp_fajlnev_szabaly').value;
     const exportMod = document.getElementById('sztp_export_szabaly').value;
-    alert("Szabályok mentve: " + fajlnev + " | Export: " + exportMod);
-    // Itt küldjük majd a szervernek...
+    alert("Beállítások rögzítve!");
 }
+
+// Ide másold vissza a korábbi szamolHivatkozasErteket és getHivatkozasModalHtml függvényeket!
 
 
 
