@@ -3,10 +3,10 @@ function szTpModulBetoltese() {
     if (!kontener) return;
 
     kontener.innerHTML = `
-        <div class="sztp-keret" style="display: flex; gap: 50px; padding: 20px; align-items: flex-start;">
+        <div class="sztp-keret" style="display: flex; gap: 40px; padding: 20px; align-items: flex-start;">
             <input type="hidden" id="sztp_id" value=""> 
+            
             <div style="width: 360px; display: flex; flex-direction: column; gap: 15px;">
-                
                 <div>
                     <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 3px;">Megnevezés:</label>
                     <input type="text" id="sztp_kereso" oninput="szuresSztpMegnevezesre(this.value)" 
@@ -15,118 +15,113 @@ function szTpModulBetoltese() {
                         <select id="sztp_megnevezes" onchange="adatokBetoltese(this.value)" style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 0 0 4px 4px;">
                             <option value="">-- Kiválasztás --</option>
                         </select>
-
                         <button onclick="megnevezesSzerkesztoMegnyitasa()" style="background: #2196F3; color: white; border: none; padding: 0 12px; cursor: pointer; border-radius: 4px; font-weight: bold;">+</button>
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 40px; justify-content: space-between;">
-                    <div style="width: 100px;">
+                <div style="display: flex; gap: 15px; justify-content: space-between;">
+                    <div style="width: 80px;">
                         <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 3px;">Kód:</label>
                         <input type="text" id="sztp_kod" maxlength="10" oninput="frissitSztpElonezet('kod')" 
                                style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;" placeholder="SZ">
                     </div>
                     <div style="flex: 1;">
-                        <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 3px;">Szín és Hex kód:</label>
-                        <div style="display: flex; gap: 8px;">
+                        <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 3px;">Szín:</label>
+                        <div style="display: flex; gap: 5px;">
                             <input type="color" id="sztp_szin" oninput="frissitSztpElonezet('picker')" 
-                                   style="width: 40px; height: 32px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; padding: 2px;" value="#ffffff">
+                                   style="width: 35px; height: 32px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; padding: 2px;" value="#ffffff">
                             <input type="text" id="sztp_hex" oninput="frissitSztpElonezet('hex')" placeholder="#ffffff" maxlength="7"
                                    style="width: 90px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-family: monospace; font-size: 0.9em;">
                         </div>
                     </div>
+                    <div style="width: 60px; text-align: center;">
+                        <label style="display: block; font-size: 0.85em; color: #aaa; margin-bottom: 3px;">MINTA</label>
+                        <div id="szin-elonezet-doboz" style="width: 100%; height: 32px; border: 1px solid #444; background: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 4px; font-size: 12px;">-</div>
+                    </div>
                 </div>
 
-               <div style="width: 100%; height: 65px; background: #fff; border: 1px solid #eee; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 6px;">
-                    <span style="font-size: 0.65em; color: #aaa; margin-bottom: 3px; font-weight: bold;">MINTA</span>
-                    <div id="szin-elonezet-doboz" 
-                         style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; 
-                                border: 1px solid #444; background: #ffffff; font-weight: bold; font-size: 13px; border-radius: 4px;">-</div>
-                </div>
-
-              <div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 20px; background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333;">
-        <h4 style="margin: 0; color: #ffeb3b; font-size: 0.9em; border-bottom: 1px solid #444; padding-bottom: 5px;">⚙️ Generálási és Export szabályok</h4>
-        <div style="display: flex; gap: 20px;">
-            <div style="flex: 1;">
-                <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Kész fájl neve (pl: {név} {dátum}):</label>
-                <input type="text" id="sztp_fajlnev_szabaly" placeholder="{név} {dátum}" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                <div style="background: #f9f9f9; padding: 12px; border-radius: 8px; border: 1px solid #eee;">
+                    <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 5px;">Napok típusa:</label>
+                    <div style="display: flex; gap: 5px;">
+                        <select id="sztp_nap_tipusa" onchange="frissitNapTipusElonezet()" style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9em;">
+                            <option value="">-- Kiválasztás --</option>
+                        </select>
+                        <button onclick="napTipusSzerkesztoMegnyitasa()" style="background: #4CAF50; color: white; border: none; padding: 0 10px; cursor: pointer; border-radius: 4px; font-weight: bold;">+</button>
+                    </div>
+                    <div id="nap-tipus-minta" style="margin-top: 8px; height: 35px; background: #fff; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-weight: bold; font-size: 13px; color: #333;">-</div>
+                </div>
             </div>
-            <div style="flex: 2;">
-                <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Export feltétel (Könyvelő):</label>
-                <select id="sztp_export_szabaly" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
-                    <option value="nev">Csak Név alapján</option>
-                    <option value="ceg_nev">Ha <Cég> és Név megegyezik, akkor egy sorba</option>
-                </select>
-            </div>
-            <button onclick="globalisSzabalyokMentese()" style="padding: 0 20px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Mentés</button>
-        </div>
-    </div>
-            </div>
             
-         <div style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: flex; gap: 8px;">
-                        <button id="btn-sztp-feltoltes" onclick="feltoltoModalMegnyitasa()" disabled
-                                style="flex: 1; padding: 10px; background: #ccc; color: white; border: none; border-radius: 6px; cursor: not-allowed; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
-                            📁 Sablon feltöltése
-                        </button>
-                        <button id="btn-sztp-kezeles" onclick="sablonKezeleseOldal()" disabled
-                            style="flex: 1; padding: 10px; background: #ccc; color: white; border: none; border-radius: 6px; cursor: not-allowed; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8em;">
-                        ✏️ Sablon kezelése
-                    </button>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
+                <div style="background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; color: white;">
+                    <h4 style="margin: 0 0 10px 0; color: #ffeb3b; font-size: 0.9em; border-bottom: 1px solid #444; padding-bottom: 5px;">⚙️ Generálási és Export szabályok</h4>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div>
+                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 3px;">Kész dokumentum neve (pl: {név} {dátum}):</label>
+                            <input type="text" id="sztp_fajlnev_szabaly" placeholder="{név} {dátum}" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: flex-end;">
+                            <div style="flex: 1;">
+                                <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 3px;">Könyvelési export feltétel:</label>
+                                <select id="sztp_export_szabaly" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
+                                    <option value="nev">Csak Név alapján</option>
+                                    <option value="ceg_nev">Ha Cég és Név megegyezik -> egy sorba</option>
+                                </select>
+                            </div>
+                            <button onclick="globalisSzabalyokMentese()" style="padding: 9px 20px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">💾 Mentés</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
+
+                <div style="display: flex; gap: 8px;">
+                    <button id="btn-sztp-feltoltes" onclick="feltoltoModalMegnyitasa()" disabled style="flex: 1; padding: 10px; background: #ccc; color: white; border: none; border-radius: 6px; cursor: not-allowed; font-weight: bold;">📁 Sablon feltöltése</button>
+                    <button id="btn-sztp-kezeles" onclick="sablonKezeleseOldal()" disabled style="flex: 1; padding: 10px; background: #ccc; color: white; border: none; border-radius: 6px; cursor: not-allowed; font-weight: bold;">✏️ Sablon kezelése</button>
+                </div>
+
                 <div style="background: #fff; border: 1px solid #eee; padding: 10px; border-radius: 4px;">
-                    <ul id="sztp-fajl-lista" style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: #555; line-height: 1.6;">
+                    <ul id="sztp-fajl-lista" style="list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: #555;">
                         <li>📄 Jelenleg nincs fájl</li>
                     </ul>
                 </div>
             </div>
         </div>
 
-       <div id="sztp-feltolto-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;">
-            <div style="background: #121212; color: white; padding: 25px; border-radius: 12px; width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333;">
-                <h3 style="margin-top: 0; color: white; display: flex; align-items: center; gap: 10px;">📁 Sablon feltöltése</h3>
-                <p style="font-size: 0.85em; color: #bbb;">Válassz ki egy fájlt vagy egy teljes mappát a feltöltéshez.</p>
-                <div id="sztp-feltolto-zona" 
-                     style="border: 3px dashed #2196F3; background: #1e1e1e; padding: 30px; text-align: center; border-radius: 12px; margin: 20px 0;">
+        <div id="sztp-feltolto-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;">
+            <div style="background: #121212; color: white; padding: 25px; border-radius: 12px; width: 500px; border: 1px solid #333;">
+                <h3 style="margin-top: 0;">📁 Sablon feltöltése</h3>
+                <div id="sztp-feltolto-zona" style="border: 3px dashed #2196F3; background: #1e1e1e; padding: 30px; text-align: center; border-radius: 12px; margin: 20px 0;">
                     <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
-                        <button onclick="sztpTallozas(false)" style="padding: 8px 16px; cursor: pointer; background: #2196F3; color: white; border: none; border-radius: 4px; font-size: 0.9em;">📄 Fájlok</button>
-                        <button onclick="sztpTallozas(true)" style="padding: 8px 16px; cursor: pointer; background: #2196F3; color: white; border: none; border-radius: 4px; font-size: 0.9em;">📂 Mappa</button>
+                        <button onclick="sztpTallozas(false)" style="padding: 8px 16px; background: #2196F3; color: white; border: none; border-radius: 4px;">📄 Fájlok</button>
+                        <button onclick="sztpTallozas(true)" style="padding: 8px 16px; background: #2196F3; color: white; border: none; border-radius: 4px;">📂 Mappa</button>
                     </div>
-                    <span style="color: #2196F3; font-weight: 500;">Vagy húzd ide a tartalmat</span>
+                    <span>Vagy húzd ide a tartalmat</span>
                 </div>
-               <div id="sztp-modal-statusz" style="margin-bottom: 10px; font-size: 0.85em; color: #81c784; font-weight: bold; text-align: center; min-height: 1.2em;"></div>
-                <div id="sztp-modal-fajl-lista-kontener" style="max-height: 150px; overflow-y: auto; background: #1e1e1e; border: 1px solid #333; border-radius: 6px; margin-bottom: 15px; display: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
-                    <ul id="sztp-modal-fajl-lista" style="list-style: none; padding: 10px; margin: 0; font-size: 0.8em; color: #ddd; line-height: 1.4;"></ul>
-                </div>
+                <div id="sztp-modal-statusz" style="margin-bottom: 10px; font-size: 0.85em; color: #81c784; text-align: center;"></div>
                 <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                    <button onclick="feltoltoModalBezaras()" style="padding: 8px 15px; cursor: pointer; border-radius: 4px; background: #424242; color: white; border: 1px solid #555;">Mégse</button>
-                    <button onclick="beallitasokMentese(true)" style="padding: 8px 20px; cursor: pointer; border-radius: 4px; background: #4CAF50; color: white; border: none; font-weight: bold;">🚀 Feltöltés és Mentés</button>
+                    <button onclick="feltoltoModalBezaras()" style="padding: 8px 15px; background: #424242; color: white; border: none; border-radius: 4px;">Mégse</button>
+                    <button onclick="beallitasokMentese(true)" style="padding: 8px 20px; background: #4CAF50; color: white; border: none; font-weight: bold; border-radius: 4px;">🚀 Feltöltés</button>
                 </div>
             </div>
         </div>
 
-    <div id="sztp-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
+        <div id="sztp-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
             <div style="background: white; padding: 25px; border-radius: 8px; width: 450px;">
                 <h3 style="margin-top: 0;">Megnevezések kezelése</h3>
-                <textarea id="sztp_tomeges_bevitel" placeholder="Példa:&#10;Szabadság&#10;Táppénz" 
-                          style="width: 100%; height: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+                <textarea id="sztp_tomeges_bevitel" placeholder="Példa:&#10;Szabadság&#10;Táppénz" style="width: 100%; height: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
                 <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                    <button onclick="modalBezaras()" style="padding: 8px 15px; cursor: pointer; border-radius: 4px; background: #eee; border: 1px solid #ccc;">Mégse</button>
-                    <button onclick="megnevezesekMentese()" style="padding: 8px 20px; cursor: pointer; border-radius: 4px; background: #4CAF50; color: white; border: none; font-weight: bold;">Frissítés</button>
+                    <button onclick="modalBezaras()" style="padding: 8px 15px; background: #eee; border: 1px solid #ccc; border-radius: 4px;">Mégse</button>
+                    <button onclick="megnevezesekMentese()" style="padding: 8px 20px; background: #4CAF50; color: white; border: none; font-weight: bold; border-radius: 4px;">Frissítés</button>
                 </div>
-          </div>
+            </div>
         </div>
 
-       ${getHivatkozasModalHtml()}
+        ${getHivatkozasModalHtml()}
     `;
-   injektalGombokat();
+    injektalGombokat();
     setTimeout(() => {
         listaBetoltese();
-        inicializalFeltoltot(); // 👈 Aktiváljuk a Drag&Drop zónát
+        inicializalFeltoltot();
     }, 50);
-    console.log("Szabadság modul UI betöltve.");
 }
 
 function inicializalFeltoltot() {
@@ -939,10 +934,34 @@ function frissitNapTipusElonezet() {
 async function globalisSzabalyokMentese() {
     const fajlnev = document.getElementById('sztp_fajlnev_szabaly').value;
     const exportMod = document.getElementById('sztp_export_szabaly').value;
-    alert("Beállítások rögzítve!");
+    if (!fajlnev) return alert("Adj meg egy fájlnév szabályt!");
+    
+    alert("Szabályok rögzítve!\nFájlnév: " + fajlnev + "\nExport: " + exportMod);
 }
 
-// Ide másold vissza a korábbi szamolHivatkozasErteket és getHivatkozasModalHtml függvényeket!
+function napTipusSzerkesztoMegnyitasa() {
+    const nev = prompt("Új nap típus megnevezése (pl. Fizetett szabadság):");
+    if (!nev) return;
+    const jel = prompt("Betűjele (pl. SZ vagy TP):");
+    if (!jel) return;
+
+    // Itt hívjuk majd a PHP-t, egyelőre csak hozzáadjuk a listához szemléltetésnek
+    const sel = document.getElementById('sztp_nap_tipusa');
+    const opt = document.createElement('option');
+    opt.value = jel;
+    opt.text = nev + " (" + jel + ")";
+    sel.appendChild(opt);
+    sel.value = jel;
+    frissitNapTipusElonezet();
+}
+
+function frissitNapTipusElonezet() {
+    const s = document.getElementById('sztp_nap_tipusa');
+    const m = document.getElementById('nap-tipus-minta');
+    if(s && m) {
+        m.innerText = s.value ? s.options[s.selectedIndex].text : "-";
+    }
+}
 
 
 
