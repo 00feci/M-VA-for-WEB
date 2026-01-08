@@ -148,8 +148,8 @@ function szTpModulBetoltese() {
                     </table>
                 </div>
 
-               <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                    <button onclick="document.getElementById('sztp-nap-modal').style.display='none'" style="padding: 8px 15px; background: #444; color: white; border: none; border-radius: 4px; cursor: pointer;">Bezárás</button>
+              <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button onclick="document.getElementById('sztp-nap-modal').style.display='none'" style="padding: 8px 15px; background: #444; color: white; border: none; border-radius: 4px; cursor: pointer;">Mégse</button>
                     <button onclick="beallitasokMentese(false, true)" style="padding: 8px 20px; background: #2196F3; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer;">💾 Mentés és bezárás</button>
                 </div>
             </div>
@@ -492,11 +492,13 @@ async function beallitasokMentese(modalbol = false, napModalbol = false) {
         body: JSON.stringify(adat)
     })
     .then(r => r.json())
-  .then(data => {
+  .then(r => r.json())
+    .then(data => {
         alert(data.message);
         if (data.success) {
             listaBetoltese();
-            if (adat.id) adatokBetoltese(adat.id); // Visszatöltjük az adatokat a frissítéshez
+            // ✨ Fix: adatok visszatöltése és ablakok bezárása
+            if (adat.id) adatokBetoltese(adat.id); 
             if (modalbol) feltoltoModalBezaras();
             if (napModalbol) document.getElementById('sztp-nap-modal').style.display = 'none';
         }
@@ -1062,7 +1064,6 @@ function napTipusMentese() {
     jelInput.value = '';
     napTipusListaFrissitese();
     frissitNapTipusElonezet();
-    document.getElementById('sztp-nap-modal').style.display = 'none';
 }
 function napTipusListaFrissitese() {
     const select = document.getElementById('sztp_nap_tipusa');
@@ -1117,6 +1118,7 @@ async function globalisSzabalyokMentese() {
     if (!fajlnev) return alert("Adj meg egy fájlnév szabályt!");
     alert("Szabályok rögzítve!");
 }
+
 
 
 
