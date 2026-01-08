@@ -148,8 +148,9 @@ function szTpModulBetoltese() {
                     </table>
                 </div>
 
-                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                    <button onclick="document.getElementById('sztp-nap-modal').style.display='none'" style="padding: 8px 20px; background: #444; color: white; border: none; border-radius: 4px; cursor: pointer;">Bezárás</button>
+               <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button onclick="document.getElementById('sztp-nap-modal').style.display='none'" style="padding: 8px 15px; background: #444; color: white; border: none; border-radius: 4px; cursor: pointer;">Bezárás</button>
+                    <button onclick="beallitasokMentese(false, true)" style="padding: 8px 20px; background: #2196F3; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer;">💾 Mentés és bezárás</button>
                 </div>
             </div>
         </div>
@@ -426,7 +427,7 @@ function frissitSztpElonezet(tipus) {
     }
 }
 
-async function beallitasokMentese(modalbol = false) {
+async function beallitasokMentese(modalbol = false, napModalbol = false) {
     const select = document.getElementById('sztp_megnevezes');
     const fajlLista = document.getElementById('sztp-fajl-lista');
     const napTipusSelect = document.getElementById('sztp_nap_tipusa');
@@ -491,12 +492,13 @@ async function beallitasokMentese(modalbol = false) {
         body: JSON.stringify(adat)
     })
     .then(r => r.json())
-    .then(data => {
+  .then(data => {
         alert(data.message);
         if (data.success) {
             listaBetoltese();
-            if (adat.id) (adat.id);
+            if (adat.id) adatokBetoltese(adat.id); // Visszatöltjük az adatokat a frissítéshez
             if (modalbol) feltoltoModalBezaras();
+            if (napModalbol) document.getElementById('sztp-nap-modal').style.display = 'none';
         }
     });
 }
@@ -1115,5 +1117,6 @@ async function globalisSzabalyokMentese() {
     if (!fajlnev) return alert("Adj meg egy fájlnév szabályt!");
     alert("Szabályok rögzítve!");
 }
+
 
 
