@@ -794,8 +794,11 @@ async function hivatkozasokListazasa() {
                     <td style="padding: 8px; color: #2196F3; font-weight: bold;">${i.nev}</td>
                     <td style="padding: 8px; color: #aaa;">${i.oszlop} <span style="color: #4CAF50;">${ikonok[i.tipus] || ''}</span> ${i.logika}</td>
                     <td style="padding: 8px; color: #ffeb3b; font-family: monospace; font-weight: bold; text-align: right;">=> ${eredmeny}</td>
-                    <td style="padding: 8px; text-align: right;">
-                        <button onclick="hivatkozasTorlese(${i.id})" style="background: none; border: none; cursor: pointer; color: #f44336;">🗑️</button>
+                    <td style="padding: 8px; text-align: right; white-space: nowrap;">
+                        <button onclick="hivatkozasSorrend(${i.id}, -1)" style="background: none; border: none; cursor: pointer; color: #2196F3; font-size: 1.1em; padding: 0 5px;" title="Felfelé">▲</button>
+                        <button onclick="hivatkozasSorrend(${i.id}, 1)" style="background: none; border: none; cursor: pointer; color: #2196F3; font-size: 1.1em; padding: 0 5px;" title="Lefelé">▼</button>
+                        <button onclick="hivatkozasTorlese(${i.id})" style="background: none; border: none; cursor: pointer; color: #f44336; margin-left: 10px;">🗑️</button>
+                    </td>
                     </td>
                 </tr>`;
             }).join('');
@@ -880,9 +883,23 @@ function szamolHivatkozasErteket(oszlop, tipus, logika, formatum = "") {
     }
 
     // "A csavar": Formátum kezelése
-    if (formatum.toUpperCase() === 'ÉÉÉÉ' && vegEredmeny.includes('.')) {
-        return vegEredmeny.split('.')[0]; // Csak az évszám
+    // "A csavar": Bővített formátum kezelés
+    const f = formatum.toUpperCase().trim();
+    if (f === "") return vegEredmeny.replace('.', ',');
+
+    // Dátum töredékek (ha ÉÉÉÉ.HH.NN a formátum)
+    if (vegEredmeny.includes('.') && vegEredmeny.split('.').length === 3) {
+        const p = vegEredmeny.split('.');
+        if (f === 'ÉÉÉÉ') return p[0];
+        if (f === 'HH') return p[1];
+        if (f === 'NN') return p[2];
+        if (f === 'ÉÉÉÉ.HH') return p[0] + "." + p[1];
     }
+
+    // Szám kerekítések
+    if (f === 'TIZEDES0') return Math.round(parseFloat(vegEredmeny)).toString();
+    if (f === 'TIZEDES1') return parseFloat(vegEredmeny).toFixed(1).replace('.', ',');
+
     return vegEredmeny.replace('.', ',');
 }
 
@@ -894,7 +911,34 @@ function frissitHivatkozasElonezet() {
     const kijelzo = document.getElementById('hiv_live_eredmeny');
     
     if (kijelzo) {
-        const res = szamolHivatkozasErteket(oszlop, tipus, logika, formatum);
+       const res = szamolHivatkozasErteket(oszlop, tipus, logika, formatum);
         kijelzo.innerText = "Élő eredmény: " + res;
     }
+}
+
+async function hivatkozasSorrend(id, irany) {
+    try {
+        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_hivatkozasok_lekerese.php');
+        const d = await r.json();
+        if (!d.success) return;
+
+        let lista = d.lista;
+        const index = lista.findIndex(i => i.id == id);
+        if (index === -1) return;
+
+        const ujIndex = index + irany;
+        if (ujIndex < 0 || ujIndex >= lista.length) return;
+
+        // Csere
+        [lista[index], lista[ujIndex]] = [lista[ujIndex], lista[index]];
+
+        // Mentés
+        const sr = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_hivatkozasok_sorrendje.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lista: lista })
+        });
+        const sd = await sr.json();
+        if (sd.success) hivatkozasokListazasa();
+    } catch (e) { console.error("Hiba a sorrendnél:", e); }
 }
