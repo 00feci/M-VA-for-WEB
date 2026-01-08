@@ -737,8 +737,8 @@ function szamolHivatkozasErteket(oszlop, tipus, logika, formatum = "") {
     if (alapErtek === undefined || alapErtek === null) return "Nincs adat";
     
     let ertek = String(alapErtek).trim();
-    let log = String(logika).toLowerCase().trim();
     let vegEredmeny = "";
+    let log = String(logika).toLowerCase().trim();
 
     if (tipus === 'txt') {
         vegEredmeny = ertek + logika;
@@ -882,5 +882,3 @@ function getHivatkozasModalHtml() {
             </div>
         </div>`;
 }
-
-
