@@ -686,10 +686,10 @@ async function hivatkozasokListazasa() {
     try {
         const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_hivatkozasok_lekerese.php');
         const d = await r.json();
-        if (d.success) {
+       if (d.success) {
             const ikonok = { add: '➕', sub: '➖', mul: '✖️', div: '➗', txt: '🔤' };
             const html = d.lista.map(i => {
-                const eredmeny = szamolHivatkozasErteket(i.oszlop, i.tipus, i.logika); // 👈 Számítás
+                const eredmeny = szamolHivatkozasErteket(i.oszlop, i.tipus, i.logika, i.formatum); 
                 return `
                 <tr style="border-bottom: 1px solid #333;">
                     <td style="padding: 8px; color: #2196F3; font-weight: bold;">${i.nev}</td>
@@ -699,7 +699,6 @@ async function hivatkozasokListazasa() {
                         <button onclick="hivatkozasSorrend(${i.id}, -1)" style="background: none; border: none; cursor: pointer; color: #2196F3; font-size: 1.1em; padding: 0 5px;" title="Felfelé">▲</button>
                         <button onclick="hivatkozasSorrend(${i.id}, 1)" style="background: none; border: none; cursor: pointer; color: #2196F3; font-size: 1.1em; padding: 0 5px;" title="Lefelé">▼</button>
                         <button onclick="hivatkozasTorlese(${i.id})" style="background: none; border: none; cursor: pointer; color: #f44336; margin-left: 10px;">🗑️</button>
-                    </td>
                     </td>
                 </tr>`;
             }).join('');
@@ -738,68 +737,64 @@ function szamolHivatkozasErteket(oszlop, tipus, logika, formatum = "") {
     if (alapErtek === undefined || alapErtek === null) return "Nincs adat";
     
     let ertek = String(alapErtek).trim();
-    let vegEredmeny = "";
     let log = String(logika).toLowerCase().trim();
+    let vegEredmeny = "";
 
-    if (tipus === 'txt') return ertek + logika;
+    if (tipus === 'txt') {
+        vegEredmeny = ertek + logika;
+    } else {
+        const isDate = /^\d{4}[-.]\d{2}[-.]\d{2}/.test(ertek);
+        const isDateLogic = log.includes('év') || log.includes('hónap') || log.includes('nap');
 
-    // Dátum felismerés (kezeli a pontot és a kötőjelet is)
-    const isDate = /^\d{4}[-.]\d{2}[-.]\d{2}/.test(ertek);
-    const isDateLogic = log.includes('év') || log.includes('hónap') || log.includes('nap');
-
-    if (isDate && isDateLogic) {
-        let normalizedDate = ertek.replace(/\./g, '-');
-        let d = new Date(normalizedDate);
-        if (!isNaN(d.getTime())) {
-            let szam = parseInt(log.replace(/[^0-9]/g, '')) || 0;
-            let szorzo = (tipus === 'sub') ? -1 : 1;
-            
-            if (log.includes('év')) {
-                d.setFullYear(d.getFullYear() + (szam * szorzo));
-            } else if (log.includes('hónap')) {
-                d.setMonth(d.getMonth() + (szam * szorzo));
-            } else if (log.includes('nap')) {
-                d.setDate(d.getDate() + (szam * szorzo));
+        if (isDate) {
+            if (isDateLogic) {
+                let normalizedDate = ertek.replace(/\./g, '-');
+                let d = new Date(normalizedDate);
+                if (!isNaN(d.getTime())) {
+                    let szam = parseInt(log.replace(/[^0-9]/g, '')) || 0;
+                    let szorzo = (tipus === 'sub') ? -1 : 1;
+                    if (log.includes('év')) d.setFullYear(d.getFullYear() + (szam * szorzo));
+                    else if (log.includes('hónap')) d.setMonth(d.getMonth() + (szam * szorzo));
+                    else if (log.includes('nap')) d.setDate(d.getDate() + (szam * szorzo));
+                    
+                    let ev = d.getFullYear();
+                    let ho = String(d.getMonth() + 1).padStart(2, '0');
+                    let nap = String(d.getDate()).padStart(2, '0');
+                    vegEredmeny = `${ev}.${ho}.${nap}`;
+                } else { vegEredmeny = "Hibás dátum"; }
+            } else {
+                vegEredmeny = ertek.replace(/-/g, '.');
             }
-            
-            let ev = d.getFullYear();
-            let ho = String(d.getMonth() + 1).padStart(2, '0');
-            let nap = String(d.getDate()).padStart(2, '0');
-            return `${ev}.${ho}.${nap}`;
+        } else {
+            let n1 = parseFloat(ertek.replace(',', '.'));
+            let n2 = parseFloat(log.replace(',', '.').replace(/[^0-9.]/g, '')) || 0;
+            if (isNaN(n1)) vegEredmeny = ertek;
+            else {
+                switch(tipus) {
+                    case 'add': vegEredmeny = (n1 + n2).toFixed(2); break;
+                    case 'sub': vegEredmeny = (n1 - n2).toFixed(2); break;
+                    case 'mul': vegEredmeny = (n1 * n2).toFixed(2); break;
+                    case 'div': vegEredmeny = n2 !== 0 ? (n1 / n2).toFixed(2) : "Hiba"; break;
+                    default: vegEredmeny = ertek;
+                }
+            }
         }
     }
 
-    // Matematikai műveletek (*, /, +, -)
-    let n1 = parseFloat(ertek.replace(',', '.'));
-    let n2 = parseFloat(log.replace(',', '.').replace(/[^0-9.]/g, '')) || 0;
-    
-    if (isNaN(n1)) return ertek;
-
-    switch(tipus) {
-        case 'add': vegEredmeny = (n1 + n2).toFixed(2).replace(/\.00$/, ''); break;
-        case 'sub': vegEredmeny = (n1 - n2).toFixed(2).replace(/\.00$/, ''); break;
-        case 'mul': vegEredmeny = (n1 * n2).toFixed(2).replace(/\.00$/, ''); break;
-        case 'div': vegEredmeny = n2 !== 0 ? (n1 / n2).toFixed(2).replace(/\.00$/, '') : "Hiba"; break;
-        default: vegEredmeny = ertek;
-    }
-
-    // "A csavar": Formátum kezelése
-    // "A csavar": Bővített formátum kezelés
+    vegEredmeny = vegEredmeny.toString().replace(/\.00$/, ''); 
     const f = formatum.toUpperCase().trim();
-    if (f === "") return vegEredmeny.replace('.', ',');
 
-    // Dátum töredékek (ha ÉÉÉÉ.HH.NN a formátum)
-    if (vegEredmeny.includes('.') && vegEredmeny.split('.').length === 3) {
-        const p = vegEredmeny.split('.');
-        if (f === 'ÉÉÉÉ') return p[0];
-        if (f === 'HH') return p[1];
-        if (f === 'NN') return p[2];
-        if (f === 'ÉÉÉÉ.HH') return p[0] + "." + p[1];
+    if (f !== "") {
+        if (vegEredmeny.includes('.') && vegEredmeny.split('.').length === 3) {
+            const p = vegEredmeny.split('.');
+            if (f === 'ÉÉÉÉ') return p[0];
+            if (f === 'HH') return p[1];
+            if (f === 'NN') return p[2];
+            if (f === 'ÉÉÉÉ.HH') return p[0] + "." + p[1];
+        }
+        if (f === 'TIZEDES0' && !isNaN(parseFloat(vegEredmeny))) return Math.round(parseFloat(vegEredmeny)).toString();
+        if (f === 'TIZEDES1' && !isNaN(parseFloat(vegEredmeny))) return parseFloat(vegEredmeny).toFixed(1).replace('.', ',');
     }
-
-    // Szám kerekítések
-    if (f === 'TIZEDES0') return Math.round(parseFloat(vegEredmeny)).toString();
-    if (f === 'TIZEDES1') return parseFloat(vegEredmeny).toFixed(1).replace('.', ',');
 
     return vegEredmeny.replace('.', ',');
 }
@@ -810,10 +805,9 @@ function frissitHivatkozasElonezet() {
     const logika = document.getElementById('hiv_logika').value;
     const formatum = document.getElementById('hiv_formatum').value;
     const kijelzo = document.getElementById('hiv_live_eredmeny');
-    
     if (kijelzo) {
        const res = szamolHivatkozasErteket(oszlop, tipus, logika, formatum);
-        kijelzo.innerText = "Élő eredmény: " + res;
+       kijelzo.innerText = "Élő eredmény: " + res;
     }
 }
 
@@ -822,16 +816,12 @@ async function hivatkozasSorrend(id, irany) {
         const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_hivatkozasok_lekerese.php');
         const d = await r.json();
         if (!d.success) return;
-
         let lista = d.lista;
         const index = lista.findIndex(i => i.id == id);
         if (index === -1) return;
-
         const ujIndex = index + irany;
         if (ujIndex < 0 || ujIndex >= lista.length) return;
-
         [lista[index], lista[ujIndex]] = [lista[ujIndex], lista[index]];
-
         const sr = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_hivatkozasok_sorrendje.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -847,7 +837,6 @@ function getHivatkozasModalHtml() {
         <div id="sztp-hivatkozas-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center;">
             <div style="background: #1e1e1e; color: white; padding: 25px; border-radius: 12px; width: 600px; border: 1px solid #333; box-shadow: 0 15px 40px rgba(0,0,0,0.6);">
                 <h3 style="margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;">🔗 Hivatkozás és szabály létrehozása</h3>
-                
                 <div style="display: flex; flex-direction: column; gap: 15px; margin: 20px 0;">
                     <div style="display: flex; gap: 10px;">
                         <div style="flex: 1;">
@@ -859,7 +848,6 @@ function getHivatkozasModalHtml() {
                             <select id="hiv_sql_oszlop" onchange="frissitHivatkozasElonezet()" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;"></select>
                         </div>
                     </div>
-
                     <div style="display: flex; gap: 10px;">
                         <div style="width: 140px;">
                             <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Művelet:</label>
@@ -883,17 +871,16 @@ function getHivatkozasModalHtml() {
                     <div id="hiv_live_eredmeny" style="padding: 10px; background: #121212; border-radius: 6px; border: 1px solid #333; text-align: center; color: #ffeb3b; font-weight: bold; font-family: monospace; border-left: 4px solid #ffeb3b; margin-bottom: 10px;">Élő eredmény: -</div>
                     <button onclick="hivatkozasMentese()" style="width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Hozzáadás a listához</button>
                 </div>
-
                 <div style="max-height: 200px; overflow-y: auto; background: #121212; border-radius: 8px; border: 1px solid #333; padding: 10px;">
                     <table style="width: 100%; border-collapse: collapse; font-size: 0.85em;">
                         <tbody id="hiv_lista_test"></tbody>
                     </table>
                 </div>
-
                 <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
                     <button onclick="document.getElementById('sztp-hivatkozas-modal').style.display='none'" style="padding: 8px 20px; background: #444; color: white; border: none; border-radius: 4px; cursor: pointer;">Bezárás</button>
                 </div>
             </div>
         </div>`;
 }
+
 
