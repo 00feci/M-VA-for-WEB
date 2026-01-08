@@ -707,7 +707,7 @@ async function hivatkozasokListazasa() {
             if (foLista) {
                 foLista.innerHTML = d.lista.length > 0 
                     ? d.lista.map(i => {
-                        const eredmeny = szamolHivatkozasErteket(i.oszlop, i.tipus, i.logika);
+                        const eredmeny = szamolHivatkozasErteket(i.oszlop, i.tipus, i.logika, i.formatum);
                         return `<li style="padding: 5px 10px; border-bottom: 1px solid #333;">
                             <b style="color: #2196F3;">${i.nev}</b>: <span style="color: #ffeb3b;">${eredmeny}</span>
                             <div style="font-size: 0.75em; color: #777;">(${i.oszlop} ${ikonok[i.tipus] || ''} ${i.logika})</div>
@@ -885,4 +885,5 @@ function getHivatkozasModalHtml() {
             </div>
         </div>`;
 }
+
 
