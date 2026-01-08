@@ -434,14 +434,19 @@ async function beallitasokMentese(modalbol = false, napModalbol = false) {
     
     const adat = {
         id: document.getElementById('sztp_id').value,
-        megnevezes: select.options[select.selectedIndex]?.text,
-        kod: document.getElementById('sztp_kod').value,
-        szin: document.getElementById('sztp_szin').value,
+        megnevezes: (select && select.selectedIndex > 0) ? select.options[select.selectedIndex].text : null,
+        kod: document.getElementById('sztp_kod')?.value || '',
+        szin: document.getElementById('sztp_szin')?.value || '#ffffff',
         sablon_neve: null,
         extra_adatok: [] 
     };
 
-    if (!adat.megnevezes || select.selectedIndex === 0) return alert("Válassz vagy adj hozzá megnevezést!");
+    // ✨ Ha globális mentés van, és nincs kiválasztott név, adunk neki egy fix nevet
+    if (napModalbol && !adat.megnevezes) {
+        adat.megnevezes = "GLOBAL_NAP_TIPUSOK";
+    }
+
+    if (!adat.megnevezes && !napModalbol) return alert("Válassz vagy adj hozzá megnevezést!");
 
     // ✨ Nap típusok összegyűjtése a JSON mentéshez
     if (napTipusSelect) {
@@ -491,16 +496,20 @@ async function beallitasokMentese(modalbol = false, napModalbol = false) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(adat)
     })
-    .then(r => r.json())
-  .then(r => r.json())
+    .then(r => r.json()) // ✨ Fix: csak egyetlen json hívás!
     .then(data => {
-        alert(data.message);
         if (data.success) {
             listaBetoltese();
-            // ✨ Fix: adatok visszatöltése és ablakok bezárása
-            if (adat.id) adatokBetoltese(adat.id); 
+            if (adat.id && !napModalbol) adatokBetoltese(adat.id); 
             if (modalbol) feltoltoModalBezaras();
-            if (napModalbol) document.getElementById('sztp-nap-modal').style.display = 'none';
+            if (napModalbol) {
+                document.getElementById('sztp-nap-modal').style.display = 'none';
+                alert("Nap típusok mentve!"); // ✨ Itt már biztosan bezáródik
+            } else {
+                alert(data.message);
+            }
+        } else {
+            alert("Hiba: " + data.message);
         }
     });
 }
@@ -1118,7 +1127,3 @@ async function globalisSzabalyokMentese() {
     if (!fajlnev) return alert("Adj meg egy fájlnév szabályt!");
     alert("Szabályok rögzítve!");
 }
-
-
-
-
