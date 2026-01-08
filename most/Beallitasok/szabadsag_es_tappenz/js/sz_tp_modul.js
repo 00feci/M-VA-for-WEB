@@ -39,9 +39,7 @@ function szTpModulBetoltese() {
                         <div id="szin-elonezet-doboz" style="width: 100%; height: 32px; border: 1px solid #444; background: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 4px; font-size: 12px;">-</div>
                     </div>
                 </div>
-
-               
-                    <div style="background: #f9f9f9; padding: 12px; border-radius: 8px; border: 1px solid #eee;">
+                <div style="background: #f9f9f9; padding: 12px; border-radius: 8px; border: 1px solid #eee;">
                     <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 3px;">Napok típusa:</label>
                     <input type="text" id="sztp_nap_kereso" oninput="szuresSztpNapTipusra(this.value)" 
                            placeholder="Keresés..." style="width: 100%; padding: 4px; border: 1px solid #ddd; border-bottom: none; border-radius: 4px 4px 0 0; font-size: 0.8em;">
@@ -139,7 +137,7 @@ function szTpModulBetoltese() {
         </div>
 
         ${getHivatkozasModalHtml()}
-    \`;
+    `;
     injektalGombokat();
     setTimeout(() => {
         listaBetoltese();
@@ -958,6 +956,7 @@ function szuresSztpNapTipusra(szo) {
 
 function szuresSztpNapTipusra(szo) {
     const select = document.getElementById('sztp_nap_tipusa');
+    if (!select) return;
     const options = select.options;
     const keresendo = szo.toLowerCase();
     for (let i = 1; i < options.length; i++) {
@@ -967,8 +966,11 @@ function szuresSztpNapTipusra(szo) {
 }
 
 function napTipusSzerkesztoMegnyitasa() {
-    document.getElementById('sztp-nap-modal').style.display = 'flex';
-    document.getElementById('uj_nap_nev').focus();
+    const modal = document.getElementById('sztp-nap-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.getElementById('uj_nap_nev').focus();
+    }
 }
 
 function napTipusHozzaadasa() {
@@ -981,7 +983,7 @@ function napTipusHozzaadasa() {
     if(sel) {
         const opt = document.createElement('option');
         opt.value = jel;
-        opt.text = `${nev} (${jel})`; // Név (betűjel) formátum
+        opt.text = `${nev} (${jel})`; // Fix: Név (betűjel) formátum
         sel.appendChild(opt);
         sel.value = jel;
         frissitNapTipusElonezet();
