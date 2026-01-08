@@ -937,23 +937,6 @@ function getHivatkozasModalHtml() {
         </div>`;
 }
 
-async function globalisSzabalyokMentese() {
-    const fajlnev = document.getElementById('sztp_fajlnev_szabaly').value;
-    const exportMod = document.getElementById('sztp_export_szabaly').value;
-    if (!fajlnev) return alert("Adj meg egy fájlnév szabályt!");
-    alert("Szabályok rögzítve!");
-}
-
-function szuresSztpNapTipusra(szo) {
-    const select = document.getElementById('sztp_nap_tipusa');
-    const options = select.options;
-    const keresendo = szo.toLowerCase();
-    for (let i = 1; i < options.length; i++) {
-        const szoveg = options[i].text.toLowerCase();
-        options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
-    }
-}
-
 function szuresSztpNapTipusra(szo) {
     const select = document.getElementById('sztp_nap_tipusa');
     if (!select) return;
@@ -1008,3 +991,4 @@ async function globalisSzabalyokMentese() {
     if (!fajlnev) return alert("Adj meg egy fájlnév szabályt!");
     alert("Szabályok rögzítve!");
 }
+
