@@ -962,6 +962,3 @@ function frissitNapTipusElonezet() {
         m.innerText = s.value ? s.options[s.selectedIndex].text : "-";
     }
 }
-
-
-
