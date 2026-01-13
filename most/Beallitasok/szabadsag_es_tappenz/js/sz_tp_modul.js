@@ -1003,18 +1003,6 @@ function getHivatkozasModalHtml() {
             </div>
         </div>`;
 }
-
-function szuresSztpNapTipusra(szo) {
-    const select = document.getElementById('sztp_nap_tipusa');
-    if (!select) return;
-    const options = select.options;
-    const keresendo = szo.toLowerCase();
-    for (let i = 1; i < options.length; i++) {
-        const szoveg = options[i].text.toLowerCase();
-        options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
-    }
-}
-
 function napTipusSzerkesztoMegnyitasa() {
     document.getElementById('sztp-nap-modal').style.display = 'flex';
     napTipusListaFrissitese();
@@ -1128,5 +1116,6 @@ async function globalisSzabalyokMentese() {
     if (!fajlnev) return alert("Adj meg egy fájlnév szabályt!");
     alert("Szabályok rögzítve!");
 }
+
 
 
