@@ -1003,12 +1003,6 @@ function getHivatkozasModalHtml() {
             </div>
         </div>`;
 }
-function napTipusSzerkesztoMegnyitasa() {
-    document.getElementById('sztp-nap-modal').style.display = 'flex';
-    napTipusListaFrissitese();
-    document.getElementById('uj_nap_nev').focus();
-}
-
 let napTipusSzerkesztesAlatt = null;
 
 function napTipusSzerkesztese(nev, jel) {
@@ -1116,6 +1110,7 @@ async function globalisSzabalyokMentese() {
     if (!fajlnev) return alert("Adj meg egy fájlnév szabályt!");
     alert("Szabályok rögzítve!");
 }
+
 
 
 
