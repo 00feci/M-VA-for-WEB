@@ -60,6 +60,8 @@ if (isset($_POST['melyik']) && $_POST['melyik'] === 'vissza') {
    <script src="Beallitasok/beallitasok/js/beallitasok.js?v=<?php echo filemtime(__DIR__ . '/Beallitasok/beallitasok/js/beallitasok.js'); ?>"></script>
    <script src="Beallitasok/szabadsag_es_tappenz/js/sztp_nap_tipusok.js?v=<?php echo filemtime(__DIR__ . '/Beallitasok/szabadsag_es_tappenz/js/sztp_nap_tipusok.js'); ?>"></script>
    <script src="Beallitasok/szabadsag_es_tappenz/js/sz_tp_modul.js?v=<?php echo filemtime(__DIR__ . '/Beallitasok/szabadsag_es_tappenz/js/sz_tp_modul.js'); ?>"></script>
+    <script src="Beallitasok/szabadsag_es_tappenz/js/sztp_fajtak.js?v=<?php echo filemtime(__DIR__ . '/Beallitasok/szabadsag_es_tappenz/js/sztp_fajtak.js'); ?>"></script>
 </body>
 </html>
+
 
