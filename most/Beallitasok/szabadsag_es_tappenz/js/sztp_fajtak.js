@@ -100,41 +100,45 @@ function listaBetoltese() {
 }
 
 function adatokBetoltese(id, globalisBetoltes = false) {
+    // ✨ Fontos: a változókat a függvény elején, de a fetch előtt kérjük le!
+    const idInput = document.getElementById('sztp_id');
     const mainSelect = document.getElementById('sztp_megnevezes');
     const editSelect = document.getElementById('sztp_edit_megnevezes');
-    
-    // Szinkronizáljuk a két lenyílót
+    const btnFeltolt = document.getElementById('btn-sztp-feltoltes');
+    const btnKezel = document.getElementById('btn-sztp-kezeles');
+
+    if (!idInput) return;
+
+    // Szinkronizáljuk a két választót (főoldal és popup)
     if (id && !globalisBetoltes) {
         if (mainSelect && mainSelect.value !== id) mainSelect.value = id;
         if (editSelect && editSelect.value !== id) editSelect.value = id;
     }
 
     if (!id && !globalisBetoltes) {
-        document.getElementById('sztp_id').value = '';
+        idInput.value = '';
         document.getElementById('sztp_kod').value = '';
         document.getElementById('sztp_szin').value = '#ffffff';
         document.getElementById('sztp_hex').value = '#ffffff';
-        [document.getElementById('btn-sztp-feltoltes'), document.getElementById('btn-sztp-kezeles')].forEach(b => {
-            if(b) { b.disabled = true; b.style.background = '#ccc'; b.style.cursor = 'not-allowed'; }
-        });
+        [btnFeltolt, btnKezel].forEach(b => { if(b) { b.disabled = true; b.style.background = '#ccc'; b.style.cursor = 'not-allowed'; }});
         frissitSztpElonezet('picker');
         return;
     }
 
     if (!globalisBetoltes) {
-        document.getElementById('btn-sztp-feltoltes').disabled = false;
-        document.getElementById('btn-sztp-feltoltes').style.background = '#2196F3';
-        document.getElementById('btn-sztp-kezeles').disabled = false;
-        document.getElementById('btn-sztp-kezeles').style.background = '#607d8b';
+        [btnFeltolt, btnKezel].forEach(b => { if(b) { b.disabled = false; b.style.cursor = 'pointer'; }});
+        if (btnFeltolt) btnFeltolt.style.background = '#2196F3';
+        if (btnKezel) btnKezel.style.background = '#607d8b';
     }
     
     fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id)
         .then(r => r.json())
         .then(data => {
             if (!data.success || !data.adat) return;
+            
+            // ✨ Itt a hiba javítása: használjuk a már definiált idInput-ot
             if (!globalisBetoltes) {
                 idInput.value = data.adat.id;
-                if (editInp) editInp.value = data.adat.megnevezes;
                 document.getElementById('sztp_kod').value = data.adat.kod;
                 document.getElementById('sztp_szin').value = data.adat.hex_szin;
                 document.getElementById('sztp_hex').value = data.adat.hex_szin;
