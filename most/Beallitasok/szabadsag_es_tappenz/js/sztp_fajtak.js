@@ -65,3 +65,94 @@ function szuresSztpMegnevezesre(szo) {
         options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
     }
 }
+function fajtaBeallitasokMegnyitasa() {
+    const select = document.getElementById('sztp_megnevezes');
+    const editInp = document.getElementById('sztp_edit_megnevezes');
+    if (select && editInp) {
+        editInp.value = select.selectedIndex > 0 ? select.options[select.selectedIndex].text : "";
+    }
+    document.getElementById('sztp-fajta-modal').style.display = 'flex';
+    frissitSztpElonezet('picker');
+}
+
+function listaBetoltese() {
+    fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?v=' + new Date().getTime())
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) return;
+            const select = document.getElementById('sztp_megnevezes');
+            if (!select) return;
+            const mentettId = select.value;
+            select.innerHTML = '<option value="">-- Kiválasztás --</option>';
+            
+            data.lista.forEach(i => {
+                if (i.megnevezes === "GLOBAL_NAP_TIPUSOK") {
+                    adatokBetoltese(i.id, true);
+                    return; 
+                }
+                const opt = document.createElement('option');
+                opt.value = i.id;
+                opt.textContent = i.megnevezes;
+                select.appendChild(opt);
+            });
+            if (mentettId) select.value = mentettId;
+        });
+}
+
+function adatokBetoltese(id, globalisBetoltes = false) {
+    const idInput = document.getElementById('sztp_id');
+    const editInp = document.getElementById('sztp_edit_megnevezes');
+    if (!idInput) return;
+
+    if (!id && !globalisBetoltes) {
+        idInput.value = '';
+        if (editInp) editInp.value = '';
+        document.getElementById('sztp_kod').value = '';
+        document.getElementById('sztp_szin').value = '#ffffff';
+        document.getElementById('sztp_hex').value = '#ffffff';
+        document.getElementById('btn-sztp-feltoltes').disabled = true;
+        document.getElementById('btn-sztp-kezeles').disabled = true;
+        frissitSztpElonezet('picker');
+        return;
+    }
+
+    if (!globalisBetoltes) {
+        document.getElementById('btn-sztp-feltoltes').disabled = false;
+        document.getElementById('btn-sztp-feltoltes').style.background = '#2196F3';
+        document.getElementById('btn-sztp-kezeles').disabled = false;
+        document.getElementById('btn-sztp-kezeles').style.background = '#607d8b';
+    }
+    
+    fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id)
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success || !data.adat) return;
+            if (!globalisBetoltes) {
+                idInput.value = data.adat.id;
+                if (editInp) editInp.value = data.adat.megnevezes;
+                document.getElementById('sztp_kod').value = data.adat.kod;
+                document.getElementById('sztp_szin').value = data.adat.hex_szin;
+                document.getElementById('sztp_hex').value = data.adat.hex_szin;
+            }
+            // ... (fajl_listazasa és extra_adatok betöltése maradhat itt, vagy átveheted a sz_tp_modul.js-ből)
+            frissitSztpElonezet('picker');
+        });
+}
+
+function frissitSztpElonezet(tipus) {
+    const kodInput = document.getElementById('sztp_kod');
+    const picker = document.getElementById('sztp_szin');
+    const hexInput = document.getElementById('sztp_hex');
+    const doboz = document.getElementById('szin-elonezet-doboz');
+    if (!kodInput || !picker || !hexInput) return;
+    if (tipus === 'picker') hexInput.value = picker.value;
+    if (tipus === 'hex' && hexInput.value.length === 7) picker.value = hexInput.value;
+    const kod = kodInput.value || '-';
+    const szin = picker.value;
+    if (doboz) {
+        doboz.style.backgroundColor = szin;
+        doboz.textContent = kod;
+        const r = parseInt(szin.substr(1,2), 16), g = parseInt(szin.substr(3,2), 16), b = parseInt(szin.substr(5,2), 16);
+        doboz.style.color = (((r*299)+(g*587)+(b*114))/1000 >= 128) ? 'black' : 'white';
+    }
+}
