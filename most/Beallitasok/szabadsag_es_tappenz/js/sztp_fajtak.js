@@ -156,3 +156,89 @@ function frissitSztpElonezet(tipus) {
         doboz.style.color = (((r*299)+(g*587)+(b*114))/1000 >= 128) ? 'black' : 'white';
     }
 }
+async function beallitasokMentese(modalbol = false, napModalbol = false) {
+    const select = document.getElementById('sztp_megnevezes');
+    const fajlLista = document.getElementById('sztp-fajl-lista');
+    const napTipusSelect = document.getElementById('sztp_nap_tipusa');
+    
+    const adat = {
+        id: document.getElementById('sztp_id').value,
+        megnevezes: (select && select.selectedIndex > 0) ? select.options[select.selectedIndex].text : null,
+        kod: document.getElementById('sztp_kod')?.value || '',
+        szin: document.getElementById('sztp_szin')?.value || '#ffffff',
+        sablon_neve: null,
+        extra_adatok: [] 
+    };
+
+    // ✨ Ha globális mentés van, és nincs kiválasztott név, adunk neki egy fix nevet
+    if (napModalbol && !adat.megnevezes) {
+        adat.megnevezes = "GLOBAL_NAP_TIPUSOK";
+    }
+
+    if (!adat.megnevezes && !napModalbol) return alert("Válassz vagy adj hozzá megnevezést!");
+
+    // ✨ Nap típusok összegyűjtése a JSON mentéshez
+    if (napTipusSelect) {
+        for (let i = 1; i < napTipusSelect.options.length; i++) {
+            const opt = napTipusSelect.options[i];
+            const reszek = opt.text.match(/(.*) \((.*)\)/);
+            adat.extra_adatok.push({
+                nev: reszek ? reszek[1] : opt.text,
+                jel: opt.value
+            });
+        }
+    }
+
+    let sablonNeve = null;
+
+    if (kivalasztottFajlokBuffer.length > 0) {
+        fajlLista.innerHTML = '<li>⏳ Feltöltés folyamatban...</li>';
+        for (let fajl of kivalasztottFajlokBuffer) {
+            const formData = new FormData();
+            formData.append('sablon', fajl);
+            formData.append('megnevezes', adat.megnevezes); 
+            const relPath = fajl.relPath || fajl.webkitRelativePath || fajl.name;
+            formData.append('relativ_utvonal', relPath);
+            try {
+                const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_feltoltes.php', { method: 'POST', body: formData });
+                const d = await r.json();
+                if (!d.success) throw new Error(d.message);
+            } catch (e) {
+                alert("Hiba: " + e.message);
+                fajlLista.innerHTML = '<li>❌ Hiba történt.</li>';
+                return;
+            }
+        }
+        sablonNeve = adat.megnevezes; // A mappa neve lesz a sablon neve
+        kivalasztottFajlokBuffer = [];
+    } else {
+        const elsoSor = fajlLista.querySelector('li');
+        if (elsoSor && !elsoSor.innerText.includes('Jelenleg nincs')) {
+            sablonNeve = adat.megnevezes;
+        }
+    }
+
+    adat.sablon_neve = sablonNeve;
+
+    fetch('Beallitasok/szabadsag_es_tappenz/sztp_mentes.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(adat)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            listaBetoltese();
+            if (adat.id && !napModalbol) adatokBetoltese(adat.id); 
+            if (modalbol) feltoltoModalBezaras();
+            if (napModalbol) {
+                document.getElementById('sztp-nap-modal').style.display = 'none';
+                alert("Nap típusok mentve!");
+            } else {
+                alert(data.message);
+            }
+        } else {
+            alert("Hiba: " + data.message);
+        }
+    });
+}
