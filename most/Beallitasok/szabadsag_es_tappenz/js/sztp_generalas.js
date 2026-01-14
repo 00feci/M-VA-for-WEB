@@ -1,4 +1,3 @@
-// xcxxx kód, ezt a blokot cseréld
 async function sablonKezeleseOldal(frissitendoMappa = null) {
     const kontener = document.getElementById('modul-tartalom');
     const sel = document.getElementById('sztp_megnevezes');
@@ -317,4 +316,97 @@ function getHivatkozasModalHtml() {
             </div>
         </div>`;
 }
-// kod
+function inicializalFeltoltot() {
+    const zona = document.getElementById('sztp-feltolto-zona');
+    if (!zona) return;
+
+    zona.onclick = (e) => {
+        if (e.target.tagName !== 'BUTTON') sztpTallozas(false);
+    };
+
+    zona.ondragover = e => { e.preventDefault(); zona.style.background = '#e1f0ff'; };
+    zona.ondragleave = () => { zona.style.background = '#f0f7ff'; };
+    zona.ondrop = async e => {
+        e.preventDefault();
+        zona.style.background = '#f0f7ff';
+        const items = e.dataTransfer.items;
+        let mindenFajl = [];
+        for (let i = 0; i < items.length; i++) {
+            const entry = items[i].webkitGetAsEntry();
+            if (entry) {
+                const fajlok = await rekurzivFajlOlvasas(entry);
+                mindenFajl = mindenFajl.concat(fajlok);
+            }
+        }
+        sztpFajlokFeltoltese(mindenFajl);
+    };
+}
+function sztpTallozas(mappaMod) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    // Az accept szűrő eltávolítva, hogy minden fájl látható legyen
+    input.multiple = true;
+    if (mappaMod) input.webkitdirectory = true;
+    input.onchange = e => sztpFajlokFeltoltese(Array.from(e.target.files));
+    input.click();
+}
+// 📂 Segédfüggvény a mappák mélyére ásáshoz
+async function rekurzivFajlOlvasas(entry, path = "") {
+    let fajlok = [];
+    if (entry.isFile) {
+        const fajl = await new Promise(resolve => entry.file(resolve));
+        fajl.relPath = path + fajl.name;
+        fajlok.push(fajl);
+    } else if (entry.isDirectory) {
+        const reader = entry.createReader();
+        const bejegyzesek = await new Promise(resolve => reader.readEntries(resolve));
+        for (const b of bejegyzesek) {
+            fajlok = fajlok.concat(await rekurzivFajlOlvasas(b, path + entry.name + "/"));
+        }
+    }
+    return fajlok;
+}
+
+let kivalasztottFajlokBuffer = []; 
+let aktualisSqlOszlopok = []; // 👈 Itt tároljuk az elérhető SQL oszlopneveket
+let mintaAdatRekord = {}; // 👈 Ebben tároljuk a teljes minta rekordot a számításokhoz
+
+function sztpFajlokFeltoltese(fajlok) {
+    if (!fajlok || fajlok.length === 0) return;
+    
+    kivalasztottFajlokBuffer = fajlok; 
+    const lista = document.getElementById('sztp-fajl-lista');
+    const modalLista = document.getElementById('sztp-modal-fajl-lista');
+    const modalListaKontener = document.getElementById('sztp-modal-fajl-lista-kontener');
+    const statusz = document.getElementById('sztp-modal-statusz');
+    
+    if (lista) lista.innerHTML = ''; 
+    if (modalLista) modalLista.innerHTML = '';
+    if (modalListaKontener) modalListaKontener.style.display = 'block';
+    
+    fajlok.forEach(f => {
+        const relPath = f.relPath || f.webkitRelativePath || f.name;
+        const liHtml = `<li>📄 ${relPath} <span style="color: #f39c12; font-size: 0.8em;">(Mentésre vár...)</span></li>`;
+        if (lista) lista.innerHTML += liHtml;
+        if (modalLista) modalLista.innerHTML += liHtml;
+    });
+
+    if (statusz) {
+        statusz.innerHTML = `✅ ${fajlok.length} fájl csatolva.`;
+    }
+}
+function feltoltoModalMegnyitasa() {
+    const statusz = document.getElementById('sztp-modal-statusz');
+    const modalLista = document.getElementById('sztp-modal-fajl-lista');
+    const modalListaKontener = document.getElementById('sztp-modal-fajl-lista-kontener');
+    
+    if (statusz) statusz.innerHTML = ''; 
+    if (modalLista) modalLista.innerHTML = '';
+    if (modalListaKontener) modalListaKontener.style.display = 'none';
+    
+    document.getElementById('sztp-feltolto-modal').style.display = 'flex';
+}
+
+function feltoltoModalBezaras() {
+    document.getElementById('sztp-feltolto-modal').style.display = 'none';
+}
