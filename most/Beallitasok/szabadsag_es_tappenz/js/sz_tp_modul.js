@@ -1003,9 +1003,9 @@ function getHivatkozasModalHtml() {
             </div>
         </div>`;
 }
-let napTipusSzerkesztesAlatt = null;
 async function globalisSzabalyokMentese() {
     const fajlnev = document.getElementById('sztp_fajlnev_szabaly').value;
     if (!fajlnev) return alert("Adj meg egy fájlnév szabályt!");
     alert("Szabályok rögzítve!");
 }
+
