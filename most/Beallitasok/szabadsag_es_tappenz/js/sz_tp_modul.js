@@ -383,28 +383,3 @@ async function beallitasokMentese(modalbol = false, napModalbol = false) {
         }
     });
 }
-async function sztpElemTorlese(utvonal, kategoria) {
-    if (confirm("BIZTOSAN törölni szeretnéd ezt az elemet?\n" + utvonal)) {
-        try {
-            const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_fajl_torlese.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ path: utvonal })
-            });
-            const d = await r.json();
-            if (d.success) {
-                sablonKezeleseOldal(kategoria); // Megtartjuk az aktuális mappát
-            } else {
-                alert("Hiba: " + d.message);
-            }
-        } catch (e) { console.error(e); }
-    }
-}
-async function globalisSzabalyokMentese() {
-    const fajlnev = document.getElementById('sztp_fajlnev_szabaly').value;
-    if (!fajlnev) return alert("Adj meg egy fájlnév szabályt!");
-    alert("Szabályok rögzítve!");
-}
-
-
-
