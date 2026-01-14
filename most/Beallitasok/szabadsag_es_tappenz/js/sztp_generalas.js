@@ -366,35 +366,6 @@ async function rekurzivFajlOlvasas(entry, path = "") {
     }
     return fajlok;
 }
-
-let kivalasztottFajlokBuffer = []; 
-let aktualisSqlOszlopok = []; // 👈 Itt tároljuk az elérhető SQL oszlopneveket
-let mintaAdatRekord = {}; // 👈 Ebben tároljuk a teljes minta rekordot a számításokhoz
-
-function sztpFajlokFeltoltese(fajlok) {
-    if (!fajlok || fajlok.length === 0) return;
-    
-    kivalasztottFajlokBuffer = fajlok; 
-    const lista = document.getElementById('sztp-fajl-lista');
-    const modalLista = document.getElementById('sztp-modal-fajl-lista');
-    const modalListaKontener = document.getElementById('sztp-modal-fajl-lista-kontener');
-    const statusz = document.getElementById('sztp-modal-statusz');
-    
-    if (lista) lista.innerHTML = ''; 
-    if (modalLista) modalLista.innerHTML = '';
-    if (modalListaKontener) modalListaKontener.style.display = 'block';
-    
-    fajlok.forEach(f => {
-        const relPath = f.relPath || f.webkitRelativePath || f.name;
-        const liHtml = `<li>📄 ${relPath} <span style="color: #f39c12; font-size: 0.8em;">(Mentésre vár...)</span></li>`;
-        if (lista) lista.innerHTML += liHtml;
-        if (modalLista) modalLista.innerHTML += liHtml;
-    });
-
-    if (statusz) {
-        statusz.innerHTML = `✅ ${fajlok.length} fájl csatolva.`;
-    }
-}
 function feltoltoModalMegnyitasa() {
     const statusz = document.getElementById('sztp-modal-statusz');
     const modalLista = document.getElementById('sztp-modal-fajl-lista');
