@@ -55,21 +55,19 @@ function beallitasokTorlese() {
     }
 }
 
-function szuresSztpMegnevezesre(szo) {
-    const select = document.getElementById('sztp_megnevezes');
+function szuresSztpMegnevezesre(szo, targetId = 'sztp_megnevezes') {
+    const select = document.getElementById(targetId);
     if (!select) return;
-    const options = select.options;
     const keresendo = szo.toLowerCase();
-    for (let i = 1; i < options.length; i++) {
-        const szoveg = options[i].text.toLowerCase();
-        options[i].style.display = szoveg.includes(keresendo) ? "" : "none";
+    for (let i = 1; i < select.options.length; i++) {
+        select.options[i].style.display = select.options[i].text.toLowerCase().includes(keresendo) ? "" : "none";
     }
 }
 function fajtaBeallitasokMegnyitasa() {
     const select = document.getElementById('sztp_megnevezes');
-    const editInp = document.getElementById('sztp_edit_megnevezes');
-    if (select && editInp) {
-        editInp.value = select.selectedIndex > 0 ? select.options[select.selectedIndex].text : "";
+    const editSelect = document.getElementById('sztp_edit_megnevezes');
+    if (select && editSelect) {
+        editSelect.value = select.value; // Szinkronizáljuk a választást
     }
     document.getElementById('sztp-fajta-modal').style.display = 'flex';
     frissitSztpElonezet('picker');
@@ -80,38 +78,45 @@ function listaBetoltese() {
         .then(r => r.json())
         .then(data => {
             if (!data.success) return;
-            const select = document.getElementById('sztp_megnevezes');
-            if (!select) return;
-            const mentettId = select.value;
-            select.innerHTML = '<option value="">-- Kiválasztás --</option>';
+            const selects = [document.getElementById('sztp_megnevezes'), document.getElementById('sztp_edit_megnevezes')];
             
-            data.lista.forEach(i => {
-                if (i.megnevezes === "GLOBAL_NAP_TIPUSOK") {
-                    adatokBetoltese(i.id, true);
-                    return; 
-                }
-                const opt = document.createElement('option');
-                opt.value = i.id;
-                opt.textContent = i.megnevezes;
-                select.appendChild(opt);
+            selects.forEach(select => {
+                if (!select) return;
+                const mentettId = select.value;
+                select.innerHTML = '<option value="">-- Kiválasztás --</option>';
+                data.lista.forEach(i => {
+                    if (i.megnevezes === "GLOBAL_NAP_TIPUSOK") {
+                        if (select.id === 'sztp_megnevezes') adatokBetoltese(i.id, true);
+                        return; 
+                    }
+                    const opt = document.createElement('option');
+                    opt.value = i.id;
+                    opt.textContent = i.megnevezes;
+                    select.appendChild(opt);
+                });
+                if (mentettId) select.value = mentettId;
             });
-            if (mentettId) select.value = mentettId;
         });
 }
 
 function adatokBetoltese(id, globalisBetoltes = false) {
-    const idInput = document.getElementById('sztp_id');
-    const editInp = document.getElementById('sztp_edit_megnevezes');
-    if (!idInput) return;
+    const mainSelect = document.getElementById('sztp_megnevezes');
+    const editSelect = document.getElementById('sztp_edit_megnevezes');
+    
+    // Szinkronizáljuk a két lenyílót
+    if (id && !globalisBetoltes) {
+        if (mainSelect && mainSelect.value !== id) mainSelect.value = id;
+        if (editSelect && editSelect.value !== id) editSelect.value = id;
+    }
 
     if (!id && !globalisBetoltes) {
-        idInput.value = '';
-        if (editInp) editInp.value = '';
+        document.getElementById('sztp_id').value = '';
         document.getElementById('sztp_kod').value = '';
         document.getElementById('sztp_szin').value = '#ffffff';
         document.getElementById('sztp_hex').value = '#ffffff';
-        document.getElementById('btn-sztp-feltoltes').disabled = true;
-        document.getElementById('btn-sztp-kezeles').disabled = true;
+        [document.getElementById('btn-sztp-feltoltes'), document.getElementById('btn-sztp-kezeles')].forEach(b => {
+            if(b) { b.disabled = true; b.style.background = '#ccc'; b.style.cursor = 'not-allowed'; }
+        });
         frissitSztpElonezet('picker');
         return;
     }
