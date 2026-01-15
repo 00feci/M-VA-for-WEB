@@ -6,17 +6,13 @@ function szTpModulBetoltese() {
         <div class="sztp-keret" style="display: flex; gap: 40px; padding: 20px; align-items: flex-start;">
             <input type="hidden" id="sztp_id" value=""> 
             
-            <div style="width: 360px; display: flex; flex-direction: column; gap: 15px;">
+           <div style="width: 360px; display: flex; flex-direction: column; gap: 15px;">
                 <div style="background: #1e1e1e; padding: 20px; border-radius: 12px; border: 1px solid #333;">
-                    <button onclick="fajtaBeallitasokMegnyitasa()" style="width: 100%; padding: 12px; background: #2196F3; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">Munkanapok típusa ⚙️</button>
+                    <button onclick="fajtaBeallitasokMegnyitasa()" style="width: 100%; padding: 12px; background: #2196F3; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        Munkanapok típusa ⚙️
+                    </button>
                     
-                    <input type="text" id="sztp_kereso" oninput="szuresSztpMegnevezesre(this.value)" 
-                           placeholder="Keresés..." style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-bottom: none; border-radius: 6px 6px 0 0; font-size: 0.85em;">
-                    <select id="sztp_megnevezes" onchange="adatokBetoltese(this.value)" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 0 0 6px 6px; font-size: 0.9em;">
-                        <option value="">-- Kiválasztás --</option>
-                    </select>
-
-                    <div style="margin-top: 15px; border-top: 1px solid #333; padding-top: 15px;">
+                    <div style="border-top: 1px solid #333; padding-top: 15px;">
                         <button onclick="napTipusSzerkesztoMegnyitasa()" style="width: 100%; padding: 10px; background: #252525; color: #ffeb3b; border: 1px solid #444; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;">
                             Napok típusa ⚙️
                         </button>
@@ -120,3 +116,4 @@ function szTpModulBetoltese() {
         inicializalFeltoltot();
     }, 50);
 }
+
