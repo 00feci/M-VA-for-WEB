@@ -20,6 +20,7 @@ $id = !empty($data['id']) ? intval($data['id']) : null;
 $megnevezes = $data['megnevezes'] ?? '';
 $kod = $data['kod'] ?? '';
 $szin = $data['szin'] ?? '#ffffff';
+$nagy_rekord = $data['nagy_rekord'] ?? 'nem'; // ✨ Új mező fogadása
 $sablon_neve = $data['sablon_neve'] ?? null; // 📄 Sablon neve fogadása
 $extra_adatok = isset($data['extra_adatok']) ? json_encode($data['extra_adatok']) : '[]';
 
@@ -35,17 +36,17 @@ try {
     $existing_id = $stmt_check->fetchColumn();
 
     if ($id || $existing_id) {
-        // UPDATE: ha van ID, vagy ha találtunk meglévő nevet
+        // UPDATE
         $final_id = $id ?: $existing_id;
-        $sql = "UPDATE szabadsag_es_tappenz_beallitasok SET megnevezes = :m, kod = :k, hex_szin = :s, sablon_neve = :sn, extra_adatok = :e WHERE id = :id";
+        $sql = "UPDATE szabadsag_es_tappenz_beallitasok SET megnevezes = :m, kod = :k, hex_szin = :s, nagy_rekord = :nr, sablon_neve = :sn, extra_adatok = :e WHERE id = :id";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute(['m' => $megnevezes, 'k' => $kod, 's' => $szin, 'sn' => $sablon_neve, 'e' => $extra_adatok, 'id' => $final_id]);
+        $stmt->execute(['m' => $megnevezes, 'k' => $kod, 's' => $szin, 'nr' => $nagy_rekord, 'sn' => $sablon_neve, 'e' => $extra_adatok, 'id' => $final_id]);
         $id = $final_id;
     } else {
-        // INSERT: ha teljesen új
-        $sql = "INSERT INTO szabadsag_es_tappenz_beallitasok (megnevezes, kod, hex_szin, sablon_neve, extra_adatok) VALUES (:m, :k, :s, :sn, :e)";
+        // INSERT
+        $sql = "INSERT INTO szabadsag_es_tappenz_beallitasok (megnevezes, kod, hex_szin, nagy_rekord, sablon_neve, extra_adatok) VALUES (:m, :k, :s, :nr, :sn, :e)";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute(['m' => $megnevezes, 'k' => $kod, 's' => $szin, 'sn' => $sablon_neve, 'e' => $extra_adatok]);
+        $stmt->execute(['m' => $megnevezes, 'k' => $kod, 's' => $szin, 'nr' => $nagy_rekord, 'sn' => $sablon_neve, 'e' => $extra_adatok]);
         $id = $pdo->lastInsertId();
     }
 
@@ -53,3 +54,4 @@ try {
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'message' => 'Adatbázis hiba: ' . $e->getMessage()]);
 }
+
