@@ -117,16 +117,21 @@ function adatokBetoltese(id, globalisBetoltes = false) {
         document.getElementById('sztp_kod').value = '';
         document.getElementById('sztp_szin').value = '#ffffff';
         document.getElementById('sztp_hex').value = '#ffffff';
+        const nr = document.getElementById('sztp_nagy_rekord');
+        if (nr) nr.value = 'nem'; // Alaphelyzet: Nem
         [btnFeltolt, btnKezel].forEach(b => { if(b) { b.disabled = true; b.style.background = '#ccc'; b.style.cursor = 'not-allowed'; }});
         frissitSztpElonezet('picker');
         return;
     }
 
-    if (!globalisBetoltes) {
-        [btnFeltolt, btnKezel].forEach(b => { if(b) { b.disabled = false; b.style.cursor = 'pointer'; }});
-        if (btnFeltolt) btnFeltolt.style.background = '#2196F3';
-        if (btnKezel) btnKezel.style.background = '#607d8b';
-    }
+   if (!globalisBetoltes) {
+                idInput.value = data.adat.id;
+                document.getElementById('sztp_kod').value = data.adat.kod;
+                document.getElementById('sztp_szin').value = data.adat.hex_szin;
+                document.getElementById('sztp_hex').value = data.adat.hex_szin;
+                const nr = document.getElementById('sztp_nagy_rekord');
+                if (nr) nr.value = data.adat.nagy_rekord || 'nem'; // Érték betöltése
+            }
     
     fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id)
         .then(r => r.json())
@@ -167,15 +172,14 @@ async function beallitasokMentese(modalbol = false, napModalbol = false) {
     const fajlLista = document.getElementById('sztp-fajl-lista');
     const napTipusSelect = document.getElementById('sztp_nap_tipusa');
     
-    const adat = {
+   const adat = {
         id: document.getElementById('sztp_id').value,
         megnevezes: (select && select.selectedIndex > 0) ? select.options[select.selectedIndex].text : null,
         kod: document.getElementById('sztp_kod')?.value || '',
         szin: document.getElementById('sztp_szin')?.value || '#ffffff',
+        nagy_rekord: document.getElementById('sztp_nagy_rekord')?.value || 'nem', // Új érték bekérése
         sablon_neve: null,
-        extra_adatok: [] 
-    };
-
+        extra_adatok: []
     // ✨ Ha globális mentés van, és nincs kiválasztott név, adunk neki egy fix nevet
     if (napModalbol && !adat.megnevezes) {
         adat.megnevezes = "GLOBAL_NAP_TIPUSOK";
