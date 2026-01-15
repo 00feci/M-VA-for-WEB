@@ -172,24 +172,31 @@ async function beallitasokMentese(modalbol = false, napModalbol = false) {
     const fajlLista = document.getElementById('sztp-fajl-lista');
     const napTipusSelect = document.getElementById('sztp_nap_tipusa');
     
-   const adat = {
+  const adat = {
         id: document.getElementById('sztp_id').value,
         megnevezes: (select && select.selectedIndex > 0) ? select.options[select.selectedIndex].text : null,
         kod: document.getElementById('sztp_kod')?.value || '',
         szin: document.getElementById('sztp_szin')?.value || '#ffffff',
-        nagy_rekord: document.getElementById('sztp_nagy_rekord')?.value || 'nem', // Új érték bekérése
         sablon_neve: null,
-        extra_adatok: []
-    // ✨ Ha globális mentés van, és nincs kiválasztott név, adunk neki egy fix nevet
-    if (napModalbol && !adat.megnevezes) {
-        adat.megnevezes = "GLOBAL_NAP_TIPUSOK";
-    }
+        extra_adatok: {
+            napok: [],
+            nagy_rekord: document.getElementById('sztp_nagy_rekord')?.value || 'nem'
+        } 
+    };
 
+    if (napModalbol && !adat.megnevezes) adat.megnevezes = "GLOBAL_NAP_TIPUSOK";
     if (!adat.megnevezes && !napModalbol) return alert("Válassz vagy adj hozzá megnevezést!");
 
-    // ✨ Nap típusok összegyűjtése a JSON mentéshez
     if (napTipusSelect) {
         for (let i = 1; i < napTipusSelect.options.length; i++) {
+            const opt = napTipusSelect.options[i];
+            const reszek = opt.text.match(/(.*) \((.*)\)/);
+            adat.extra_adatok.napok.push({
+                nev: reszek ? reszek[1] : opt.text,
+                jel: opt.value
+            });
+        }
+    }
             const opt = napTipusSelect.options[i];
             const reszek = opt.text.match(/(.*) \((.*)\)/);
             adat.extra_adatok.push({
