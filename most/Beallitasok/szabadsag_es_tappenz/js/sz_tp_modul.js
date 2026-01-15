@@ -86,7 +86,7 @@ function szTpModulBetoltese() {
                         </div>
                     </div>
 
-                    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 20px;">
+                   <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
                         <div style="display: flex; gap: 10px;">
                             <button onclick="beallitasokMentese()" style="flex: 1; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">💾 Mentés</button>
                             <button id="btn-sztp-feltoltes" onclick="feltoltoModalMegnyitasa()" disabled style="flex: 1; padding: 12px; background: #ccc; color: white; border: none; border-radius: 8px; cursor: not-allowed; font-weight: bold;">📁 Sablon feltöltése</button>
@@ -95,7 +95,16 @@ function szTpModulBetoltese() {
                             <button onclick="beallitasokTorlese()" style="flex: 1; padding: 12px; background: #f44336; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">🗑️ Törlés</button>
                             <button id="btn-sztp-kezeles" onclick="sablonKezeleseOldal()" disabled style="flex: 1; padding: 12px; background: #ccc; color: white; border: none; border-radius: 8px; cursor: not-allowed; font-weight: bold;">✏️ Sablon kezelése</button>
                         </div>
-                        <button onclick="document.getElementById('sztp-fajta-modal').style.display='none'" style="padding: 12px; background: #444; color: white; border: none; border-radius: 8px; cursor: pointer; align-self: flex-start; min-width: 100px;">Bezárás</button>
+                        <div style="display: flex; gap: 10px;">
+                            <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; background: #252525; padding: 8px 12px; border-radius: 8px; border: 1px solid #444;">
+                                <label style="font-size: 0.75em; color: #aaa; font-weight: bold;">NAGY rekord?</label>
+                                <select id="sztp_nagy_rekord" style="padding: 4px; background: #121212; border: 1px solid #333; color: white; border-radius: 4px; cursor: pointer; font-size: 0.85em;">
+                                    <option value="nem">Nem</option>
+                                    <option value="igen">Igen</option>
+                                </select>
+                            </div>
+                            <button onclick="document.getElementById('sztp-fajta-modal').style.display='none'" style="flex: 1; padding: 12px; background: #444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Bezárás</button>
+                        </div>
                     </div>
                 </div>
 
@@ -116,4 +125,3 @@ function szTpModulBetoltese() {
         inicializalFeltoltot();
     }, 50);
 }
-
