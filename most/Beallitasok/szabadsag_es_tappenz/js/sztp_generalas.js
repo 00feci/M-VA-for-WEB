@@ -1,6 +1,7 @@
 async function sablonKezeleseOldal(frissitendoMappa = null) {
     const kontener = document.getElementById('modul-tartalom');
-    const sel = document.getElementById('sztp_megnevezes');
+    // ✨ Frissítve: Ha nincs főoldali select, a popup selectjét nézzük
+    const sel = document.getElementById('sztp_megnevezes') || document.getElementById('sztp_edit_megnevezes');
     let megnevezesValue = "";
     const isMappaValid = frissitendoMappa && String(frissitendoMappa) !== "undefined" && String(frissitendoMappa) !== "null";
 
