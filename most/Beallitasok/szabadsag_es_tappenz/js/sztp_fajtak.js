@@ -98,9 +98,7 @@ function listaBetoltese() {
             });
         });
 }
-
 function adatokBetoltese(id, globalisBetoltes = false) {
-    // ✨ Fontos: a változókat a függvény elején, de a fetch előtt kérjük le!
     const idInput = document.getElementById('sztp_id');
     const mainSelect = document.getElementById('sztp_megnevezes');
     const editSelect = document.getElementById('sztp_edit_megnevezes');
@@ -109,7 +107,6 @@ function adatokBetoltese(id, globalisBetoltes = false) {
 
     if (!idInput) return;
 
-    // Szinkronizáljuk a két választót (főoldal és popup)
     if (id && !globalisBetoltes) {
         if (mainSelect && mainSelect.value !== id) mainSelect.value = id;
         if (editSelect && editSelect.value !== id) editSelect.value = id;
