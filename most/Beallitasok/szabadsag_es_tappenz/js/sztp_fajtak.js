@@ -114,12 +114,19 @@ function adatokBetoltese(id, globalisBetoltes = false) {
 
     if (!id && !globalisBetoltes) {
         idInput.value = '';
+        if (editInp) editInp.value = '';
         document.getElementById('sztp_kod').value = '';
         document.getElementById('sztp_szin').value = '#ffffff';
         document.getElementById('sztp_hex').value = '#ffffff';
-        const nr = document.getElementById('sztp_nagy_rekord');
-        if (nr) nr.value = 'nem'; // Alaphelyzet: Nem
-        [btnFeltolt, btnKezel].forEach(b => { if(b) { b.disabled = true; b.style.background = '#ccc'; b.style.cursor = 'not-allowed'; }});
+        
+        // ✨ Mező alaphelyzetbe állítása
+        const nrSelect = document.getElementById('sztp_nagy_rekord');
+        if (nrSelect) nrSelect.value = 'nem';
+
+        document.getElementById('btn-sztp-feltoltes').disabled = true;
+        document.getElementById('btn-sztp-feltoltes').style.background = '#ccc';
+        document.getElementById('btn-sztp-kezeles').disabled = true;
+        document.getElementById('btn-sztp-kezeles').style.background = '#ccc';
         frissitSztpElonezet('picker');
         return;
     }
@@ -139,11 +146,19 @@ function adatokBetoltese(id, globalisBetoltes = false) {
             if (!data.success || !data.adat) return;
             
             // ✨ Itt a hiba javítása: használjuk a már definiált idInput-ot
-            if (!globalisBetoltes) {
+           if (!globalisBetoltes) {
                 idInput.value = data.adat.id;
+                if (editInp) editInp.value = data.adat.megnevezes;
                 document.getElementById('sztp_kod').value = data.adat.kod;
                 document.getElementById('sztp_szin').value = data.adat.hex_szin;
                 document.getElementById('sztp_hex').value = data.adat.hex_szin;
+
+                // ✨ Nagy rekord értékének betöltése az extra_adatok JSON-ből
+                try {
+                    const extra = data.adat.extra_adatok ? JSON.parse(data.adat.extra_adatok) : {};
+                    const nrSelect = document.getElementById('sztp_nagy_rekord');
+                    if (nrSelect) nrSelect.value = extra.nagy_rekord || 'nem';
+                } catch (e) { console.error("Hiba az extra_adatok feldolgozásakor", e); }
             }
             // ... (fajl_listazasa és extra_adatok betöltése maradhat itt, vagy átveheted a sz_tp_modul.js-ből)
             frissitSztpElonezet('picker');
