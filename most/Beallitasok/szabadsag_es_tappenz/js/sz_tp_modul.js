@@ -73,12 +73,13 @@ function szTpModulBetoltese() {
                             <input type="text" id="sztp_kod" maxlength="10" oninput="frissitSztpElonezet('kod')" 
                                    style="width: 100%; padding: 6px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px; text-align: center;">
                         </div>
-                        <div style="flex: 1;">
+                        <div style="width: 38px;">
                             <label style="display: block; font-size: 0.75em; color: #aaa; margin-bottom: 3px;">Szín:</label>
-                            <div style="display: flex; gap: 5px;">
-                                <input type="color" id="sztp_szin" oninput="frissitSztpElonezet('picker')" style="width: 35px; height: 32px; cursor: pointer; background: none; border: 1px solid #444; border-radius: 4px; padding: 2px;">
-                                <input type="text" id="sztp_hex" oninput="frissitSztpElonezet('hex')" placeholder="#ffffff" maxlength="7" style="width: 90px; padding: 6px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px; font-family: monospace;">
-                            </div>
+                            <input type="color" id="sztp_szin" oninput="frissitSztpElonezet('picker')" style="width: 38px; height: 36px; cursor: pointer; background: none; border: 1px solid #444; border-radius: 4px; padding: 2px;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 0.75em; color: #aaa; margin-bottom: 3px;">HEX kód:</label>
+                            <input type="text" id="sztp_hex" oninput="frissitSztpElonezet('hex')" placeholder="#ffffff" maxlength="7" style="width: 100%; padding: 8px; background: #121212; border: 1px solid #444; color: white; border-radius: 4px; font-family: monospace; font-size: 0.85em;">
                         </div>
                         <div style="width: 60px; text-align: center;">
                             <label style="display: block; font-size: 0.7em; color: #aaa; margin-bottom: 3px;">MINTA</label>
@@ -116,4 +117,3 @@ function szTpModulBetoltese() {
         inicializalFeltoltot();
     }, 50);
 }
-
