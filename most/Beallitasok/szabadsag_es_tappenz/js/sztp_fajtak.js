@@ -137,7 +137,7 @@ function adatokBetoltese(id, globalisBetoltes = false) {
         .then(data => {
             if (!data.success || !data.adat) return;
             
-            if (!globalisBetoltes) {
+           if (!globalisBetoltes) {
                 idInput.value = data.adat.id;
                 document.getElementById('sztp_kod').value = data.adat.kod;
                 document.getElementById('sztp_szin').value = data.adat.hex_szin;
@@ -148,6 +148,18 @@ function adatokBetoltese(id, globalisBetoltes = false) {
                     const nrSelect = document.getElementById('sztp_nagy_rekord');
                     if (nrSelect) nrSelect.value = extra.nagy_rekord || 'nem';
                 } catch (e) { console.error("JSON hiba", e); }
+
+                // ✨ ÚJ: Fájlok listázásának lekérése az ID alapján
+                fetch('Beallitasok/szabadsag_es_tappenz/sztp_fajl_listazasa.php?id=' + data.adat.id)
+                    .then(r => r.json())
+                    .then(fData => {
+                        const lista = document.getElementById('sztp-fajl-lista');
+                        if (lista) {
+                            lista.innerHTML = (fData.success && fData.fajlok.length > 0)
+                                ? fData.fajlok.map(f => `<li>📄 ${f}</li>`).join('')
+                                : `<li>📄 Jelenleg nincs fájl</li>`;
+                        }
+                    });
             }
             frissitSztpElonezet('picker');
         });
