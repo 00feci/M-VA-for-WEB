@@ -99,10 +99,10 @@ function listaBetoltese() {
         });
 }
 async function beallitasokMentese(modalbol = false, napModalbol = false) {
+    // ✨ Megnézzük mindkét selectet, és azt használjuk, amelyik létezik
     const mainSelect = document.getElementById('sztp_megnevezes');
     const editSelect = document.getElementById('sztp_edit_megnevezes');
-    const select = editSelect || mainSelect; // ✨ Bármelyik létezik, azt használjuk
-    
+    const select = editSelect || mainSelect;
     const fajlLista = document.getElementById('sztp-fajl-lista');
     const napTipusSelect = document.getElementById('sztp_nap_tipusa');
     
