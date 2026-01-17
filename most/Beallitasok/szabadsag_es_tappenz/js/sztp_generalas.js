@@ -14,7 +14,7 @@ async function sablonKezeleseOldal(frissitendoMappa = null) {
 
    const gombSor = document.getElementById('modul-gomb-sor');
     if (gombSor) {
-        gombSor.innerHTML = `<div class="dashboard-gomb" style="flex: 1; background: #607d8b; color: white;" onclick="fajtaBeallitasokMegnyitasa()">🔙 Vissza a beállításokhoz</div>`;
+        gombSor.innerHTML = `<div class="dashboard-gomb" style="flex: 1; background: #607d8b; color: white;" onclick="szTpModulBetoltese(); setTimeout(() => fajtaBeallitasokMegnyitasa(), 100);">🔙 Vissza a beállításokhoz</div>`;
     }
 
     kontener.innerHTML = `
