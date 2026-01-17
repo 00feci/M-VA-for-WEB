@@ -98,6 +98,7 @@ function listaBetoltese() {
             });
         });
 }
+// xcxxx kód, ezt a blokot cseréld
 function adatokBetoltese(id, globalisBetoltes = false) {
     const idInput = document.getElementById('sztp_id');
     const editSelect = document.getElementById('sztp_edit_megnevezes');
@@ -108,9 +109,9 @@ function adatokBetoltese(id, globalisBetoltes = false) {
     if (!id && !globalisBetoltes) {
         idInput.value = '';
         if (editSelect) editSelect.value = '';
-        document.getElementById('sztp_kod').value = '';
-        document.getElementById('sztp_szin').value = '#ffffff';
-        document.getElementById('sztp_hex').value = '#ffffff';
+        if (document.getElementById('sztp_kod')) document.getElementById('sztp_kod').value = '';
+        if (document.getElementById('sztp_szin')) document.getElementById('sztp_szin').value = '#ffffff';
+        if (document.getElementById('sztp_hex')) document.getElementById('sztp_hex').value = '#ffffff';
         const nrSelect = document.getElementById('sztp_nagy_rekord');
         if (nrSelect) nrSelect.value = 'nem';
         [btnFeltolt, btnKezel].forEach(b => { if(b) { b.disabled = true; b.style.background = '#ccc'; }});
@@ -218,3 +219,4 @@ async function beallitasokMentese(modalbol = false, napModalbol = false) {
         } else { alert("Hiba: " + data.message); }
     });
 }
+// kod
