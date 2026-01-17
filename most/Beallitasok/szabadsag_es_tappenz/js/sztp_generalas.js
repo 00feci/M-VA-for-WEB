@@ -12,9 +12,9 @@ async function sablonKezeleseOldal(frissitendoMappa = null) {
     }
     const megjelenitettCim = megnevezesValue || "Sablonok";
 
-    const gombSor = document.getElementById('modul-gomb-sor');
+   const gombSor = document.getElementById('modul-gomb-sor');
     if (gombSor) {
-        gombSor.innerHTML = `<div class="dashboard-gomb" style="flex: 1; background: #607d8b; color: white;" onclick="szTpModulBetoltese()">🔙 Vissza a beállításokhoz</div>`;
+        gombSor.innerHTML = `<div class="dashboard-gomb" style="flex: 1; background: #607d8b; color: white;" onclick="fajtaBeallitasokMegnyitasa()">🔙 Vissza a beállításokhoz</div>`;
     }
 
     kontener.innerHTML = `
