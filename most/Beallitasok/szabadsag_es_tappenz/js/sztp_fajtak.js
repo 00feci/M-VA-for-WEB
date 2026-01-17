@@ -1,3 +1,5 @@
+let kivalasztottFajlokBuffer = []; // ✨ EZ HIÁNYZOTT! Létrehozzuk a globális változót.
+
 function megnevezesSzerkesztoMegnyitasa() {
     const modal = document.getElementById('sztp-modal');
     if (modal) {
