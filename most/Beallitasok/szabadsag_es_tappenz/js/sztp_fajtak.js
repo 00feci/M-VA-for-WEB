@@ -99,39 +99,9 @@ function listaBetoltese() {
         });
 }
 async function beallitasokMentese(modalbol = false, napModalbol = false) {
-    // ✨ Megnézzük mindkét selectet, és azt használjuk, amelyik létezik
     const mainSelect = document.getElementById('sztp_megnevezes');
     const editSelect = document.getElementById('sztp_edit_megnevezes');
     const select = editSelect || mainSelect;
-    const fajlLista = document.getElementById('sztp-fajl-lista');
-    const napTipusSelect = document.getElementById('sztp_nap_tipusa');
-    
-    const adat = {
-        id: document.getElementById('sztp_id').value,
-        // ✨ Javítva a név lekérése
-        megnevezes: (select && select.selectedIndex > 0) ? select.options[select.selectedIndex].text : null,
-        kod: document.getElementById('sztp_kod')?.value || '',
-
-function frissitSztpElonezet(tipus) {
-    const kodInput = document.getElementById('sztp_kod');
-    const picker = document.getElementById('sztp_szin');
-    const hexInput = document.getElementById('sztp_hex');
-    const doboz = document.getElementById('szin-elonezet-doboz');
-    if (!kodInput || !picker || !hexInput) return;
-    if (tipus === 'picker') hexInput.value = picker.value;
-    if (tipus === 'hex' && hexInput.value.length === 7) picker.value = hexInput.value;
-    const kod = kodInput.value || '-';
-    const szin = picker.value;
-    if (doboz) {
-        doboz.style.backgroundColor = szin;
-        doboz.textContent = kod;
-        const r = parseInt(szin.substr(1,2), 16), g = parseInt(szin.substr(3,2), 16), b = parseInt(szin.substr(5,2), 16);
-        doboz.style.color = (((r*299)+(g*587)+(b*114))/1000 >= 128) ? 'black' : 'white';
-    }
-}
-
-async function beallitasokMentese(modalbol = false, napModalbol = false) {
-    const select = document.getElementById('sztp_megnevezes');
     const fajlLista = document.getElementById('sztp-fajl-lista');
     const napTipusSelect = document.getElementById('sztp_nap_tipusa');
     
