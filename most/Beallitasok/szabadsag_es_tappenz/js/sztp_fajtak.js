@@ -112,8 +112,9 @@ function adatokBetoltese(id, globalisBetoltes = false) {
         if (editSelect && editSelect.value !== id) editSelect.value = id;
     }
 
-    if (!id && !globalisBetoltes) {
+   if (!id && !globalisBetoltes) {
         idInput.value = '';
+        if (editSelect) editSelect.value = '';
         if (document.getElementById('sztp_kod')) document.getElementById('sztp_kod').value = '';
         if (document.getElementById('sztp_szin')) document.getElementById('sztp_szin').value = '#ffffff';
         if (document.getElementById('sztp_hex')) document.getElementById('sztp_hex').value = '#ffffff';
