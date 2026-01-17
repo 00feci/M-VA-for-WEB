@@ -98,73 +98,19 @@ function listaBetoltese() {
             });
         });
 }
-function adatokBetoltese(id, globalisBetoltes = false) {
-    const idInput = document.getElementById('sztp_id');
+async function beallitasokMentese(modalbol = false, napModalbol = false) {
     const mainSelect = document.getElementById('sztp_megnevezes');
     const editSelect = document.getElementById('sztp_edit_megnevezes');
-    const btnFeltolt = document.getElementById('btn-sztp-feltoltes');
-    const btnKezel = document.getElementById('btn-sztp-kezeles');
-
-    if (!idInput) return;
-
-    if (id && !globalisBetoltes) {
-        if (mainSelect && mainSelect.value !== id) mainSelect.value = id;
-        if (editSelect && editSelect.value !== id) editSelect.value = id;
-    }
-
-   if (!id && !globalisBetoltes) {
-        idInput.value = '';
-        if (editSelect) editSelect.value = '';
-        if (document.getElementById('sztp_kod')) document.getElementById('sztp_kod').value = '';
-        if (document.getElementById('sztp_szin')) document.getElementById('sztp_szin').value = '#ffffff';
-        if (document.getElementById('sztp_hex')) document.getElementById('sztp_hex').value = '#ffffff';
-        
-        const nrSelect = document.getElementById('sztp_nagy_rekord');
-        if (nrSelect) nrSelect.value = 'nem';
-
-        [btnFeltolt, btnKezel].forEach(b => { if(b) { b.disabled = true; b.style.background = '#ccc'; }});
-        frissitSztpElonezet('picker');
-        return;
-    }
-
-    if (!globalisBetoltes) {
-        [btnFeltolt, btnKezel].forEach(b => { if(b) { b.disabled = false; b.style.cursor = 'pointer'; }});
-        if (btnFeltolt) btnFeltolt.style.background = '#2196F3';
-        if (btnKezel) btnKezel.style.background = '#607d8b';
-    }
+    const select = editSelect || mainSelect; // ✨ Bármelyik létezik, azt használjuk
     
-    fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id)
-        .then(r => r.json())
-        .then(data => {
-            if (!data.success || !data.adat) return;
-            
-           if (!globalisBetoltes) {
-                idInput.value = data.adat.id;
-                document.getElementById('sztp_kod').value = data.adat.kod;
-                document.getElementById('sztp_szin').value = data.adat.hex_szin;
-                document.getElementById('sztp_hex').value = data.adat.hex_szin;
-
-                try {
-                    const extra = data.adat.extra_adatok ? JSON.parse(data.adat.extra_adatok) : {};
-                    const nrSelect = document.getElementById('sztp_nagy_rekord');
-                    if (nrSelect) nrSelect.value = extra.nagy_rekord || 'nem';
-                } catch (e) { console.error("JSON hiba", e); }
-
-                // ✨ ÚJ: Fájlok listázásának lekérése az ID alapján
-                fetch('Beallitasok/szabadsag_es_tappenz/sztp_fajl_listazasa.php?id=' + data.adat.id)
-                    .then(r => r.json())
-                    .then(fData => {
-                        const lista = document.getElementById('sztp-fajl-lista');
-                        if (lista) {
-                            lista.innerHTML = (fData.success && fData.fajlok.length > 0)
-                                ? fData.fajlok.map(f => `<li>📄 ${f}</li>`).join('')
-                                : `<li>📄 Jelenleg nincs fájl</li>`;
-                        }
-                    });
-            }
-            frissitSztpElonezet('picker');
-        });
-}
+    const fajlLista = document.getElementById('sztp-fajl-lista');
+    const napTipusSelect = document.getElementById('sztp_nap_tipusa');
+    
+    const adat = {
+        id: document.getElementById('sztp_id').value,
+        // ✨ Javítva a név lekérése
+        megnevezes: (select && select.selectedIndex > 0) ? select.options[select.selectedIndex].text : null,
+        kod: document.getElementById('sztp_kod')?.value || '',
 
 function frissitSztpElonezet(tipus) {
     const kodInput = document.getElementById('sztp_kod');
