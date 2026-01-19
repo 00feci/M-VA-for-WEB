@@ -39,13 +39,16 @@ function renderelFa(elemek, aktualisKategoria = "") {
         const ikon = i.type === 'folder' ? '📂' : '📄';
         const isDoc = i.name.toLowerCase().endsWith('.doc') || i.name.toLowerCase().endsWith('.docx');
         const tisztaUtvonal = i.path.replace(/\\/g, '/'), kodoltUtvonal = encodeURI(tisztaUtvonal);
+        
         html += `<li style="color: #2196F3; border-bottom: 1px solid #222; padding: 2px 0;">
             <span style="cursor: default; font-weight: bold; min-width: 250px; display: inline-block;">${ikon} ${i.name}</span>
             <span style="display: inline-flex; gap: 12px; align-items: center; margin-left: 10px; vertical-align: middle;">
-                ${i.type === 'file' ? `<a href="/Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/${kodoltUtvonal}" download style="text-decoration: none; font-size: 1.25em;">📥</a>` : ''}
-                ${isDoc ? `<div style="display: flex; align-items: center; gap: 4px; background: #121212; padding: 2px 6px; border-radius: 4px; border: 1px solid #333;" title="PDF készítés ebből a fájlból"><span style="font-size: 0.7em; color: #888;">PDF</span><input type="checkbox" style="cursor:pointer;"></div>` : ''}
-                <button onclick="sztpGyorsFeltoltesInditasa('${tisztaUtvonal}', ${i.type === 'folder'}, '${aktualisKategoria}')" style="border: none; background: none; cursor: pointer; color: #4CAF50; font-size: 1.25em; padding: 0;">📤</button>
-                <button onclick="sztpElemTorlese('${tisztaUtvonal}', '${aktualisKategoria}')" style="border: none; background: none; cursor: pointer; color: #f44336; font-size: 1.2em; padding: 0;">🗑️</button>
+                ${i.type === 'file' ? `<a href="/Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/${kodoltUtvonal}" download style="text-decoration: none; font-size: 1.25em;" title="Letöltés">📥</a>` : ''}
+                
+                ${isDoc ? `<div style="display: inline-flex; align-items: center; gap: 4px; background: #121212; padding: 2px 6px; border-radius: 4px; border: 1px solid #333;" title="PDF készítés ebből a fájlból"><span style="font-size: 0.7em; color: #888;">PDF</span><input type="checkbox" style="cursor:pointer;" onclick="console.log('Egyedi PDF mentés:', '${tisztaUtvonal}', this.checked)"></div>` : ''}
+
+                <button onclick="sztpGyorsFeltoltesInditasa('${tisztaUtvonal}', ${i.type === 'folder'}, '${aktualisKategoria}')" style="border: none; background: none; cursor: pointer; color: #4CAF50; font-size: 1.25em; padding: 0;" title="Feltöltés / Felülírás">📤</button>
+                <button onclick="sztpElemTorlese('${tisztaUtvonal}', '${aktualisKategoria}')" style="border: none; background: none; cursor: pointer; color: #f44336; font-size: 1.2em; padding: 0;" title="Törlés">🗑️</button>
             </span>
             ${i.date ? `<span style="color: #777; font-size: 0.8em; margin-left: 15px;">🕒 ${i.date}</span>` : ''}
             ${i.children ? renderelFa(i.children, aktualisKategoria) : ''}
