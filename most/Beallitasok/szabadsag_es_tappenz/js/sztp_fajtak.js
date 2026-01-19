@@ -133,9 +133,9 @@ function adatokBetoltese(id, globalisBetoltes = false) {
             if (!data.success || !data.adat) return;
             if (!globalisBetoltes) {
                 const elKod = document.getElementById('sztp_kod'), elSzin = document.getElementById('sztp_szin'), elHex = document.getElementById('sztp_hex');
-                idInput.value = data.adat.id;
+                if (idInput) idInput.value = data.adat.id;
                 if (editSelect) editSelect.value = data.adat.id;
-                // ✨ Csak akkor töltjük be az értékeket, ha a mezők léteznek a felületen
+                // ✨ Csak akkor módosítjuk, ha az elemek léteznek a felületen
                 if (elKod) elKod.value = data.adat.kod;
                 if (elSzin) elSzin.value = data.adat.hex_szin;
                 if (elHex) elHex.value = data.adat.hex_szin;
