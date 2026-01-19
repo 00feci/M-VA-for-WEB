@@ -132,11 +132,13 @@ function adatokBetoltese(id, globalisBetoltes = false) {
         .then(data => {
             if (!data.success || !data.adat) return;
             if (!globalisBetoltes) {
+                const elKod = document.getElementById('sztp_kod'), elSzin = document.getElementById('sztp_szin'), elHex = document.getElementById('sztp_hex');
                 idInput.value = data.adat.id;
                 if (editSelect) editSelect.value = data.adat.id;
-                document.getElementById('sztp_kod').value = data.adat.kod;
-                document.getElementById('sztp_szin').value = data.adat.hex_szin;
-                document.getElementById('sztp_hex').value = data.adat.hex_szin;
+                // ✨ Csak akkor töltjük be az értékeket, ha a mezők léteznek a felületen
+                if (elKod) elKod.value = data.adat.kod;
+                if (elSzin) elSzin.value = data.adat.hex_szin;
+                if (elHex) elHex.value = data.adat.hex_szin;
                 try {
                     const extra = data.adat.extra_adatok ? JSON.parse(data.adat.extra_adatok) : {};
                     const nrSelect = document.getElementById('sztp_nagy_rekord');
@@ -174,13 +176,30 @@ async function beallitasokMentese(modalbol = false, napModalbol = false) {
     const mainSelect = document.getElementById('sztp_megnevezes'), editSelect = document.getElementById('sztp_edit_megnevezes');
     const select = (editSelect && editSelect.value) ? editSelect : mainSelect;
     const fajlLista = document.getElementById('sztp-fajl-lista'), napTipusSelect = document.getElementById('sztp_nap_tipusa');
+    
+    const id = document.getElementById('sztp_id').value;
+    let extra = { napok: [], nagy_rekord: document.getElementById('sztp_nagy_rekord')?.value || 'nem' };
+
+    // ✨ Meglévő extra adatok (pl. PDF beállítások) megőrzése
+    if (id) {
+        try {
+            const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id);
+            const d = await r.json();
+            if (d.success && d.adat.extra_adatok) {
+                const regiExtra = JSON.parse(d.adat.extra_adatok);
+                // Összefésüljük a PDF beállításokat az új adatokkal
+                extra = { ...regiExtra, ...extra };
+            }
+        } catch (e) { console.error("Hiba az extra adatok megőrzésekor", e); }
+    }
+
     const adat = {
-        id: document.getElementById('sztp_id').value,
+        id: id,
         megnevezes: (select && select.selectedIndex > 0) ? select.options[select.selectedIndex].text : null,
         kod: document.getElementById('sztp_kod')?.value || '',
         szin: document.getElementById('sztp_szin')?.value || '#ffffff',
         sablon_neve: null,
-        extra_adatok: { napok: [], nagy_rekord: document.getElementById('sztp_nagy_rekord')?.value || 'nem' } 
+        extra_adatok: extra 
     };
     if (napModalbol && !adat.megnevezes) adat.megnevezes = "GLOBAL_NAP_TIPUSOK";
     if (!adat.megnevezes && !napModalbol) return alert("Válassz vagy adj hozzá megnevezést!");
