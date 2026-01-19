@@ -21,12 +21,15 @@ async function sablonKezeleseOldal(frissitendoMappa = null) {
         <div style="padding: 10px; background: #121212; min-height: 500px; border-radius: 8px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h3 style="margin: 0; color: white; font-size: 1.1em;">📁 ${megjelenitettCim} mappaszerkezete</h3>
-                <div style="display: flex; align-items: center; gap: 10px; background: #252525; padding: 5px 12px; border-radius: 6px; border: 1px solid #444;">
-                    <span style="font-size: 0.8em; color: #aaa;">PDF készítés összesre (doc/docx):</span>
-                    <label class="sztp-switch">
-                        <input type="checkbox" id="pdf-all-toggle" onclick="alert('Fejlesztés alatt: Minden dokumentum PDF-ként fog generálódni.')">
-                        <span class="sztp-slider"></span>
-                    </label>
+               <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="display: flex; align-items: center; gap: 10px; background: #252525; padding: 5px 12px; border-radius: 6px; border: 1px solid #444;">
+                        <span style="font-size: 0.8em; color: #aaa;">Összesre (doc/docx):</span>
+                        <label class="sztp-switch">
+                            <input type="checkbox" id="pdf-all-toggle" onclick="sztpGlobalPdfToggle(this.checked)">
+                            <span class="sztp-slider"></span>
+                        </label>
+                    </div>
+                    <button onclick="sztpPdfMentese()" style="padding: 6px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85em;">💾 PDF mentése</button>
                 </div>
             </div>
             <div id="sztp-fajl-fa-kontener" style="background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; overflow: auto; min-height: 300px;">
@@ -56,9 +59,7 @@ function renderelFa(elemek, aktualisKategoria = "") {
             <span style="cursor: default; font-weight: bold; min-width: 250px; display: inline-block;">${ikon} ${i.name}</span>
             <span style="display: inline-flex; gap: 12px; align-items: center; margin-left: 10px; vertical-align: middle;">
                 ${i.type === 'file' ? `<a href="/Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/${kodoltUtvonal}" download style="text-decoration: none; font-size: 1.25em;" title="Letöltés">📥</a>` : ''}
-                
-                ${isDoc ? `<div style="display: inline-flex; align-items: center; gap: 4px; background: #121212; padding: 2px 6px; border-radius: 4px; border: 1px solid #333;" title="PDF készítés ebből a fájlból"><span style="font-size: 0.7em; color: #888;">PDF</span><input type="checkbox" style="cursor:pointer;" onclick="console.log('Egyedi PDF mentés:', '${tisztaUtvonal}', this.checked)"></div>` : ''}
-
+                ${isDoc ? `<div style="display: inline-flex; align-items: center; gap: 4px; background: #121212; padding: 2px 6px; border-radius: 4px; border: 1px solid #333;" title="PDF készítés ebből a fájlból"><span style="font-size: 0.7em; color: #888;">PDF</span><input type="checkbox" class="sztp-pdf-toggle" data-path="${tisztaUtvonal}" style="cursor:pointer;" onclick="sztpEgyediPdfToggle()"></div>` : ''}
                 <button onclick="sztpGyorsFeltoltesInditasa('${tisztaUtvonal}', ${i.type === 'folder'}, '${aktualisKategoria}')" style="border: none; background: none; cursor: pointer; color: #4CAF50; font-size: 1.25em; padding: 0;" title="Feltöltés / Felülírás">📤</button>
                 <button onclick="sztpElemTorlese('${tisztaUtvonal}', '${aktualisKategoria}')" style="border: none; background: none; cursor: pointer; color: #f44336; font-size: 1.2em; padding: 0;" title="Törlés">🗑️</button>
             </span>
