@@ -60,7 +60,9 @@ async function sablonKezeleseOldal(frissitendoMappa = null) {
                 if(allCheck) allCheck.checked = true;
             }
         }
+}
     } catch (e) { console.error(e); }
+} // ✨ EZ HIÁNYZOTT! Lezárjuk a sablonKezeleseOldal függvényt.
 
 function renderelFa(elemek, aktualisKategoria = "", pdfSettings = null) {
     if (!elemek || elemek.length === 0) return '<p style="color: #666;">A mappa üres.</p>';
