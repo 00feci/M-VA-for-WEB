@@ -159,6 +159,18 @@ function adatokBetoltese(id, globalisBetoltes = false) {
         });
 }
 
+async function listaBetoltese() {
+    const lista = document.getElementById('sztp-fajl-lista'), idInput = document.getElementById('sztp_id'), mainSelect = document.getElementById('sztp_megnevezes');
+    if (!lista || !idInput || !idInput.value) return;
+    
+    // ✨ Megnevezés kinyerése a mappa azonosításhoz
+    const select = document.getElementById('sztp_edit_megnevezes') || mainSelect;
+    const megnevezes = (select && select.selectedIndex > 0) ? select.options[select.selectedIndex].text : "";
+
+    try {
+        // ✨ Elküldjük az ID-t és a megnevezést is a PHP-nak
+        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_fajl_listazasa.php?id=' + idInput.value + '&megnevezes=' + encodeURIComponent(megnevezes));
+
 function frissitSztpElonezet(tipus) {
     const kodInput = document.getElementById('sztp_kod'), picker = document.getElementById('sztp_szin'), hexInput = document.getElementById('sztp_hex'), doboz = document.getElementById('szin-elonezet-doboz');
     if (!kodInput || !picker || !hexInput) return;
