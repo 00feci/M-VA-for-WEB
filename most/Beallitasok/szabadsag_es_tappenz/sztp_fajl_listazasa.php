@@ -4,19 +4,20 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/Iroda/sql_config.php';
 $pdo = csatlakozasSzerver1();
 header('Content-Type: application/json');
 
-$megnevezes = $_GET['megnevezes'] ?? null;
 $id = $_GET['id'] ?? null;
+$get_megnevezes = $_GET['megnevezes'] ?? null;
 
-// ✨ Ha van megnevezés, azt használjuk mappaként, ha nincs, akkor az ID alapján keressük a sablon_neve-t
-$mentett_nev = $megnevezes; 
-
-if (!$mentett_nev && $id) {
-    $stmt = $pdo->prepare("SELECT sablon_neve FROM szabadsag_es_tappenz_beallitasok WHERE id = :id");
+// ✨ Előbb megpróbáljuk az adatbázisból kikeresni a pontos neveket
+if ($id) {
+    $stmt = $pdo->prepare("SELECT megnevezes, sablon_neve FROM szabadsag_es_tappenz_beallitasok WHERE id = :id");
     $stmt->execute(['id' => $id]);
-    $mentett_nev = $stmt->fetchColumn();
+    $adat = $stmt->fetch(PDO::FETCH_ASSOC);
+    $mentett_nev = (!empty($adat['sablon_neve'])) ? $adat['sablon_neve'] : ($adat['megnevezes'] ?? $get_megnevezes);
+} else {
+    $mentett_nev = $get_megnevezes;
 }
 
-if (!$mentett_nev) { echo json_encode(['success' => false, 'message' => 'Nincs mappa megadva']); exit; }
+if (!$mentett_nev) { echo json_encode(['success' => false, 'message' => 'Nincs mappa meghatározva']); exit; }
 
 $fajlok = [];
 if ($mentett_nev) {
@@ -39,3 +40,4 @@ if ($mentett_nev) {
 
 
 echo json_encode(['success' => true, 'fajlok' => $fajlok]);
+
