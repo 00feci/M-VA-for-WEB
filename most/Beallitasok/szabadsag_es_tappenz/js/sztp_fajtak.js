@@ -146,9 +146,19 @@ function adatokBetoltese(id, globalisBetoltes = false) {
                     .then(fData => {
                         const lista = document.getElementById('sztp-fajl-lista');
                         if (lista) {
-                            lista.innerHTML = (fData.success && fData.fajlok.length > 0)
-                                ? fData.fajlok.map(f => `<li>📄 ${f}</li>`).join('')
-                                : `<li>📄 Jelenleg nincs fájl</li>`;
+                            try {
+                                const extra = data.adat.extra_adatok ? JSON.parse(data.adat.extra_adatok) : {};
+                                const pdfSet = extra.pdf_beallitasok || { mind: false, fajlok: [] };
+                                const megnevezes = (document.getElementById('sztp_edit_megnevezes') || document.getElementById('sztp_megnevezes'))?.options[0]?.text || "";
+
+                                lista.innerHTML = (fData.success && fData.fajlok.length > 0)
+                                    ? fData.fajlok.map(f => {
+                                        const path = megnevezes + '/' + f;
+                                        const pipalva = pdfSet.mind || (pdfSet.fajlok && pdfSet.fajlok.includes(path));
+                                        return `<li>📄 ${f} ${pipalva ? '<span style="color: #4CAF50; font-size: 0.8em; margin-left: 8px;">[PDF ✅]</span>' : ''}</li>`;
+                                    }).join('')
+                                    : `<li>📄 Jelenleg nincs fájl</li>`;
+                            } catch(e) { console.error("Lista rendering hiba", e); }
                         }
                     });
             }
@@ -251,4 +261,3 @@ async function beallitasokMentese(modalbol = false, napModalbol = false) {
     const modal = document.getElementById('sztp-feltolto-modal');
     if (modal) modal.style.display = 'none';
 }
-// kod
