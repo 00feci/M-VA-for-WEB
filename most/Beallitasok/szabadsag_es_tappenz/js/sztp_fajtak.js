@@ -174,17 +174,24 @@ async function beallitasokMentese(modalbol = false, napModalbol = false) {
     const select = (editSelect && editSelect.value) ? editSelect : mainSelect;
     const fajlLista = document.getElementById('sztp-fajl-lista'), napTipusSelect = document.getElementById('sztp_nap_tipusa');
     
-    const id = document.getElementById('sztp_id')?.value || "";
-    let extra = { napok: [], nagy_rekord: document.getElementById('sztp_nagy_rekord')?.value || 'nem' };
+   const id = document.getElementById('sztp_id')?.value || "";
+    // Alapértelmezett új adatok
+    let ujAdatok = { 
+        napok: [], 
+        nagy_rekord: document.getElementById('sztp_nagy_rekord')?.value || 'nem' 
+    };
 
-    // ✨ Meglévő extra adatok (pl. PDF beállítások) lekérése, hogy ne törlődjenek ki
+    let extra = ujAdatok; 
+
+    // ✨ Meglévő adatok (egyedi PDF pipák) megőrzése és összefésülése
     if (id) {
         try {
             const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id);
             const d = await r.json();
             if (d.success && d.adat.extra_adatok) {
                 const regiExtra = JSON.parse(d.adat.extra_adatok);
-                extra = { ...regiExtra, ...extra };
+                // ✨ Összefésülés: Megtartjuk a régit (PDF-ek), de frissítjük az újat (napok, nagy_rekord)
+                extra = { ...regiExtra, ...ujAdatok };
             }
         } catch (e) { console.error("Adatmegőrzési hiba", e); }
     }
@@ -240,7 +247,8 @@ async function beallitasokMentese(modalbol = false, napModalbol = false) {
         } else { alert("Hiba: " + data.message); }
     });
 }
-        function feltoltoModalBezaras() {
-    document.getElementById('sztp-feltolto-modal').style.display = 'none';
+      function feltoltoModalBezaras() {
+    const modal = document.getElementById('sztp-feltolto-modal');
+    if (modal) modal.style.display = 'none';
 }
 // kod
