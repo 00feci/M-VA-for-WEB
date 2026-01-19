@@ -75,32 +75,7 @@ function renderelFa(elemek, aktualisKategoria = "") {
     html += '</ul>';
     return html;
 }
-    if (gombSor) {
-        // ✨ Előbb visszatöltjük a főoldali vázat, majd egy pillanat múlva nyitjuk a popupot
-        gombSor.innerHTML = `<div class="dashboard-gomb" style="flex: 1; background: #607d8b; color: white;" onclick="szTpModulBetoltese(); setTimeout(() => fajtaBeallitasokMegnyitasa(), 100);">🔙 Vissza a beállításokhoz</div>`;
-    }
-
-    kontener.innerHTML = `
-        <div style="padding: 10px; background: #121212; min-height: 500px; border-radius: 8px;">
-            <h3 style="margin: 0 0 15px 0; color: white; font-size: 1.1em;">📁 ${megjelenitettCim} mappaszerkezete</h3>
-            <div id="sztp-fajl-fa-kontener" style="background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; resize: both; overflow: auto; min-height: 300px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
-                <div id="sztp-fajl-fa" style="font-family: monospace;">⏳ Betöltés...</div>
-            </div>
-            <p style="color: #666; font-size: 0.8em; margin-top: 15px; font-style: italic;">A jövöben a webes szerkeztés a cél</p>
-        </div>
-    `;
-
-    try {
-        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_mappa_tree.php?megnevezes=' + encodeURIComponent(megnevezesValue));
-        const d = await r.json();
-        if (d.success) {
-            const faKontener = document.getElementById('sztp-fajl-fa');
-            faKontener.innerHTML = renderelFa(d.tree, megnevezesValue);
-        }
-    } catch (e) { console.error(e); }
-}
-
-function renderelFa(elemek, aktualisKategoria = "") {
+    async function sztpElemTorlese(utvonal, kategoria) {
     if (!elemek || elemek.length === 0) return '<p style="color: #666;">A mappa üres.</p>';
     let html = '<ul style="list-style: none; padding-left: 20px; line-height: 2.2;">';
     elemek.forEach(i => {
