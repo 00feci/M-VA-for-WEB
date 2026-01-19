@@ -87,7 +87,7 @@ ${isDoc ? `<div style="display: inline-flex; align-items: center; gap: 4px; back
                 <button onclick="sztpElemTorlese('${tisztaUtvonal}', '${aktualisKategoria}')" style="border: none; background: none; cursor: pointer; color: #f44336; font-size: 1.2em; padding: 0;" title="Törlés">🗑️</button>
             </span>
             ${i.date ? `<span style="color: #777; font-size: 0.8em; margin-left: 15px;">🕒 ${i.date}</span>` : ''}
-            ${i.children ? renderelFa(i.children, aktualisKategoria) : ''}
+            ${i.children ? renderelFa(i.children, aktualisKategoria, pdfSettings) : ''}
         </li>`;
     });
     return html + '</ul>';
