@@ -9,15 +9,11 @@ $get_megnevezes = $_GET['megnevezes'] ?? null;
 
 // ✨ Előbb megpróbáljuk az adatbázisból kikeresni a pontos neveket
 if ($id) {
-    $stmt = $pdo->prepare("SELECT megnevezes, sablon_neve FROM szabadsag_es_tappenz_beallitasok WHERE id = :id");
-    $stmt->execute(['id' => $id]);
-    $adat = $stmt->fetch(PDO::FETCH_ASSOC);
-    $mentett_nev = (!empty($adat['sablon_neve'])) ? $adat['sablon_neve'] : ($adat['megnevezes'] ?? $get_megnevezes);
-} else {
-    $mentett_nev = $get_megnevezes;
-}
+   $stmt = $pdo->prepare("SELECT megnevezes, sablon_neve FROM szabadsag_es_tappenz_beallitasok WHERE id = :id");
+$stmt->execute(['id' => $id]);
+$adat = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (!$mentett_nev) { echo json_encode(['success' => false, 'message' => 'Nincs mappa meghatározva']); exit; }
+$mentett_nev = (!empty($adat['sablon_neve'])) ? $adat['sablon_neve'] : ($adat['megnevezes'] ?? null);
 
 $fajlok = [];
 if ($mentett_nev) {
@@ -38,5 +34,6 @@ if ($mentett_nev) {
     }
 }
 echo json_encode(['success' => true, 'fajlok' => $fajlok]);
+
 
 
