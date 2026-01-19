@@ -100,7 +100,6 @@ function listaBetoltese() {
             });
         });
 }
-// xcxxx kód, ezt a blokot cseréld
 function adatokBetoltese(id, globalisBetoltes = false) {
     const idInput = document.getElementById('sztp_id');
     const editSelect = document.getElementById('sztp_edit_megnevezes');
@@ -132,13 +131,11 @@ function adatokBetoltese(id, globalisBetoltes = false) {
         .then(data => {
             if (!data.success || !data.adat) return;
             if (!globalisBetoltes) {
-                const elKod = document.getElementById('sztp_kod'), elSzin = document.getElementById('sztp_szin'), elHex = document.getElementById('sztp_hex');
-                if (idInput) idInput.value = data.adat.id;
+                idInput.value = data.adat.id;
                 if (editSelect) editSelect.value = data.adat.id;
-                // ✨ Csak akkor módosítjuk, ha az elemek léteznek a felületen
-                if (elKod) elKod.value = data.adat.kod;
-                if (elSzin) elSzin.value = data.adat.hex_szin;
-                if (elHex) elHex.value = data.adat.hex_szin;
+                document.getElementById('sztp_kod').value = data.adat.kod;
+                document.getElementById('sztp_szin').value = data.adat.hex_szin;
+                document.getElementById('sztp_hex').value = data.adat.hex_szin;
                 try {
                     const extra = data.adat.extra_adatok ? JSON.parse(data.adat.extra_adatok) : {};
                     const nrSelect = document.getElementById('sztp_nagy_rekord');
@@ -159,18 +156,6 @@ function adatokBetoltese(id, globalisBetoltes = false) {
         });
 }
 
-async function listaBetoltese() {
-    const lista = document.getElementById('sztp-fajl-lista'), idInput = document.getElementById('sztp_id'), mainSelect = document.getElementById('sztp_megnevezes');
-    if (!lista || !idInput || !idInput.value) return;
-    
-    // ✨ Megnevezés kinyerése a mappa azonosításhoz
-    const select = document.getElementById('sztp_edit_megnevezes') || mainSelect;
-    const megnevezes = (select && select.selectedIndex > 0) ? select.options[select.selectedIndex].text : "";
-
-    try {
-        // ✨ Elküldjük az ID-t és a megnevezést is a PHP-nak
-        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_fajl_listazasa.php?id=' + idInput.value + '&megnevezes=' + encodeURIComponent(megnevezes));
-
 function frissitSztpElonezet(tipus) {
     const kodInput = document.getElementById('sztp_kod'), picker = document.getElementById('sztp_szin'), hexInput = document.getElementById('sztp_hex'), doboz = document.getElementById('szin-elonezet-doboz');
     if (!kodInput || !picker || !hexInput) return;
@@ -189,10 +174,10 @@ async function beallitasokMentese(modalbol = false, napModalbol = false) {
     const select = (editSelect && editSelect.value) ? editSelect : mainSelect;
     const fajlLista = document.getElementById('sztp-fajl-lista'), napTipusSelect = document.getElementById('sztp_nap_tipusa');
     
-    const id = document.getElementById('sztp_id').value;
+    const id = document.getElementById('sztp_id')?.value || "";
     let extra = { napok: [], nagy_rekord: document.getElementById('sztp_nagy_rekord')?.value || 'nem' };
 
-    // ✨ Meglévő extra adatok (pl. PDF beállítások) lekérése és összefésülése, hogy ne vesszenek el
+    // ✨ Meglévő extra adatok (pl. PDF beállítások) lekérése, hogy ne törlődjenek ki
     if (id) {
         try {
             const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id);
@@ -211,37 +196,18 @@ async function beallitasokMentese(modalbol = false, napModalbol = false) {
         szin: document.getElementById('sztp_szin')?.value || '#ffffff',
         sablon_neve: null,
         extra_adatok: extra 
-    };;
-
-    // ✨ Meglévő extra adatok (pl. PDF beállítások) megőrzése
-    if (id) {
-        try {
-            const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id);
-            const d = await r.json();
-            if (d.success && d.adat.extra_adatok) {
-                const regiExtra = JSON.parse(d.adat.extra_adatok);
-                // Összefésüljük a PDF beállításokat az új adatokkal
-                extra = { ...regiExtra, ...extra };
-            }
-        } catch (e) { console.error("Hiba az extra adatok megőrzésekor", e); }
-    }
-
-    const adat = {
-        id: id,
-        megnevezes: (select && select.selectedIndex > 0) ? select.options[select.selectedIndex].text : null,
-        kod: document.getElementById('sztp_kod')?.value || '',
-        szin: document.getElementById('sztp_szin')?.value || '#ffffff',
-        sablon_neve: null,
-        extra_adatok: extra 
     };
+
     if (napModalbol && !adat.megnevezes) adat.megnevezes = "GLOBAL_NAP_TIPUSOK";
     if (!adat.megnevezes && !napModalbol) return alert("Válassz vagy adj hozzá megnevezést!");
     if (napTipusSelect) {
+        adat.extra_adatok.napok = []; // Frissítjük a napokat az extra objektumban
         for (let i = 1; i < napTipusSelect.options.length; i++) {
             const opt = napTipusSelect.options[i], reszek = opt.text.match(/(.*) \((.*)\)/);
             adat.extra_adatok.napok.push({ nev: reszek ? reszek[1] : opt.text, jel: opt.value });
         }
     }
+
     let sablonNeve = null;
     if (kivalasztottFajlokBuffer.length > 0) {
         if (fajlLista) fajlLista.innerHTML = '<li>⏳ Feltöltés...</li>';
@@ -260,6 +226,7 @@ async function beallitasokMentese(modalbol = false, napModalbol = false) {
         if (elsoSor && !elsoSor.innerText.includes('Jelenleg nincs')) sablonNeve = adat.megnevezes;
     }
     adat.sablon_neve = sablonNeve;
+
     fetch('Beallitasok/szabadsag_es_tappenz/sztp_mentes.php', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(adat)
     })
