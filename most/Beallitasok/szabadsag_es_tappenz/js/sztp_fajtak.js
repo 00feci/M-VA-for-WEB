@@ -192,6 +192,27 @@ async function beallitasokMentese(modalbol = false, napModalbol = false) {
     const id = document.getElementById('sztp_id').value;
     let extra = { napok: [], nagy_rekord: document.getElementById('sztp_nagy_rekord')?.value || 'nem' };
 
+    // ✨ Meglévő extra adatok (pl. PDF beállítások) lekérése és összefésülése, hogy ne vesszenek el
+    if (id) {
+        try {
+            const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id);
+            const d = await r.json();
+            if (d.success && d.adat.extra_adatok) {
+                const regiExtra = JSON.parse(d.adat.extra_adatok);
+                extra = { ...regiExtra, ...extra };
+            }
+        } catch (e) { console.error("Adatmegőrzési hiba", e); }
+    }
+
+    const adat = {
+        id: id,
+        megnevezes: (select && select.selectedIndex > 0) ? select.options[select.selectedIndex].text : null,
+        kod: document.getElementById('sztp_kod')?.value || '',
+        szin: document.getElementById('sztp_szin')?.value || '#ffffff',
+        sablon_neve: null,
+        extra_adatok: extra 
+    };;
+
     // ✨ Meglévő extra adatok (pl. PDF beállítások) megőrzése
     if (id) {
         try {
@@ -251,5 +272,8 @@ async function beallitasokMentese(modalbol = false, napModalbol = false) {
             else { alert(data.message); }
         } else { alert("Hiba: " + data.message); }
     });
+}
+        function feltoltoModalBezaras() {
+    document.getElementById('sztp-feltolto-modal').style.display = 'none';
 }
 // kod
