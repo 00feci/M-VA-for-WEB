@@ -68,31 +68,7 @@ function renderelFa(elemek, aktualisKategoria = "") {
     });
     return html + '</ul>';
 }
-    async function sztpElemTorlese(utvonal, kategoria) {
-    if (!elemek || elemek.length === 0) return '<p style="color: #666;">A mappa üres.</p>';
-    let html = '<ul style="list-style: none; padding-left: 20px; line-height: 2.2;">';
-    elemek.forEach(i => {
-        const ikon = i.type === 'folder' ? '📂' : '📄';
-        const tisztaUtvonal = i.path.replace(/\\/g, '/');
-        const kodoltUtvonal = encodeURI(tisztaUtvonal);
-        const datumHtml = i.date ? `<span style="color: #777; font-size: 0.8em; margin-left: 15px; font-family: monospace;">🕒 ${i.date}</span>` : '';
-        
-        html += `<li style="color: #2196F3; border-bottom: 1px solid #222; padding: 2px 0;">
-            <span style="cursor: default; font-weight: bold; min-width: 250px; display: inline-block;">${ikon} ${i.name}</span>
-            <span style="display: inline-flex; gap: 12px; align-items: center; margin-left: 10px; vertical-align: middle;">
-                ${i.type === 'file' ? `<a href="/Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/${kodoltUtvonal}" download style="text-decoration: none; font-size: 1.25em;" title="Letöltés">📥</a>` : ''}
-                <button onclick="sztpGyorsFeltoltesInditasa('${tisztaUtvonal}', ${i.type === 'folder'}, '${aktualisKategoria}')" style="border: none; background: none; cursor: pointer; color: #4CAF50; font-size: 1.25em; padding: 0;" title="Feltöltés / Felülírás">📤</button>
-                <button onclick="sztpElemTorlese('${tisztaUtvonal}', '${aktualisKategoria}')" style="border: none; background: none; cursor: pointer; color: #f44336; font-size: 1.2em; padding: 0;" title="Törlés">🗑️</button>
-            </span>
-            ${datumHtml}
-            ${i.children ? renderelFa(i.children, aktualisKategoria) : ''}
-        </li>`;
-    });
-    html += '</ul>';
-    return html;
-}
-
-async function sztpElemTorlese(utvonal, kategoria) {
+   async function sztpElemTorlese(utvonal, kategoria) {
     if (confirm("BIZTOSAN törölni szeretnéd ezt az elemet?\n" + utvonal)) {
         try {
             const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_fajl_torlese.php', {
