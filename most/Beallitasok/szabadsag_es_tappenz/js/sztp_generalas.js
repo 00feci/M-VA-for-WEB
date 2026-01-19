@@ -25,9 +25,9 @@ async function sablonKezeleseOldal(frissitendoMappa = null) {
         <div style="padding: 10px; background: #121212; min-height: 500px; border-radius: 8px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h3 style="margin: 0; color: white; font-size: 1.1em;">📁 ${megjelenitettCim} mappaszerkezete</h3>
-                <div style="display: flex; align-items: center; gap: 15px;">
+              <div style="display: flex; align-items: center; gap: 15px;">
                     <div style="display: flex; align-items: center; gap: 10px; background: #252525; padding: 5px 12px; border-radius: 6px; border: 1px solid #444;">
-                        <span style="font-size: 0.8em; color: #aaa;">Összesre (doc/docx):</span>
+                        <span style="font-size: 0.8em; color: #aaa;">PDF generálás (doc/docx):</span>
                         <label class="sztp-switch">
                             <input type="checkbox" id="pdf-all-toggle" onclick="sztpGlobalPdfToggle(this.checked)">
                             <span class="sztp-slider"></span>
