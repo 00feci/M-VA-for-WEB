@@ -37,7 +37,6 @@ if ($mentett_nev) {
         $fajlok[] = $mentett_nev;
     }
 }
-
-
 echo json_encode(['success' => true, 'fajlok' => $fajlok]);
+
 
