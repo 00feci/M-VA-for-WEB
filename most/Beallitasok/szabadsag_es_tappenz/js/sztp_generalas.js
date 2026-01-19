@@ -60,7 +60,6 @@ async function sablonKezeleseOldal(frissitendoMappa = null) {
                 if(allCheck) allCheck.checked = true;
             }
         }
-}
     } catch (e) { console.error(e); }
 } // ✨ EZ HIÁNYZOTT! Lezárjuk a sablonKezeleseOldal függvényt.
 
