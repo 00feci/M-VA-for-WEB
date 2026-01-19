@@ -1,5 +1,8 @@
 async function sablonKezeleseOldal(frissitendoMappa = null) {
     const kontener = document.getElementById('modul-tartalom');
+    // ✨ Kimentjük az ID-t, mielőtt az innerHTML törlése miatt elveszne!
+    const kategoriaId = document.getElementById('sztp_id')?.value || ""; 
+    
     const sel = document.getElementById('sztp_megnevezes') || document.getElementById('sztp_edit_megnevezes');
     let megnevezesValue = "";
     const isMappaValid = frissitendoMappa && String(frissitendoMappa) !== "undefined" && String(frissitendoMappa) !== "null";
@@ -42,11 +45,10 @@ async function sablonKezeleseOldal(frissitendoMappa = null) {
         const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_mappa_tree.php?megnevezes=' + encodeURIComponent(megnevezesValue));
         const d = await r.json();
         
-        // ✨ Mentett PDF beállítások lekérése
-        const id = document.getElementById('sztp_id').value;
+        / ✨ Mentett PDF beállítások lekérése a korábban kimentett kategoriaId alapján
         let pdfSettings = null;
-        if(id) {
-            const res = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id);
+        if(kategoriaId) {
+            const res = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + kategoriaId);
             const sData = await res.json();
             if(sData.success && sData.adat.extra_adatok) {
                 pdfSettings = JSON.parse(sData.adat.extra_adatok).pdf_beallitasok || null;
