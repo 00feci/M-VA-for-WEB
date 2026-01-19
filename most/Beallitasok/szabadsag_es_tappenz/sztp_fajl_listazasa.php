@@ -4,12 +4,19 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/Iroda/sql_config.php';
 $pdo = csatlakozasSzerver1();
 header('Content-Type: application/json');
 
+$megnevezes = $_GET['megnevezes'] ?? null;
 $id = $_GET['id'] ?? null;
-if (!$id) { echo json_encode(['success' => false]); exit; }
 
-$stmt = $pdo->prepare("SELECT sablon_neve FROM szabadsag_es_tappenz_beallitasok WHERE id = :id");
-$stmt->execute(['id' => $id]);
-$mentett_nev = $stmt->fetchColumn();
+// ✨ Ha van megnevezés, azt használjuk mappaként, ha nincs, akkor az ID alapján keressük a sablon_neve-t
+$mentett_nev = $megnevezes; 
+
+if (!$mentett_nev && $id) {
+    $stmt = $pdo->prepare("SELECT sablon_neve FROM szabadsag_es_tappenz_beallitasok WHERE id = :id");
+    $stmt->execute(['id' => $id]);
+    $mentett_nev = $stmt->fetchColumn();
+}
+
+if (!$mentett_nev) { echo json_encode(['success' => false, 'message' => 'Nincs mappa megadva']); exit; }
 
 $fajlok = [];
 if ($mentett_nev) {
@@ -29,5 +36,6 @@ if ($mentett_nev) {
         $fajlok[] = $mentett_nev;
     }
 }
+
 
 echo json_encode(['success' => true, 'fajlok' => $fajlok]);
