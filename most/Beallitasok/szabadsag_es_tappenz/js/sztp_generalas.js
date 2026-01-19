@@ -45,7 +45,7 @@ async function sablonKezeleseOldal(frissitendoMappa = null) {
         const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_mappa_tree.php?megnevezes=' + encodeURIComponent(megnevezesValue));
         const d = await r.json();
         
-        / ✨ Mentett PDF beállítások lekérése a korábban kimentett kategoriaId alapján
+        // ✨ Mentett PDF beállítások lekérése a korábban kimentett kategoriaId alapján
         let pdfSettings = null;
         if(kategoriaId) {
             const res = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + kategoriaId);
