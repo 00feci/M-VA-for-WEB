@@ -151,10 +151,12 @@ function adatokBetoltese(id, globalisBetoltes = false) {
                                 const pdfSet = extra.pdf_beallitasok || { mind: false, fajlok: [] };
                                 const megnevezes = (document.getElementById('sztp_edit_megnevezes') || document.getElementById('sztp_megnevezes'))?.options[0]?.text || "";
 
-                                lista.innerHTML = (fData.success && fData.fajlok.length > 0)
+                               lista.innerHTML = (fData.success && fData.fajlok.length > 0)
                                     ? fData.fajlok.map(f => {
                                         const path = megnevezes + '/' + f;
-                                        const pipalva = pdfSet.mind || (pdfSet.fajlok && pdfSet.fajlok.includes(path));
+                                        // ✨ Ellenőrizzük, hogy doc vagy docx fájlról van-e szó
+                                        const isDoc = f.toLowerCase().endsWith('.doc') || f.toLowerCase().endsWith('.docx');
+                                        const pipalva = isDoc && (pdfSet.mind || (pdfSet.fajlok && pdfSet.fajlok.includes(path)));
                                         return `<li>📄 ${f} ${pipalva ? '<span style="color: #4CAF50; font-size: 0.8em; margin-left: 8px;">[PDF ✅]</span>' : ''}</li>`;
                                     }).join('')
                                     : `<li>📄 Jelenleg nincs fájl</li>`;
