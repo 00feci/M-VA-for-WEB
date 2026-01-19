@@ -368,6 +368,25 @@ async function rekurzivFajlOlvasas(entry, path = "") {
     }
     return fajlok;
 }
+function sztpFajlokFeltoltese(fajlok) {
+    if (!fajlok || fajlok.length === 0) return;
+    
+    // ✨ A kiválasztott fájlok behelyezése a sztp_fajtak.js-ben definiált pufferbe
+    kivalasztottFajlokBuffer = fajlok; 
+
+    const statusz = document.getElementById('sztp-modal-statusz');
+    const kontener = document.getElementById('sztp-modal-fajl-lista-kontener');
+    const lista = document.getElementById('sztp-modal-fajl-lista');
+
+    if (statusz) statusz.innerHTML = `✅ ${fajlok.length} fájl/mappa készen áll a feltöltésre.`;
+    if (kontener) kontener.style.display = 'block';
+    if (lista) {
+        // Az első 10 fájl megjelenítése a listában
+        lista.innerHTML = fajlok.slice(0, 10).map(f => `<li>📄 ${f.relPath || f.name}</li>`).join('') + 
+                         (fajlok.length > 10 ? `<li style="list-style: none; color: #888; margin-top: 5px;">... és még ${fajlok.length - 10} fájl</li>` : '');
+    }
+}
+
 function feltoltoModalMegnyitasa() {
     const statusz = document.getElementById('sztp-modal-statusz');
     const modalLista = document.getElementById('sztp-modal-fajl-lista');
