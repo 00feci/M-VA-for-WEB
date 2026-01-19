@@ -11,11 +11,17 @@ try {
     // Ellenőrizzük, hogy létezik-e a konfigurációs fájl
     $configPath = $_SERVER['DOCUMENT_ROOT'] . '/Iroda/sql_config.php';
     $vedettek = [];
-    if (file_exists($configPath)) {
+   if (file_exists($configPath)) {
         require_once $configPath;
         $pdo_tree = csatlakozasSzerver1();
         if ($pdo_tree) {
-            $vedettek = $pdo_tree->query("SELECT megnevezes FROM szabadsag_es_tappenz_beallitasok")->fetchAll(PDO::FETCH_COLUMN);
+            // ✨ Csak akkor szűrünk, ha a főgyökérben (Sablonok/) vagyunk, 
+            // és csak azokat rejtjük el, amik NEM a jelenleg választott kategóriához tartoznak.
+            $sql = "SELECT megnevezes FROM szabadsag_es_tappenz_beallitasok";
+            if (!empty($megnevezes)) {
+                $sql .= " WHERE megnevezes != " . $pdo_tree->quote($megnevezes);
+            }
+            $vedettek = $pdo_tree->query($sql)->fetchAll(PDO::FETCH_COLUMN);
         }
     }
 
