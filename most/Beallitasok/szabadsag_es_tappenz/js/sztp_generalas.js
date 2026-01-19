@@ -35,8 +35,8 @@ async function sablonKezeleseOldal(frissitendoMappa = null) {
                     <button onclick="sztpPdfMentese()" style="padding: 6px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85em;">💾 PDF mentése</button>
                 </div>
             </div>
-            <div id="sztp-fajl-fa-kontener" style="background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; overflow: auto; min-height: 300px;">
-                <div id="sztp-fajl-fa" style="font-family: monospace;">⏳ Betöltés...</div>
+<div id="sztp-fajl-fa-kontener" style="background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; overflow: auto; min-height: 300px;">
+<div id="sztp-fajl-fa" style="font-family: monospace;">⏳ Betöltés...</div>
             </div>
         </div>
     `;
@@ -112,8 +112,12 @@ async function sztpPdfMentese() {
         mind: globalCheck ? globalCheck.checked : false,
         fajlok: Array.from(osszes).filter(c => c.checked).map(c => c.dataset.path)
     };
-    const id = document.getElementById('sztp_id').value;
-    if (!id) return alert("Hiba: Nincs kiválasztott kategória!");
+
+    // ✨ Biztonságos lekérés: ellenőrizzük, hogy létezik-e az elem, mielőtt olvasnánk
+    const idElem = document.getElementById('sztp_id');
+    const id = idElem ? idElem.value : null;
+
+    if (!id) return alert("Hiba: Nincs kiválasztott kategória ID!");
     try {
         const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id);
         const d = await r.json();
