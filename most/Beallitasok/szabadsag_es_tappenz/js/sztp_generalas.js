@@ -1,6 +1,5 @@
 async function sablonKezeleseOldal(frissitendoMappa = null) {
     const kontener = document.getElementById('modul-tartalom');
-    // ✨ Frissítve: Ha nincs főoldali select, a popup selectjét nézzük
     const sel = document.getElementById('sztp_megnevezes') || document.getElementById('sztp_edit_megnevezes');
     let megnevezesValue = "";
     const isMappaValid = frissitendoMappa && String(frissitendoMappa) !== "undefined" && String(frissitendoMappa) !== "null";
@@ -12,7 +11,70 @@ async function sablonKezeleseOldal(frissitendoMappa = null) {
     }
     const megjelenitettCim = megnevezesValue || "Sablonok";
 
-   const gombSor = document.getElementById('modul-gomb-sor');
+    const gombSor = document.getElementById('modul-gomb-sor');
+    if (gombSor) {
+        gombSor.innerHTML = `<div class="dashboard-gomb" style="flex: 1; background: #607d8b; color: white;" onclick="szTpModulBetoltese(); setTimeout(() => fajtaBeallitasokMegnyitasa(), 100);">🔙 Vissza a beállításokhoz</div>`;
+    }
+
+    // ✨ UI bővítése a PDF kapcsolóval
+    kontener.innerHTML = `
+        <div style="padding: 10px; background: #121212; min-height: 500px; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0; color: white; font-size: 1.1em;">📁 ${megjelenitettCim} mappaszerkezete</h3>
+                <div style="display: flex; align-items: center; gap: 10px; background: #252525; padding: 5px 12px; border-radius: 6px; border: 1px solid #444;">
+                    <span style="font-size: 0.8em; color: #aaa;">PDF készítés összesre (doc/docx):</span>
+                    <label class="sztp-switch">
+                        <input type="checkbox" id="pdf-all-toggle" onclick="alert('Fejlesztés alatt: Minden dokumentum PDF-ként fog generálódni.')">
+                        <span class="sztp-slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div id="sztp-fajl-fa-kontener" style="background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; overflow: auto; min-height: 300px;">
+                <div id="sztp-fajl-fa" style="font-family: monospace;">⏳ Betöltés...</div>
+            </div>
+        </div>
+    `;
+
+    try {
+        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_mappa_tree.php?megnevezes=' + encodeURIComponent(megnevezesValue));
+        const d = await r.json();
+        if (d.success) {
+            document.getElementById('sztp-fajl-fa').innerHTML = renderelFa(d.tree, megnevezesValue);
+        }
+    } catch (e) { console.error(e); }
+}
+
+function renderelFa(elemek, aktualisKategoria = "") {
+    if (!elemek || elemek.length === 0) return '<p style="color: #666;">A mappa üres.</p>';
+    let html = '<ul style="list-style: none; padding-left: 20px; line-height: 2.2;">';
+    elemek.forEach(i => {
+        const ikon = i.type === 'folder' ? '📂' : '📄';
+        const isDoc = i.name.toLowerCase().endsWith('.doc') || i.name.toLowerCase().endsWith('.docx');
+        const tisztaUtvonal = i.path.replace(/\\/g, '/');
+        const kodoltUtvonal = encodeURI(tisztaUtvonal);
+        
+        html += `<li style="color: #2196F3; border-bottom: 1px solid #222; padding: 2px 0;">
+            <span style="cursor: default; font-weight: bold; min-width: 250px; display: inline-block;">${ikon} ${i.name}</span>
+            <span style="display: inline-flex; gap: 12px; align-items: center; margin-left: 10px; vertical-align: middle;">
+                ${i.type === 'file' ? `<a href="/Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/${kodoltUtvonal}" download style="text-decoration: none; font-size: 1.25em;" title="Letöltés">📥</a>` : ''}
+                
+                ${isDoc ? `
+                    <div style="display: flex; align-items: center; gap: 4px; background: #121212; padding: 2px 6px; border-radius: 4px; border: 1px solid #333;" title="PDF készítés ebből a fájlból">
+                        <span style="font-size: 0.7em; color: #888;">PDF</span>
+                        <input type="checkbox" style="cursor:pointer;">
+                    </div>
+                ` : ''}
+
+                <button onclick="sztpGyorsFeltoltesInditasa('${tisztaUtvonal}', ${i.type === 'folder'}, '${aktualisKategoria}')" style="border: none; background: none; cursor: pointer; color: #4CAF50; font-size: 1.25em; padding: 0;" title="Feltöltés / Felülírás">📤</button>
+                <button onclick="sztpElemTorlese('${tisztaUtvonal}', '${aktualisKategoria}')" style="border: none; background: none; cursor: pointer; color: #f44336; font-size: 1.2em; padding: 0;" title="Törlés">🗑️</button>
+            </span>
+            ${i.date ? `<span style="color: #777; font-size: 0.8em; margin-left: 15px; font-family: monospace;">🕒 ${i.date}</span>` : ''}
+            ${i.children ? renderelFa(i.children, aktualisKategoria) : ''}
+        </li>`;
+    });
+    html += '</ul>';
+    return html;
+}
     if (gombSor) {
         // ✨ Előbb visszatöltjük a főoldali vázat, majd egy pillanat múlva nyitjuk a popupot
         gombSor.innerHTML = `<div class="dashboard-gomb" style="flex: 1; background: #607d8b; color: white;" onclick="szTpModulBetoltese(); setTimeout(() => fajtaBeallitasokMegnyitasa(), 100);">🔙 Vissza a beállításokhoz</div>`;
