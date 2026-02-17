@@ -51,15 +51,15 @@ if (isset($_POST['melyik']) && $_POST['melyik'] === 'vissza') {
             Iroda <span>&gt;</span> Beállítások
         </div>
         <h2 id="panel-cim">Beállítások</h2>
-        <div class="menu-kontener" id="menu-kontener">
+       <div class="menu-kontener" id="menu-kontener">
             <div class="dashboard-gomb" onclick="navigacio('szabadsag')">📅 Szabadság és Táppénz</div>
             <div class="dashboard-gomb" onclick="navigacio('felhasznalok')">👥 Felhasználók</div>
                     </div>
 
         <?php 
-        // Csak a Szabadság modulhoz tartozó vezérlő hívása
+        // A Szabadság modul vezérlőjének behívása, ha rákattintottak
         if (($_POST['melyik'] ?? '') === 'szabadsag') {
-            include 'Beallitasok/szabadsag_es_tappenz/vezer.php';
+            include __DIR__ . '/Beallitasok/szabadsag_es_tappenz/vezer.php';
         }
         ?>
     </div>
@@ -68,6 +68,7 @@ if (isset($_POST['melyik']) && $_POST['melyik'] === 'vissza') {
 </html>
 
 <!--<div class="dashboard-gomb" onclick="navigacio('rendszer')">⚙️ Rendszer</div>-->
+
 
 
 
