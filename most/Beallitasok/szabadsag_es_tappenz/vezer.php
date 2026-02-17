@@ -1,8 +1,9 @@
 <?php
-// A vissza gomb behívása
-include 'Vissza a modulokhoz.php';
+// 1. A vissza gomb behívása (Abszolút útvonallal, hogy ne tévedjen el)
+include __DIR__ . '/Vissza a modulokhoz.php';
 
-// Modulspecifikus JS fájlok behívása (hogy ne a főoldalt terheljék)
+// 2. A JS fájlok behívása a megfelelő sorrendben
+// A src marad relatív a beallitasok.php-hoz képest, de a filemtime abszolút!
 ?>
 <script src="Beallitasok/szabadsag_es_tappenz/js/sztp_nap_tipusok.js?v=<?php echo filemtime(__DIR__ . '/js/sztp_nap_tipusok.js'); ?>"></script>
 <script src="Beallitasok/szabadsag_es_tappenz/js/sztp_fajtak.js?v=<?php echo filemtime(__DIR__ . '/js/sztp_fajtak.js'); ?>"></script>
