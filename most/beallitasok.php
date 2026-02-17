@@ -54,6 +54,7 @@ if (isset($_POST['melyik']) && $_POST['melyik'] === 'vissza') {
        <div class="menu-kontener" id="menu-kontener">
             <div class="dashboard-gomb" onclick="navigacio('szabadsag')">📅 Szabadság és Táppénz</div>
             <div class="dashboard-gomb" onclick="navigacio('felhasznalok')">👥 Felhasználók</div>
+           <!--<div class="dashboard-gomb" onclick="navigacio('rendszer')">⚙️ Rendszer</div>-->
                     </div>
 
         <?php 
@@ -66,13 +67,3 @@ if (isset($_POST['melyik']) && $_POST['melyik'] === 'vissza') {
    <script src="Beallitasok/beallitasok/js/beallitasok.js?v=<?php echo filemtime(__DIR__ . '/Beallitasok/beallitasok/js/beallitasok.js'); ?>"></script>
 </body>
 </html>
-
-<!--<div class="dashboard-gomb" onclick="navigacio('rendszer')">⚙️ Rendszer</div>-->
-
-
-
-
-
-
-
-
