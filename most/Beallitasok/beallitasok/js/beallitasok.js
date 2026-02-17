@@ -97,23 +97,51 @@ const gombSor = document.createElement('div');
             felhasznalokBetoltese();
         }
     }
-      // 🚀 Szabadság és Táppénz modul betöltése (vezer.php meghívásával)
+     // 🚀 Szabadság és Táppénz modul betöltése (Dinamikus script betöltéssel)
     if (cel === 'szabadsag') {
-        fetch('Beallitasok/szabadsag_es_tappenz/vezer.php')
-            .then(response => response.text())
-            .then(html => {
-                const tartalom = document.getElementById('modul-tartalom');
-                if (tartalom) {
-                    tartalom.innerHTML = html;
-                    // Miután bekerült a vezer.php (és benne az sz-tp-modul-root div), futtatjuk a generálást
-                    if (typeof szTpModulBetoltese === 'function') {
+        const modulScriptek = [
+            'Beallitasok/szabadsag_es_tappenz/js/sztp_nap_tipusok.js',
+            'Beallitasok/szabadsag_es_tappenz/js/sztp_fajtak.js',
+            'Beallitasok/szabadsag_es_tappenz/js/sztp_generalas.js',
+            'Beallitasok/szabadsag_es_tappenz/js/sztp_export.js',
+            'Beallitasok/szabadsag_es_tappenz/js/sz_tp_modul.js'
+        ];
+
+        const betolt = (index) => {
+            if (index < modulScriptek.length) {
+                const s = document.createElement('script');
+                s.src = modulScriptek[index] + '?v=' + new Date().getTime();
+                s.onload = () => betolt(index + 1);
+                document.body.appendChild(s);
+            } else {
+                // Ha minden script megvan, betöltjük a vezer.php-t
+                fetch('Beallitasok/szabadsag_es_tappenz/vezer.php')
+                    .then(r => r.text())
+                    .then(html => {
+                        const t = document.getElementById('modul-tartalom');
+                        if (t) {
+                            t.innerHTML = html;
+                            if (typeof szTpModulBetoltese === 'function') szTpModulBetoltese();
+                        }
+                    });
+            }
+        };
+
+        if (typeof szTpModulBetoltese !== 'function') {
+            betolt(0);
+        } else {
+            // Ha már be van töltve, csak a HTML-t frissítjük
+            fetch('Beallitasok/szabadsag_es_tappenz/vezer.php')
+                .then(r => r.text())
+                .then(html => {
+                    const t = document.getElementById('modul-tartalom');
+                    if (t) {
+                        t.innerHTML = html;
                         szTpModulBetoltese();
                     }
-                }
-            })
-            .catch(err => console.error("Hiba a vezer.php betöltésekor:", err));
+                });
+        }
     }
-}
 function felhasznalokMegnyitasa() {
     window.location.href = 'Beallitasok/beallitasok/Felhasznalok/felhasznalok.php';
 }
@@ -135,3 +163,4 @@ function frissitSzTpElonezet() {
         elonezet.textContent = kod;
     }
 }
+
