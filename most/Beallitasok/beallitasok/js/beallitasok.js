@@ -9,7 +9,8 @@ const menuAdatok = {
            // { felirat: '⚙️ Rendszer', cel: 'rendszer' }
         ]
     },
-    cim: 'Felhasználók kezelése',
+    'felhasznalok': {
+        cim: 'Felhasználók kezelése',
         breadcrumb: 'Iroda > Beállítások > Felhasználók',
         gombok: [
             { felirat: '🔙 Vissza', cel: 'fomenu' }
@@ -18,7 +19,7 @@ const menuAdatok = {
     'szabadsag': {
         cim: '📅 Szabadság és Táppénz beállítások',
         breadcrumb: 'Iroda > Beállítások > Szabadság és Táppénz',
-        gombok: [] // Üresen hagyjuk, mert a vezer.php saját vissza gombját használod
+        gombok: [] // 👈 Üresen hagyjuk, a vezer.php-ból jön a gomb!
     },
     'rendszer': {
         cim: 'Rendszer beállítások',
