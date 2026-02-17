@@ -52,14 +52,23 @@ if (isset($_POST['melyik']) && $_POST['melyik'] === 'vissza') {
         </div>
         <h2 id="panel-cim">Beállítások</h2>
         <div class="menu-kontener" id="menu-kontener">
-            <div class="dashboard-gomb" onclick="navigacio('szabadsag')">📅 Szabadság és Táppénz</div>
-            <div class="dashboard-gomb" onclick="navigacio('felhasznalok')">👥 Felhasználók</div>
-            <!--<div class="dashboard-gomb" onclick="navigacio('rendszer')">⚙️ Rendszer</div>-->
-        </div>
+            <div class="dashboard-gomb" onclick="navigacio('szabadsag')">📅 Szabadság és Táppénz</div>
+            <div class="dashboard-gomb" onclick="navigacio('felhasznalok')">👥 Felhasználók</div>
+                    </div>
+
+        <?php 
+        // Csak a Szabadság modulhoz tartozó vezérlő hívása
+        if (($_POST['melyik'] ?? '') === 'szabadsag') {
+            include 'Beallitasok/szabadsag_es_tappenz/vezer.php';
+        }
+        ?>
     </div>
    <script src="Beallitasok/beallitasok/js/beallitasok.js?v=<?php echo filemtime(__DIR__ . '/Beallitasok/beallitasok/js/beallitasok.js'); ?>"></script>
 </body>
 </html>
+
+<!--<div class="dashboard-gomb" onclick="navigacio('rendszer')">⚙️ Rendszer</div>-->
+
 
 
 
