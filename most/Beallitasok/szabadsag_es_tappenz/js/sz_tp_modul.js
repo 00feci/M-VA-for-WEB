@@ -1,5 +1,6 @@
 function szTpModulBetoltese() {
-    const kontener = document.getElementById('modul-tartalom');
+    // Elsődlegesen a vezer.php-ban definiált root div-et használjuk
+    const kontener = document.getElementById('sz-tp-modul-root') || document.getElementById('modul-tartalom');
     if (!kontener) return;
 
     kontener.innerHTML = `
@@ -182,3 +183,4 @@ function szTpModulBetoltese() {
         inicializalFeltoltot();
     }, 50);
 }
+
