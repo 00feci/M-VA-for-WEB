@@ -9,13 +9,6 @@ const menuAdatok = {
            // { felirat: '⚙️ Rendszer', cel: 'rendszer' }
         ]
     },
-    'szabadsag': {
-        cim: '📅 Szabadság és Táppénz beállítások',
-        breadcrumb: 'Iroda > Beállítások > Szabadság és Táppénz',
-        gombok: [
-            { felirat: '🔙 Vissza', cel: 'fomenu' }
-        ]
-    },
     'felhasznalok': {
         cim: 'Felhasználók kezelése',
         breadcrumb: 'Iroda > Beállítások > Felhasználók',
@@ -97,50 +90,30 @@ const gombSor = document.createElement('div');
             felhasznalokBetoltese();
         }
     }
-     // 🚀 Szabadság és Táppénz modul betöltése (Dinamikus script betöltéssel)
     if (cel === 'szabadsag') {
-        const modulScriptek = [
-            'Beallitasok/szabadsag_es_tappenz/js/sztp_nap_tipusok.js',
-            'Beallitasok/szabadsag_es_tappenz/js/sztp_fajtak.js',
-            'Beallitasok/szabadsag_es_tappenz/js/sztp_generalas.js',
-            'Beallitasok/szabadsag_es_tappenz/js/sztp_export.js',
-            'Beallitasok/szabadsag_es_tappenz/js/sz_tp_modul.js'
-        ];
+        fetch('Beallitasok/szabadsag_es_tappenz/vezer.php')
+            .then(response => response.text())
+            .then(html => {
+                const tartalom = document.getElementById('modul-tartalom');
+                if (tartalom) {
+                    // 1. Beillesztjük a HTML-t
+                    tartalom.innerHTML = html;
 
-        const betolt = (index) => {
-            if (index < modulScriptek.length) {
-                const s = document.createElement('script');
-                s.src = modulScriptek[index] + '?v=' + new Date().getTime();
-                s.onload = () => betolt(index + 1);
-                document.body.appendChild(s);
-            } else {
-                // Ha minden script megvan, betöltjük a vezer.php-t
-                fetch('Beallitasok/szabadsag_es_tappenz/vezer.php')
-                    .then(r => r.text())
-                    .then(html => {
-                        const t = document.getElementById('modul-tartalom');
-                        if (t) {
-                            t.innerHTML = html;
-                            if (typeof szTpModulBetoltese === 'function') szTpModulBetoltese();
-                        }
+                    // 2. HIBA JAVÍTÁSA: A szkriptek manuális lefuttatása, mert az innerHTML nem futtatja őket
+                    const scriptek = tartalom.querySelectorAll('script');
+                    scriptek.forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                        oldScript.parentNode.replaceChild(newScript, oldScript);
                     });
-            }
-        };
 
-        if (typeof szTpModulBetoltese !== 'function') {
-            betolt(0);
-        } else {
-            // Ha már be van töltve, csak a HTML-t frissítjük
-            fetch('Beallitasok/szabadsag_es_tappenz/vezer.php')
-                .then(r => r.text())
-                .then(html => {
-                    const t = document.getElementById('modul-tartalom');
-                    if (t) {
-                        t.innerHTML = html;
-                        szTpModulBetoltese();
-                    }
-                });
-        }
+                    // 3. Modul inicializálása (időzítve, hogy a szkriptek betölthessenek)
+                    setTimeout(() => {
+                        if (typeof szTpModulBetoltese === 'function') szTpModulBetoltese();
+                    }, 50);
+                }
+            });
     }
 function felhasznalokMegnyitasa() {
     window.location.href = 'Beallitasok/beallitasok/Felhasznalok/felhasznalok.php';
@@ -163,4 +136,5 @@ function frissitSzTpElonezet() {
         elonezet.textContent = kod;
     }
 }
+
 
