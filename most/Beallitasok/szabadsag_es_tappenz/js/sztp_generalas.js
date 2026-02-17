@@ -180,24 +180,11 @@ async function hivatkozasokOldalMegnyitasa() {
     kontener.innerHTML = `
         <div style="padding: 15px; background: #121212; max-height: 70vh; overflow-y: auto; border-radius: 8px; scrollbar-width: thin; scrollbar-color: #444 #121212;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; position: sticky; top: 0; background: #121212; z-index: 10;">
-                <h3 style="margin: 0; color: white; font-size: 1.1em;">🔗 Hivatkozások leképezése és számítások</h3>
-                <button onclick="ujHivatkozasPopup()" style="padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85em;">+ Új hivatkozás létrehozása</button>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 20px; background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333;">
-                <h4 style="margin: 0; color: #ffeb3b; font-size: 0.9em; border-bottom: 1px solid #444; padding-bottom: 5px;">⚙️ Generálási és Export szabályok</h4>
-                <div style="display: flex; gap: 20px;">
-                    <div style="flex: 1;">
-                        <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Dokumentum fájlnév (pl: {név} {dátum}):</label>
-                        <input type="text" id="sztp_fajlnev_szabaly" placeholder="{név} {dátum}" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
-                    </div>
-                    <div style="flex: 1;">
-                        <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 5px;">Export csoportosítás (Könyvelés):</label>
-                        <select id="sztp_export_szabaly" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
-                            <option value="nev">Csak Név alapján</option>
-                            <option value="ceg_nev">Cég + Név alapján</option>
-                        </select>
-                    </div>
-                    <button onclick="globalisSzabalyokMentese()" style="padding: 0 20px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Mentés</button>
+                <h3 style="margin: 0; color: white; font-size: 1.1em;">🔗 Hivatkozások leképezése és szabályok</h3>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="generaltSzabalyokPopup()" style="padding: 8px 12px; background: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8em;">⚙️ Generálási szabályok</button>
+                    <button onclick="exportSzabalyokPopup()" style="padding: 8px 12px; background: #673ab7; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8em;">⚙️ Export szabályok</button>
+                    <button onclick="ujHivatkozasPopup()" style="padding: 8px 12px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8em;">+ Új hivatkozás</button>
                 </div>
             </div>
             <div style="display: flex; gap: 20px;">
@@ -220,7 +207,21 @@ async function hivatkozasokOldalMegnyitasa() {
             </div>
         </div>
         ${getHivatkozasModalHtml()}
+    </div>
+        
+        <div id="sztp-generalo-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10001; align-items: center; justify-content: center;">
+            <div style="background: #1e1e1e; color: white; padding: 25px; border-radius: 12px; width: 800px; border: 1px solid #333; max-height: 90vh; display: flex; flex-direction: column;">
+                <h3 style="margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;">⚙️ Generálási szabályok (Fájlnév minták)</h3>
+                <div id="generalo-szabalyok-lista" style="overflow-y: auto; flex: 1; padding-right: 10px; margin: 15px 0;">
+                    </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #333; padding-top: 15px;">
+                    <button onclick="document.getElementById('sztp-generalo-modal').style.display='none'" style="padding: 8px 20px; background: #444; color: white; border: none; border-radius: 4px; cursor: pointer;">Mégse</button>
+                    <button onclick="generatSzabalyokMentese()" style="padding: 8px 25px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">💾 Szabályok mentése</button>
+                </div>
+            </div>
+        </div>
     `;
+}
     mintaAdatokBetoltese();
     hivatkozasokListazasa();
 }
@@ -472,5 +473,95 @@ function feltoltoModalMegnyitasa() {
 }
 
 function feltoltoModalBezaras() {
-    document.getElementById('sztp-feltolto-modal').style.display = 'none';
+    const modal = document.getElementById('sztp-feltolto-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+async function generaltSzabalyokPopup() {
+    const id = document.getElementById('sztp_id')?.value;
+    if (!id) return alert("Hiba: Nincs kiválasztott kategória!");
+
+    // ✨ Lekérjük a kategória nap típusait és a mentett szabályokat
+    const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id);
+    const d = await r.json();
+    if (!d.success) return;
+
+    const extra = d.adat.extra_adatok ? JSON.parse(d.adat.extra_adatok) : {};
+    const napok = extra.napok || [];
+    const mentettSzabalyok = extra.generalo_szabalyok || {};
+
+    const modalBody = document.getElementById('generalo-szabalyok-lista');
+    modalBody.innerHTML = napok.map(n => `
+        <div style="background: #252525; padding: 12px; border-radius: 6px; border: 1px solid #444; margin-bottom: 10px;">
+            <div style="color: #ffeb3b; font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid #333;">📅 Munkanap típusa: ${n.nev} (${n.jel})</div>
+            <div style="display: flex; gap: 15px;">
+                <div style="flex: 1;">
+                    <label style="display: block; font-size: 0.75em; color: #aaa;">Egy nap esetén (fájlnév minta):</label>
+                    <input type="text" class="szabaly-input" data-tipus="${n.jel}" data-mod="egy" oninput="frissitSzabalyElonezet(this)" 
+                        value="${mentettSzabalyok[n.jel]?.egy || '{név} {dátum}'}" style="width: 100%; padding: 6px; background: #121212; color: white; border: 1px solid #444; border-radius: 4px;">
+                    <div class="elonezet-doboz" id="pre-${n.jel}-egy" style="font-size: 0.7em; color: #4CAF50; margin-top: 3px; font-family: monospace;">Élő: -</div>
+                </div>
+                <div style="flex: 1;">
+                    <label style="display: block; font-size: 0.75em; color: #aaa;">Több nap esetén (fájlnév minta):</label>
+                    <input type="text" class="szabaly-input" data-tipus="${n.jel}" data-mod="tobb" oninput="frissitSzabalyElonezet(this)" 
+                        value="${mentettSzabalyok[n.jel]?.tobb || '{név} {mettől}-{meddig}'}" style="width: 100%; padding: 6px; background: #121212; color: white; border: 1px solid #444; border-radius: 4px;">
+                    <div class="elonezet-doboz" id="pre-${n.jel}-tobb" style="font-size: 0.7em; color: #4CAF50; margin-top: 3px; font-family: monospace;">Élő: -</div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    document.getElementById('sztp-generalo-modal').style.display = 'flex';
+    // Kezdeti előnézet frissítés
+    document.querySelectorAll('.szabaly-input').forEach(i => frissitSzabalyElonezet(i));
+}
+
+function frissitSzabalyElonezet(input) {
+    const minta = input.value;
+    const kijelzo = document.getElementById('pre-' + input.dataset.tipus + '-' + input.dataset.mod);
+    if (!kijelzo) return;
+
+    // ✨ Itt a korábban megírt hivatkozás leképező logikát hívjuk
+    let eredmeny = minta;
+    // Példa regex a {kapcsos} hivatkozásokhoz
+    const matches = minta.match(/{([^}]+)}/g);
+    if (matches) {
+        matches.forEach(m => {
+            const hivNev = m.replace('{','').replace('}','');
+            // Megkeressük a hivatkozások között (minta adat rekordból)
+            // Itt a szamolHivatkozasErteket logikát kell alkalmazni ha kész van
+            eredmeny = eredmeny.replace(m, "[ÉRTÉK]"); 
+        });
+    }
+    kijelzo.innerText = "Minta: " + eredmeny + ".pdf";
+}
+
+async function generatSzabalyokMentese() {
+    const id = document.getElementById('sztp_id').value;
+    const inputok = document.querySelectorAll('.szabaly-input');
+    let szabalyok = {};
+    
+    inputok.forEach(i => {
+        if(!szabalyok[i.dataset.tipus]) szabalyok[i.dataset.tipus] = {};
+        szabalyok[i.dataset.tipus][i.dataset.mod] = i.value;
+    });
+
+    try {
+        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id);
+        const d = await r.json();
+        let extra = d.adat.extra_adatok ? JSON.parse(d.adat.extra_adatok) : {};
+        extra.generalo_szabalyok = szabalyok;
+
+        await fetch('Beallitasok/szabadsag_es_tappenz/sztp_mentes.php', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id, megnevezes: d.adat.megnevezes, kod: d.adat.kod, szin: d.adat.hex_szin, extra_adatok: extra })
+        });
+        alert("Generálási szabályok elmentve!");
+        document.getElementById('sztp-generalo-modal').style.display = 'none';
+    } catch (e) { alert("Hiba a mentéskor!"); }
+}
+
+function exportSzabalyokPopup() {
+    // Ezt majd a következő körben részletezzük, most csak megnyitjuk
+    alert("Export szabályok: Csoportosítás beállítása.");
 }
