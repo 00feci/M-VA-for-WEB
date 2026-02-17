@@ -97,19 +97,22 @@ const gombSor = document.createElement('div');
             felhasznalokBetoltese();
         }
     }
-        // 🚀 Szabadság és Táppénz modul betöltése (Kiszervezett fájl)
+      // 🚀 Szabadság és Táppénz modul betöltése (vezer.php meghívásával)
     if (cel === 'szabadsag') {
-        if (typeof szTpModulBetoltese !== 'function') {
-            const script = document.createElement('script');
-            script.src = 'Beallitasok/szabadsag_es_tappenz/js/sz_tp_modul.js?v=' + new Date().getTime();
-            script.onload = () => szTpModulBetoltese();
-            document.body.appendChild(script);
-        } else {
-            szTpModulBetoltese();
-        }
+        fetch('Beallitasok/szabadsag_es_tappenz/vezer.php')
+            .then(response => response.text())
+            .then(html => {
+                const tartalom = document.getElementById('modul-tartalom');
+                if (tartalom) {
+                    tartalom.innerHTML = html;
+                    // Miután bekerült a vezer.php (és benne az sz-tp-modul-root div), futtatjuk a generálást
+                    if (typeof szTpModulBetoltese === 'function') {
+                        szTpModulBetoltese();
+                    }
+                }
+            })
+            .catch(err => console.error("Hiba a vezer.php betöltésekor:", err));
     }
-} // Itt zárjuk be a navigacio függvényt rendesen
-        
 function felhasznalokMegnyitasa() {
     window.location.href = 'Beallitasok/beallitasok/Felhasznalok/felhasznalok.php';
 }
@@ -130,4 +133,5 @@ function frissitSzTpElonezet() {
        elonezet.style.backgroundColor = szin;
         elonezet.textContent = kod;
     }
+
 }
