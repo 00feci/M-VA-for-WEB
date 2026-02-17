@@ -19,7 +19,7 @@ const menuAdatok = {
     'szabadsag': {
         cim: '📅 Szabadság és Táppénz beállítások',
         breadcrumb: 'Iroda > Beállítások > Szabadság és Táppénz',
-        gombok: [] // 👈 Üresen hagyjuk, a vezer.php-ból jön a gomb!
+        gombok: [] // A gombokat a vezer.php-ból kapja meg
     },
     'rendszer': {
         cim: 'Rendszer beállítások',
@@ -104,23 +104,35 @@ const gombSor = document.createElement('div');
                     // 1. Beillesztjük a HTML-t
                     tartalom.innerHTML = html;
 
-                    // 2. HIBA JAVÍTÁSA: A szkriptek manuális lefuttatása, mert az innerHTML nem futtatja őket
+                    // 2. HIBA JAVÍTÁSA: Szkriptek betöltése duplikáció ellenőrzéssel
                     const scriptek = tartalom.querySelectorAll('script');
                     scriptek.forEach(oldScript => {
+                        const src = oldScript.getAttribute('src');
+                        if (src) {
+                            // Csak akkor töltjük be, ha a fájl (verzió nélkül) még nincs az oldalon
+                            const tisztaSrc = src.split('?')[0];
+                            if (document.querySelector(`script[src*="${tisztaSrc}"]`)) return;
+                        }
+
                         const newScript = document.createElement('script');
                         Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-                        oldScript.parentNode.replaceChild(newScript, oldScript);
+                        if (!src) newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                        
+                        // A scriptet a body végére tesszük a globális hatókör miatt
+                        document.body.appendChild(newScript);
                     });
 
-                    // 3. Modul inicializálása (időzítve, hogy a szkriptek betölthessenek)
-                   setTimeout(() => {
-                        if (typeof szTpModulBetoltese === 'function') szTpModulBetoltese();
-                    }, 50);
+                    // 3. Modul inicializálása
+                    setTimeout(() => {
+                        if (typeof szTpModulBetoltese === 'function') {
+                            szTpModulBetoltese();
+                        }
+                    }, 100);
                 }
             });
     }
-} // <--- Itt zárjuk le a navigacio függvényt
+} // <--- Navigáció függvény lezárása
+
 function felhasznalokMegnyitasa() {
     window.location.href = 'Beallitasok/beallitasok/Felhasznalok/felhasznalok.php';
 }
@@ -142,3 +154,4 @@ function frissitSzTpElonezet() {
         elonezet.textContent = kod;
     }
 }
+
