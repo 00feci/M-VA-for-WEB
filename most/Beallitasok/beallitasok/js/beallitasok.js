@@ -9,12 +9,16 @@ const menuAdatok = {
            // { felirat: '⚙️ Rendszer', cel: 'rendszer' }
         ]
     },
-    'felhasznalok': {
-        cim: 'Felhasználók kezelése',
+    cim: 'Felhasználók kezelése',
         breadcrumb: 'Iroda > Beállítások > Felhasználók',
         gombok: [
             { felirat: '🔙 Vissza', cel: 'fomenu' }
         ]
+    },
+    'szabadsag': {
+        cim: '📅 Szabadság és Táppénz beállítások',
+        breadcrumb: 'Iroda > Beállítások > Szabadság és Táppénz',
+        gombok: [] // Üresen hagyjuk, mert a vezer.php saját vissza gombját használod
     },
     'rendszer': {
         cim: 'Rendszer beállítások',
@@ -109,12 +113,13 @@ const gombSor = document.createElement('div');
                     });
 
                     // 3. Modul inicializálása (időzítve, hogy a szkriptek betölthessenek)
-                    setTimeout(() => {
+                   setTimeout(() => {
                         if (typeof szTpModulBetoltese === 'function') szTpModulBetoltese();
                     }, 50);
                 }
             });
     }
+} // <--- Itt zárjuk le a navigacio függvényt
 function felhasznalokMegnyitasa() {
     window.location.href = 'Beallitasok/beallitasok/Felhasznalok/felhasznalok.php';
 }
@@ -136,5 +141,3 @@ function frissitSzTpElonezet() {
         elonezet.textContent = kod;
     }
 }
-
-
