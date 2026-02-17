@@ -1,186 +1,167 @@
-function szTpModulBetoltese() {
-    // Elsődlegesen a vezer.php-ban definiált root div-et használjuk
-    const kontener = document.getElementById('sz-tp-modul-root') || document.getElementById('modul-tartalom');
+const menuAdatok = {
+
+    'fomenu': {
+        cim: 'Beállítások',
+        breadcrumb: 'Iroda > Beállítások',
+        gombok: [
+            { felirat: '📅 Szabadság és Táppénz', cel: 'szabadsag' },
+            { felirat: '👥 Felhasználók', cel: 'felhasznalok' },
+           // { felirat: '⚙️ Rendszer', cel: 'rendszer' }
+        ]
+    },
+    'szabadsag': {
+        cim: '📅 Szabadság és Táppénz beállítások',
+        breadcrumb: 'Iroda > Beállítások > Szabadság és Táppénz',
+        gombok: [
+            { felirat: '🔙 Vissza', cel: 'fomenu' }
+        ]
+    },
+    'felhasznalok': {
+        cim: 'Felhasználók kezelése',
+        breadcrumb: 'Iroda > Beállítások > Felhasználók',
+        gombok: [
+            { felirat: '🔙 Vissza', cel: 'fomenu' }
+        ]
+    },
+    'rendszer': {
+        cim: 'Rendszer beállítások',
+        breadcrumb: 'Iroda > Beállítások > Rendszer',
+        gombok: [
+            { felirat: '🔙 Vissza', cel: 'fomenu' }
+        ]
+    }
+};
+
+function navigacio(cel) {
+    console.log("Kattintás észlelve, cél:", cel);
+    // 🎨 CSS dinamikus betöltése
+    if (cel === 'felhasznalok' && !document.getElementById('felhasznalok-css')) {
+        let link = document.createElement('link');
+        link.id = 'felhasznalok-css';
+        link.rel = 'stylesheet';
+        link.href = 'Beallitasok/beallitasok/Felhasznalok/css/felhasznalok.css?v=' + new Date().getTime();
+        document.head.appendChild(link);
+    }
+    const adat = menuAdatok[cel];
+    if (!adat) return;
+    
+    // Cím és Breadcrumb frissítése
+    document.getElementById('panel-cim').innerText = adat.cim;
+    document.getElementById('breadcrumb').innerHTML = adat.breadcrumb.replace(/ > /g, ' <span>&gt;</span> ');
+  const kontener = document.getElementById('menu-kontener');
     if (!kontener) return;
+    kontener.innerHTML = '';
+    
+    // 🚦 Navigáció: Főmenüben az ikonokat mutatjuk, modulokban a funkciógombokat
+    if (cel === 'fomenu') {
+        adat.gombok.forEach(g => {
+            const gomb = document.createElement('div');
+            gomb.className = 'dashboard-gomb';
+            gomb.innerText = g.felirat;
+            gomb.onclick = () => navigacio(g.cel);
+            kontener.appendChild(gomb);
+        });
+    } else {
+        // Dinamikus gombgenerálás a modulhoz (Színvariációk, Megnevezések, stb.)
+const gombSor = document.createElement('div');
+        gombSor.className = 'dashboard-gomb-sor';
+        gombSor.id = 'modul-gomb-sor';
+        gombSor.style.display = 'flex';
+        gombSor.style.width = '100%';
+        gombSor.style.gap = '40px'; // 👈 Még nagyobb távolság a gombok között
 
-    kontener.innerHTML = `
-        <div class="sztp-keret" style="display: flex; gap: 40px; padding: 20px; align-items: flex-start;">
-            <input type="hidden" id="sztp_id" value=""> 
-            
-           <div style="width: 360px; display: flex; flex-direction: column; gap: 15px;">
-                <div style="background: #1e1e1e; padding: 20px; border-radius: 12px; border: 1px solid #333;">
-                    <button onclick="fajtaBeallitasokMegnyitasa()" style="width: 100%; padding: 12px; background: #2196F3; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                        Munkanapok típusa ⚙️
-                    </button>
-                    
-                    <div style="border-top: 1px solid #333; padding-top: 15px;">
-                        <button onclick="napTipusSzerkesztoMegnyitasa()" style="width: 100%; padding: 10px; background: #252525; color: #ffeb3b; border: 1px solid #444; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                            Napok típusa ⚙️
-                        </button>
-                        <select id="sztp_nap_tipusa" style="display: none;"></select>
-                        <div id="nap-tipus-minta" style="display: none;">-</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
-                <div style="background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; color: white;">
-                    <h4 style="margin: 0 0 10px 0; color: #ffeb3b; font-size: 0.9em; border-bottom: 1px solid #444; padding-bottom: 5px;">⚙️ Generálási és Export szabályok</h4>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                        <div>
-                            <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 3px;">Kész dokumentum neve (pl: {név} {dátum}):</label>
-                            <input type="text" id="sztp_fajlnev_szabaly" placeholder="{név} {dátum}" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
-                        </div>
-                        <div style="display: flex; gap: 10px; align-items: flex-end;">
-                            <div style="flex: 1;">
-                                <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 3px;">Könyvelési export feltétel:</label>
-                                <select id="sztp_export_szabaly" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
-                                    <option value="nev">Csak Név alapján</option>
-                                    <option value="ceg_nev">Ha Cég és Név megegyezik -> egy sorba</option>
-                                </select>
-                            </div>
-                            <button onclick="globalisSzabalyokMentese()" style="padding: 9px 20px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">💾 Mentés</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        adat.gombok.forEach(g => {
+            const gomb = document.createElement('div');
+            gomb.className = 'dashboard-gomb';
+            gomb.style.flex = '1';
+            gomb.innerText = g.felirat;
+            gomb.onclick = () => navigacio(g.cel);
+            gombSor.appendChild(gomb);
+        });
+        kontener.appendChild(gombSor);
+    }
+    // 2. Tartalom helye (ID: modul-tartalom) - Itt csak egy változót használunk!
+    const modulDoboz = document.createElement('div');
+    modulDoboz.id = 'modul-tartalom';
+    modulDoboz.style.width = '100%';
+    kontener.appendChild(modulDoboz);
 
-        <div id="sztp-fajta-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center;">
-            <div style="background: #1e1e1e; color: white; padding: 25px; border-radius: 12px; border: 1px solid #333; display: flex; gap: 25px; width: 850px; max-height: 90vh;">
-                
-                <div style="flex: 0 0 400px; display: flex; flex-direction: column; gap: 15px;">
-                    <h3 style="margin: 0; color: #2196F3; border-bottom: 1px solid #333; padding-bottom: 10px;">⚙️ Fajták beállításai</h3>
-                    
-                    <div>
-                        <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 4px;">Keresés:</label>
-                        <input type="text" id="sztp_edit_kereso" oninput="szuresSztpMegnevezesre(this.value, 'sztp_edit_megnevezes')" 
-                               placeholder="Keresés..." style="width: 100%; padding: 8px; background: #121212; border: 1px solid #333; color: white; border-radius: 4px;">
-                    </div>
+    // 🚀 Modul betöltése
+    if (cel === 'felhasznalok') {
+        if (typeof felhasznalokBetoltese !== 'function') {
+            const script = document.createElement('script');
+            script.src = 'Beallitasok/beallitasok/Felhasznalok/js/felhasznalok.js?v=' + new Date().getTime();
+            script.onload = () => felhasznalokBetoltese();
+            document.body.appendChild(script);
+        } else {
+            felhasznalokBetoltese();
+        }
+    }
+      // 🚀 Szabadság és Táppénz modul betöltése (Dinamikus script betöltéssel)
+    if (cel === 'szabadsag') {
+        const modulScriptek = [
+            'Beallitasok/szabadsag_es_tappenz/js/sztp_nap_tipusok.js',
+            'Beallitasok/szabadsag_es_tappenz/js/sztp_fajtak.js',
+            'Beallitasok/szabadsag_es_tappenz/js/sztp_generalas.js',
+            'Beallitasok/szabadsag_es_tappenz/js/sztp_export.js',
+            'Beallitasok/szabadsag_es_tappenz/js/sz_tp_modul.js'
+        ];
 
-                    <div>
-                        <label style="display: block; font-size: 0.8em; color: #aaa; margin-bottom: 4px;">Munkanap típusa:</label>
-                        <div style="display: flex; gap: 5px;">
-                            <select id="sztp_edit_megnevezes" onchange="adatokBetoltese(this.value)" style="flex: 1; padding: 8px; background: #121212; border: 1px solid #333; color: white; border-radius: 4px;">
-                                <option value="">-- Kiválasztás --</option>
-                            </select>
-                            <button onclick="megnevezesSzerkesztoMegnyitasa()" style="padding: 0 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">+</button>
-                        </div>
-                    </div>
+        const betolt = (index) => {
+            if (index < modulScriptek.length) {
+                const s = document.createElement('script');
+                s.src = modulScriptek[index] + '?v=' + new Date().getTime();
+                s.onload = () => betolt(index + 1);
+                document.body.appendChild(s);
+            } else {
+                // Ha minden script megvan, betöltjük a vezer.php-t
+                fetch('Beallitasok/szabadsag_es_tappenz/vezer.php')
+                    .then(r => r.text())
+                    .then(html => {
+                        const t = document.getElementById('modul-tartalom');
+                        if (t) {
+                            t.innerHTML = html;
+                            if (typeof szTpModulBetoltese === 'function') szTpModulBetoltese();
+                        }
+                    });
+            }
+        };
 
-                    <div style="display: flex; gap: 12px; align-items: flex-end;">
-                        <div style="width: 70px;">
-                            <label style="display: block; font-size: 0.75em; color: #aaa; margin-bottom: 3px;">Kód:</label>
-                            <input type="text" id="sztp_kod" maxlength="10" oninput="frissitSztpElonezet('kod')" 
-                                   style="width: 100%; padding: 6px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px; text-align: center;">
-                        </div>
-                        <div style="width: 38px;">
-                            <label style="display: block; font-size: 0.75em; color: #aaa; margin-bottom: 3px;">Szín:</label>
-                            <input type="color" id="sztp_szin" oninput="frissitSztpElonezet('picker')" style="width: 38px; height: 36px; cursor: pointer; background: none; border: 1px solid #444; border-radius: 4px; padding: 2px;">
-                        </div>
-                        <div style="flex: 1;">
-                            <label style="display: block; font-size: 0.75em; color: #aaa; margin-bottom: 3px;">HEX kód:</label>
-                            <input type="text" id="sztp_hex" oninput="frissitSztpElonezet('hex')" placeholder="#ffffff" maxlength="7" style="width: 80px; padding: 6px; background: #121212; border: 1px solid #444; color: white; border-radius: 4px; font-family: monospace; font-size: 0.85em;">                        </div>
-                        <div style="width: 60px; text-align: center;">
-                            <label style="display: block; font-size: 0.7em; color: #aaa; margin-bottom: 3px;">MINTA</label>
-                            <div id="szin-elonezet-doboz" style="width: 100%; height: 32px; border: 1px solid #444; background: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 4px; font-size: 12px; color: #000;">-</div>
-                        </div>
-                    </div>
-
-                   <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
-                        <div style="display: flex; gap: 10px;">
-                            <button onclick="beallitasokMentese()" style="flex: 1; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">💾 Mentés</button>
-                            <button id="btn-sztp-feltoltes" onclick="feltoltoModalMegnyitasa()" disabled style="flex: 1; padding: 12px; background: #ccc; color: white; border: none; border-radius: 8px; cursor: not-allowed; font-weight: bold;">📁 Sablon feltöltése</button>
-                        </div>
-                        <div style="display: flex; gap: 10px;">
-                            <button onclick="beallitasokTorlese()" style="flex: 1; padding: 12px; background: #f44336; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">🗑️ Törlés</button>
-                            <button id="btn-sztp-kezeles" onclick="sablonKezeleseOldal()" disabled style="flex: 1; padding: 12px; background: #ccc; color: white; border: none; border-radius: 8px; cursor: not-allowed; font-weight: bold;">✏️ Sablon kezelése</button>
-                        </div>
-                        <div style="display: flex; gap: 10px;">
-                            <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; background: #252525; padding: 8px 12px; border-radius: 8px; border: 1px solid #444;">
-                                <label style="font-size: 0.75em; color: #aaa; font-weight: bold;">NAGY rekord?</label>
-                                <select id="sztp_nagy_rekord" style="padding: 4px; background: #121212; border: 1px solid #333; color: white; border-radius: 4px; cursor: pointer; font-size: 0.85em;">
-                                    <option value="nem">Nem</option>
-                                    <option value="igen">Igen</option>
-                                </select>
-                            </div>
-                            <button onclick="document.getElementById('sztp-fajta-modal').style.display='none'" style="flex: 1; padding: 12px; background: #444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Bezárás</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="sztp-fajl-lista-kontener" style="flex: 1; background: #121212; border: 1px solid #333; border-radius: 8px; padding: 15px; overflow: auto; resize: both; min-height: 400px;">
-                    <label style="display: block; font-size: 0.85em; color: #aaa; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px;">📄 Sablon fájlok listája</label>
-                    <ul id="sztp-fajl-lista" style="list-style: none; padding: 0; margin: 0; font-size: 0.9em; color: #ddd; white-space: nowrap;">
-                        <li>⏳ Nincs fájl kiválasztva</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <div id="sztp-feltolto-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10001; align-items: center; justify-content: center;">
-            <div style="background: #121212; color: white; padding: 25px; border-radius: 12px; width: 500px; border: 1px solid #333;">
-                <h3 style="margin-top: 0;">📁 Sablon feltöltése</h3>
-                <div id="sztp-feltolto-zona" style="border: 3px dashed #2196F3; background: #1e1e1e; padding: 30px; text-align: center; border-radius: 12px; margin: 20px 0;">
-                    <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
-                        <button onclick="sztpTallozas(false)" style="padding: 8px 16px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer;">📄 Fájlok</button>
-                        <button onclick="sztpTallozas(true)" style="padding: 8px 16px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer;">📂 Mappa</button>
-                    </div>
-                    <span>Vagy húzd ide a tartalmat</span>
-                </div>
-                <div id="sztp-modal-statusz" style="margin-bottom: 10px; font-size: 0.85em; color: #81c784; text-align: center;"></div>
-                <div id="sztp-modal-fajl-lista-kontener" style="display: none;"><ul id="sztp-modal-fajl-lista"></ul></div>
-
-                <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                    <button onclick="feltoltoModalBezaras()" style="padding: 8px 15px; background: #424242; color: white; border: none; border-radius: 4px; cursor: pointer;">Mégse</button>
-                    <button onclick="beallitasokMentese(true)" style="padding: 8px 20px; background: #4CAF50; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer;">🚀 Feltöltés</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="sztp-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10002; align-items: center; justify-content: center;">
-            <div style="background: white; padding: 25px; border-radius: 8px; width: 450px;">
-                <h3 style="margin: 0; color: #333;">Megnevezések hozzáadása</h3>
-                <textarea id="sztp_tomeges_bevitel" placeholder="Példa:&#10;Szabadság&#10;Táppénz" style="width: 100%; height: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin: 15px 0; font-family: sans-serif; color: #333;"></textarea>
-                <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                    <button onclick="modalBezaras()" style="padding: 8px 15px; background: #eee; border: 1px solid #ccc; border-radius: 4px; color: #333; cursor: pointer;">Mégse</button>
-                    <button onclick="megnevezesekMentese()" style="padding: 8px 20px; background: #4CAF50; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer;">Frissítés</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="sztp-nap-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10003; align-items: center; justify-content: center;">
-            <div style="background: #1e1e1e; color: white; padding: 25px; border-radius: 12px; width: 500px; border: 1px solid #333;">
-                <h3 style="margin: 0; border-bottom: 1px solid #444; padding-bottom: 10px; color: #4CAF50;">🗓️ Nap típusok kezelése</h3>
-                <div style="background: #121212; padding: 15px; border-radius: 8px; margin: 15px 0;">
-                    <div style="display: flex; gap: 10px; align-items: flex-end;">
-                        <div style="flex: 1;">
-                            <label style="display: block; font-size: 0.75em; color: #aaa; margin-bottom: 3px;">Megnevezés:</label>
-                            <input type="text" id="uj_nap_nev" placeholder="Munkanap" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px;">
-                        </div>
-                        <div style="width: 80px;">
-                            <label style="display: block; font-size: 0.75em; color: #aaa; margin-bottom: 3px;">Betűjel:</label>
-                            <input type="text" id="uj_nap_jel" placeholder="SZ" maxlength="5" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: white; border-radius: 4px; text-align: center; font-weight: bold;">
-                        </div>
-                        <button onclick="napTipusMentese()" style="padding: 8px 15px; background: #4CAF50; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer;">+</button>
-                    </div>
-                </div>
-                <div style="max-height: 200px; overflow-y: auto; background: #121212; border-radius: 8px; padding: 5px;">
-                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85em;"><tbody id="sztp_nap_lista_test"></tbody></table>
-                </div>
-                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                    <button onclick="document.getElementById('sztp-nap-modal').style.display='none'" style="padding: 8px 15px; background: #444; color: white; border: none; border-radius: 4px; cursor: pointer;">Bezárás</button>
-                    <button onclick="beallitasokMentese(false, true)" style="padding: 8px 20px; background: #2196F3; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer;">💾 Mentés</button>
-                </div>
-            </div>
-        </div>
-
-        ${getHivatkozasModalHtml()}
-    `;
-
-    setTimeout(() => {
-        listaBetoltese();
-        inicializalFeltoltot();
-    }, 50);
+        if (typeof szTpModulBetoltese !== 'function') {
+            betolt(0);
+        } else {
+            // Ha már be van töltve, csak a HTML-t frissítjük
+            fetch('Beallitasok/szabadsag_es_tappenz/vezer.php')
+                .then(r => r.text())
+                .then(html => {
+                    const t = document.getElementById('modul-tartalom');
+                    if (t) {
+                        t.innerHTML = html;
+                        szTpModulBetoltese();
+                    }
+                });
+        }
+    }
+}
+function felhasznalokMegnyitasa() {
+    window.location.href = 'Beallitasok/beallitasok/Felhasznalok/felhasznalok.php';
 }
 
+function szTpBeallitasokMegnyitasa() {
+    // Itt hívjuk meg a popupot vagy irányítunk az új beállító oldalra
+    console.log("Szabadság és Táppénz beállítások megnyitása...");
+    // Később ide jön a Modal (Ablak) megnyitó kódja
+}
+
+// Élő előnézet frissítése a HEX kód alapján
+function frissitSzTpElonezet() {
+    const kod = document.getElementById('sztp_kod').value;
+    const szin = document.getElementById('sztp_hex').value;
+    const elonezet = document.getElementById('szin-elonezet');
+    
+    if(elonezet) {
+       elonezet.style.backgroundColor = szin;
+        elonezet.textContent = kod;
+    }
+
+}
