@@ -113,6 +113,7 @@ const gombSor = document.createElement('div');
             })
             .catch(err => console.error("Hiba a vezer.php betöltésekor:", err));
     }
+}
 function felhasznalokMegnyitasa() {
     window.location.href = 'Beallitasok/beallitasok/Felhasznalok/felhasznalok.php';
 }
@@ -133,5 +134,4 @@ function frissitSzTpElonezet() {
        elonezet.style.backgroundColor = szin;
         elonezet.textContent = kod;
     }
-
 }
