@@ -186,27 +186,41 @@ const gombSor = document.createElement('div');
                 if (tartalom) {
                     // 1. Beillesztjük a HTML-t
                     tartalom.innerHTML = html;
-                    // 2. HIBA JAVÍTÁSA: Szkriptek betöltése duplikáció ellenőrzéssel
+                   // 2. HIBA JAVÍTÁSA: Szkriptek betöltése duplikáció ellenőrzéssel
                     const scriptek = tartalom.querySelectorAll('script');
+                    
                     scriptek.forEach(oldScript => {
                         const src = oldScript.getAttribute('src');
                         if (src) {
-                            // Csak akkor töltjük be, ha a fájl (verzió nélkül) még nincs az oldalon
+                            // Csak akkor töltjük be, ha a fájl még nincs az oldalon
                             const tisztaSrc = src.split('?')[0];
-                           if (document.querySelector(`script[src*="${tisztaSrc}"]`)) return;
+                            if (document.querySelector(`script[src*="${tisztaSrc}"]`)) return;
                         }
                         const newScript = document.createElement('script');
                         Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                        
+                        // KULCSFONTOSSÁGÚ: kikapcsoljuk az aszinkron betöltést, 
+                        // hogy a JS fájlok pontosan a vezer.php-ban megadott sorrendben fussanak le!
+                        newScript.async = false; 
+                        
                         if (!src) newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-                        // A scriptet a body végére tesszük a globális hatókör miatt
                         document.body.appendChild(newScript);
                     });
-                    // 3. Modul inicializálása
-                    setTimeout(() => {
+
+                    // 3. Modul inicializálása - Várunk amíg a betöltés ténylegesen befejeződik
+                    let probalkozas = 0;
+                    const ellenorzo = setInterval(() => {
                         if (typeof szTpModulBetoltese === 'function') {
-                            szTpModulBetoltese();
-                    }
-                    }, 100);
+                            clearInterval(ellenorzo); // Leállítjuk a keresést
+                            szTpModulBetoltese();     // Elindítjuk a modult
+                        } else {
+                            probalkozas++;
+                            if (probalkozas > 40) {   // 2 másodperc (40 * 50ms) után feladja
+                                clearInterval(ellenorzo);
+                                console.error("Hiba: A Szabadság modul JS fájljai nem töltődtek be időben.");
+                            }
+                        }
+                    }, 50);
                 }
             });
     }
@@ -231,3 +245,4 @@ function frissitSzTpElonezet() {
         elonezet.textContent = kod;
     }
 }
+
