@@ -1,0 +1,566 @@
+async function sablonKezeleseOldal(frissitendoMappa = null) {
+    const kontener = document.getElementById('modul-tartalom');
+    // ✨ Kimentjük az ID-t, mielőtt az innerHTML törlése miatt elveszne!
+    const kategoriaId = document.getElementById('sztp_id')?.value || ""; 
+    
+    const sel = document.getElementById('sztp_megnevezes') || document.getElementById('sztp_edit_megnevezes');
+    let megnevezesValue = "";
+    const isMappaValid = frissitendoMappa && String(frissitendoMappa) !== "undefined" && String(frissitendoMappa) !== "null";
+
+    if (isMappaValid) {
+        megnevezesValue = frissitendoMappa;
+    } else if (sel && sel.selectedIndex > 0) {
+        megnevezesValue = sel.options[sel.selectedIndex].text;
+    }
+    const megjelenitettCim = megnevezesValue || "Sablonok";
+
+    const gombSor = document.getElementById('modul-gomb-sor');
+    if (gombSor) {
+        gombSor.innerHTML = `<div class="dashboard-gomb" style="flex: 1; background: #607d8b; color: white;" onclick="szTpModulBetoltese(); setTimeout(() => fajtaBeallitasokMegnyitasa(), 100);">🔙 Vissza a beállításokhoz</div>`;
+    }
+
+    // ✨ UI bővítése a PDF kapcsolóval
+   kontener.innerHTML = `
+        <input type="hidden" id="sztp_id" value="${kategoriaId}">
+        <div style="padding: 10px; background: #121212; min-height: 500px; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0; color: white; font-size: 1.1em;">📁 ${megjelenitettCim} mappaszerkezete</h3>
+              <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="display: flex; align-items: center; gap: 10px; background: #252525; padding: 5px 12px; border-radius: 6px; border: 1px solid #444;">
+                        <span style="font-size: 0.8em; color: #aaa;">PDF generálás (doc/docx):</span>
+                        <label class="sztp-switch">
+                            <input type="checkbox" id="pdf-all-toggle" onclick="sztpGlobalPdfToggle(this.checked)">
+                            <span class="sztp-slider"></span>
+                        </label>
+                    </div>
+                    <button onclick="sztpPdfMentese()" style="padding: 6px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85em;">💾 PDF mentése</button>
+                </div>
+            </div>
+<div id="sztp-fajl-fa-kontener" style="background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; overflow: auto; min-height: 300px;">
+<div id="sztp-fajl-fa" style="font-family: monospace;">⏳ Betöltés...</div>
+            </div>
+        </div>
+    `;
+
+  try {
+        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_mappa_tree.php?megnevezes=' + encodeURIComponent(megnevezesValue));
+        const d = await r.json();
+        
+        // ✨ Mentett PDF beállítások lekérése a korábban kimentett kategoriaId alapján
+        let pdfSettings = null;
+        if(kategoriaId) {
+            const res = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + kategoriaId);
+            const sData = await res.json();
+            if(sData.success && sData.adat.extra_adatok) {
+                pdfSettings = JSON.parse(sData.adat.extra_adatok).pdf_beallitasok || null;
+            }
+        }
+
+        if (d.success) {
+            document.getElementById('sztp-fajl-fa').innerHTML = renderelFa(d.tree, megnevezesValue, pdfSettings);
+            if(pdfSettings && pdfSettings.mind) {
+                const allCheck = document.getElementById('pdf-all-toggle');
+                if(allCheck) allCheck.checked = true;
+            }
+        }
+    } catch (e) { console.error(e); }
+} // ✨ EZ HIÁNYZOTT! Lezárjuk a sablonKezeleseOldal függvényt.
+
+function renderelFa(elemek, aktualisKategoria = "", pdfSettings = null) {
+    if (!elemek || elemek.length === 0) return '<p style="color: #666;">A mappa üres.</p>';
+    let html = '<ul style="list-style: none; padding-left: 20px; line-height: 2.2;">';
+    elemek.forEach(i => {
+        const ikon = i.type === 'folder' ? '📂' : '📄';
+        const isDoc = i.name.toLowerCase().endsWith('.doc') || i.name.toLowerCase().endsWith('.docx');
+        const tisztaUtvonal = i.path.replace(/\\/g, '/'), kodoltUtvonal = encodeURI(tisztaUtvonal);
+        
+        html += `<li style="color: #2196F3; border-bottom: 1px solid #222; padding: 2px 0;">
+            <span style="cursor: default; font-weight: bold; min-width: 250px; display: inline-block;">${ikon} ${i.name}</span>
+            <span style="display: inline-flex; gap: 12px; align-items: center; margin-left: 10px; vertical-align: middle;">
+                ${i.type === 'file' ? `<a href="/Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/${kodoltUtvonal}" download style="text-decoration: none; font-size: 1.25em;" title="Letöltés">📥</a>` : ''}
+${isDoc ? `<div style="display: inline-flex; align-items: center; gap: 4px; background: #121212; padding: 2px 6px; border-radius: 4px; border: 1px solid #333;" title="PDF készítés ebből a fájlból">
+                    <span style="font-size: 0.7em; color: #888;">PDF</span>
+                    <input type="checkbox" class="sztp-pdf-toggle" data-path="${tisztaUtvonal}" style="cursor:pointer;" onclick="sztpEgyediPdfToggle()" 
+                    ${(pdfSettings && (pdfSettings.mind || (pdfSettings.fajlok && pdfSettings.fajlok.includes(tisztaUtvonal)))) ? 'checked' : ''}>
+                </div>` : ''}
+                <button onclick="sztpGyorsFeltoltesInditasa('${tisztaUtvonal}', ${i.type === 'folder'}, '${aktualisKategoria}')" style="border: none; background: none; cursor: pointer; color: #4CAF50; font-size: 1.25em; padding: 0;" title="Feltöltés / Felülírás">📤</button>
+                <button onclick="sztpElemTorlese('${tisztaUtvonal}', '${aktualisKategoria}')" style="border: none; background: none; cursor: pointer; color: #f44336; font-size: 1.2em; padding: 0;" title="Törlés">🗑️</button>
+            </span>
+            ${i.date ? `<span style="color: #777; font-size: 0.8em; margin-left: 15px;">🕒 ${i.date}</span>` : ''}
+            ${i.children ? renderelFa(i.children, aktualisKategoria, pdfSettings) : ''}
+        </li>`;
+    });
+    return html + '</ul>';
+}
+  // ✨ Új logikai függvények a Master-Slave működéshez
+function sztpGlobalPdfToggle(checked) {
+    const egyediCheckek = document.querySelectorAll('.sztp-pdf-toggle');
+    egyediCheckek.forEach(c => { c.checked = checked; });
+}
+
+function sztpEgyediPdfToggle() {
+    const osszes = document.querySelectorAll('.sztp-pdf-toggle');
+    const globalCheck = document.getElementById('pdf-all-toggle');
+    // ✨ Ha bármelyik nincs kipipálva, a globális is kikapcsol
+    const mindPipalva = osszes.length > 0 && Array.from(osszes).every(c => c.checked);
+    if (globalCheck) globalCheck.checked = mindPipalva;
+}
+
+async function sztpPdfMentese() {
+    const osszes = document.querySelectorAll('.sztp-pdf-toggle');
+    const globalCheck = document.getElementById('pdf-all-toggle');
+    const beallitasok = {
+        mind: globalCheck ? globalCheck.checked : false,
+        fajlok: Array.from(osszes).filter(c => c.checked).map(c => c.dataset.path)
+    };
+
+    // ✨ Biztonságos lekérés: ellenőrizzük, hogy létezik-e az elem, mielőtt olvasnánk
+    const idElem = document.getElementById('sztp_id');
+    const id = idElem ? idElem.value : null;
+
+    if (!id) return alert("Hiba: Nincs kiválasztott kategória ID!");
+    try {
+        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id);
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message);
+        let extra = d.adat.extra_adatok ? JSON.parse(d.adat.extra_adatok) : {};
+        extra.pdf_beallitasok = beallitasok; // ✨ Frissítjük a PDF beállításokat
+        const mentR = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_mentes.php', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id, megnevezes: d.adat.megnevezes, kod: d.adat.kod, szin: d.adat.hex_szin, extra_adatok: extra })
+        });
+        const mentD = await mentR.json();
+        alert(mentD.message);
+    } catch (e) { alert("Hiba a mentés során!"); }
+}
+
+async function sztpElemTorlese(utvonal, kategoria) {
+    if (confirm("BIZTOSAN törölni szeretnéd ezt az elemet?\n" + utvonal)) {
+        try {
+            const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_fajl_torlese.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path: utvonal })
+            });
+            const d = await r.json();
+            if (d.success) { sablonKezeleseOldal(kategoria); } else { alert("Hiba: " + d.message); }
+        } catch (e) { console.error(e); }
+    }
+}
+
+function sztpGyorsFeltoltesInditasa(utvonal, mappaE, kategoria) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = async e => {
+        const fajl = e.target.files[0];
+        if (!fajl) return;
+        const formData = new FormData();
+        formData.append('sablon', fajl);
+        const reszek = utvonal.split('/').filter(p => p !== "");
+        let megnevezes = kategoria || reszek[0] || "Vegyes";
+        let relPath = mappaE ? utvonal.replace(megnevezes + "/", "") + fajl.name : utvonal.replace(megnevezes + "/", "");
+        formData.append('megnevezes', megnevezes);
+        formData.append('relativ_utvonal', relPath);
+        try {
+            const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_feltoltes.php', { method: 'POST', body: formData });
+            const d = await r.json();
+            alert(d.message);
+            if (d.success) sablonKezeleseOldal(megnevezes);
+        } catch (err) { alert("Hiba a feltöltés során!"); }
+    };
+    input.click();
+}
+
+async function hivatkozasokOldalMegnyitasa() {
+    const kontener = document.getElementById('modul-tartalom');
+    const gombSor = document.getElementById('modul-gomb-sor');
+    if (gombSor) {
+        gombSor.innerHTML = `<div class="dashboard-gomb" style="flex: 1; background: #607d8b; color: white;" onclick="szTpModulBetoltese()">🔙 Vissza a beállításokhoz</div>`;
+    }
+    kontener.innerHTML = `
+        <div style="padding: 15px; background: #121212; max-height: 70vh; overflow-y: auto; border-radius: 8px; scrollbar-width: thin; scrollbar-color: #444 #121212;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; position: sticky; top: 0; background: #121212; z-index: 10;">
+                <h3 style="margin: 0; color: white; font-size: 1.1em;">🔗 Hivatkozások leképezése és szabályok</h3>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="generaltSzabalyokPopup()" style="padding: 8px 12px; background: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8em;">⚙️ Generálási szabályok</button>
+                    <button onclick="exportSzabalyokPopup()" style="padding: 8px 12px; background: #673ab7; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8em;">⚙️ Export szabályok</button>
+                    <button onclick="ujHivatkozasPopup()" style="padding: 8px 12px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8em;">+ Új hivatkozás</button>
+                </div>
+            </div>
+            <div style="display: flex; gap: 20px;">
+                <div style="flex: 1; background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
+                    <h4 style="margin-top: 0; color: #9c27b0; font-size: 0.9em; border-bottom: 1px solid #444; padding-bottom: 5px;">Adatbázis minta (Legfrissebb rekord)</h4>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85em; color: #ddd; font-family: monospace;">
+                        <thead>
+                            <tr style="background: #252525; text-align: left;">
+                                <th style="padding: 10px; border-bottom: 2px solid #333;">SQL oszlop</th>
+                                <th style="padding: 10px; border-bottom: 2px solid #333;">Aktuális adat (Példa)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sztp-minta-adatok-test"></tbody>
+                    </table>
+                </div>
+                <div style="flex: 1; background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
+                    <h4 style="margin-top: 0; color: #2196F3; font-size: 0.9em; border-bottom: 1px solid #444; padding-bottom: 5px;">Aktív hivatkozások és szabályok</h4>
+                    <ul id="sztp-aktiv-hivatkozasok" style="list-style: none; padding: 0; margin: 0; color: #ddd; font-size: 0.85em;"></ul>
+                </div>
+            </div>
+        </div>
+        ${getHivatkozasModalHtml()}
+    </div>
+        
+        <div id="sztp-generalo-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10001; align-items: center; justify-content: center;">
+            <div style="background: #1e1e1e; color: white; padding: 25px; border-radius: 12px; width: 800px; border: 1px solid #333; max-height: 90vh; display: flex; flex-direction: column;">
+                <h3 style="margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;">⚙️ Generálási szabályok (Fájlnév minták)</h3>
+                <div id="generalo-szabalyok-lista" style="overflow-y: auto; flex: 1; padding-right: 10px; margin: 15px 0;">
+                    </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #333; padding-top: 15px;">
+                    <button onclick="document.getElementById('sztp-generalo-modal').style.display='none'" style="padding: 8px 20px; background: #444; color: white; border: none; border-radius: 4px; cursor: pointer;">Mégse</button>
+                    <button onclick="generatSzabalyokMentese()" style="padding: 8px 25px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">💾 Szabályok mentése</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+    mintaAdatokBetoltese();
+    hivatkozasokListazasa();
+
+async function mintaAdatokBetoltese() {
+    const tbody = document.getElementById('sztp-minta-adatok-test');
+    if (!tbody) return;
+    try {
+        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_minta_adatok.php');
+        const d = await r.json();
+        if (d.success && d.adat) {
+            mintaAdatRekord = d.adat;
+            aktualisSqlOszlopok = Object.keys(d.adat);
+            tbody.innerHTML = Object.entries(d.adat).map(([k, v]) => `<tr><td style="padding: 8px; border-bottom: 1px solid #333; font-weight: bold; color: #9c27b0;">${k}</td><td style="padding: 8px; border-bottom: 1px solid #333; color: #ddd;">${v || '-'}</td></tr>`).join('');
+        }
+    } catch (e) { console.error(e); }
+}
+
+function ujHivatkozasPopup() {
+    const modal = document.getElementById('sztp-hivatkozas-modal');
+    const select = document.getElementById('hiv_sql_oszlop');
+    if (modal && select) {
+        select.innerHTML = aktualisSqlOszlopok.map(o => `<option value="${o}">${o}</option>`).join('');
+        modal.style.display = 'flex';
+        hivatkozasokListazasa();
+    }
+}
+
+async function hivatkozasMentese() {
+    const nev = document.getElementById('hiv_nev').value;
+    const oszlop = document.getElementById('hiv_sql_oszlop').value;
+    const tipus = document.getElementById('hiv_muvelet_tipus').value;
+    const logika = document.getElementById('hiv_logika').value;
+    const formatum = document.getElementById('hiv_formatum').value;
+    if (!nev) return alert("Adj meg egy hivatkozás nevet!");
+    try {
+        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_hivatkozas_mentese.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nev, oszlop, tipus, logika, formatum })
+        });
+        const d = await r.json();
+        if (d.success) {
+            document.getElementById('hiv_nev').value = '';
+            document.getElementById('hiv_logika').value = '';
+            hivatkozasokListazasa();
+        }
+        alert(d.message);
+    } catch (e) { alert("Hiba a mentés során!"); }
+}
+
+async function hivatkozasokListazasa() {
+    const tbody = document.getElementById('hiv_lista_test');
+    const foLista = document.getElementById('sztp-aktiv-hivatkozasok');
+    if (!tbody) return;
+    try {
+        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_hivatkozasok_lekerese.php');
+        const d = await r.json();
+        if (d.success) {
+            const ikonok = { add: '➕', sub: '➖', mul: '✖️', div: '➗', txt: '🔤' };
+            tbody.innerHTML = d.lista.map(i => {
+                const eredmeny = szamolHivatkozasErteket(i.oszlop, i.tipus, i.logika, i.formatum);
+                return `<tr style="border-bottom: 1px solid #333;"><td style="padding: 8px; color: #2196F3; font-weight: bold;">${i.nev}</td><td style="padding: 8px; color: #aaa;">${i.oszlop} <span style="color: #4CAF50;">${ikonok[i.tipus] || ''}</span> ${i.logika}</td><td style="padding: 8px; color: #ffeb3b; font-family: monospace; font-weight: bold; text-align: right;">=> ${eredmeny}</td><td style="padding: 8px; text-align: right; white-space: nowrap;"><button onclick="hivatkozasSorrend(${i.id}, -1)" style="background: none; border: none; cursor: pointer; color: #2196F3;">▲</button><button onclick="hivatkozasSorrend(${i.id}, 1)" style="background: none; border: none; cursor: pointer; color: #2196F3;">▼</button><button onclick="hivatkozasTorlese(${i.id})" style="background: none; border: none; cursor: pointer; color: #f44336; margin-left: 10px;">🗑️</button></td></tr>`;
+            }).join('');
+            if (foLista) {
+                foLista.innerHTML = d.lista.length > 0 ? d.lista.map(i => `<li style="padding: 5px 10px; border-bottom: 1px solid #333;"><b style="color: #2196F3;">${i.nev}</b>: <span style="color: #ffeb3b;">${szamolHivatkozasErteket(i.oszlop, i.tipus, i.logika, i.formatum)}</span></li>`).join('') : '<li style="color: #666; font-style: italic; padding: 10px;">Nincs még létrehozott hivatkozás.</li>';
+            }
+        }
+    } catch (e) { console.error(e); }
+}
+
+async function hivatkozasTorlese(id) {
+    if (!confirm("Biztosan törlöd?")) return;
+    try {
+        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_hivatkozas_torlese.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+        const d = await r.json();
+        if (d.success) hivatkozasokListazasa();
+        alert(d.message);
+    } catch (e) { alert("Hiba!"); }
+}
+
+function szamolHivatkozasErteket(oszlop, tipus, logika, formatum = "") {
+    const alapErtek = mintaAdatRekord[oszlop];
+    if (alapErtek === undefined || alapErtek === null) return "Nincs adat";
+    let ertek = String(alapErtek).trim();
+    let vegEredmeny = "";
+    let log = String(logika).toLowerCase().trim();
+    if (tipus === 'txt') { vegEredmeny = ertek + logika; } else {
+        const isDate = /^\d{4}[-.]\d{2}[-.]\d{2}/.test(ertek);
+        if (isDate) {
+            if (log.includes('év') || log.includes('hónap') || log.includes('nap')) {
+                let d = new Date(ertek.replace(/\./g, '-'));
+                let szam = parseInt(log.replace(/[^0-9]/g, '')) || 0;
+                let szorzo = (tipus === 'sub') ? -1 : 1;
+                if (log.includes('év')) d.setFullYear(d.getFullYear() + (szam * szorzo));
+                else if (log.includes('hónap')) d.setMonth(d.getMonth() + (szam * szorzo));
+                else if (log.includes('nap')) d.setDate(d.getDate() + (szam * szorzo));
+                vegEredmeny = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+            } else { vegEredmeny = ertek.replace(/-/g, '.'); }
+        } else {
+            let n1 = parseFloat(ertek.replace(',', '.')), n2 = parseFloat(log.replace(',', '.').replace(/[^0-9.]/g, '')) || 0;
+            if (isNaN(n1)) vegEredmeny = ertek; else {
+                switch(tipus) {
+                    case 'add': vegEredmeny = (n1 + n2).toFixed(2); break;
+                    case 'sub': vegEredmeny = (n1 - n2).toFixed(2); break;
+                    case 'mul': vegEredmeny = (n1 * n2).toFixed(2); break;
+                    case 'div': vegEredmeny = n2 !== 0 ? (n1 / n2).toFixed(2) : "Hiba"; break;
+                    default: vegEredmeny = ertek;
+                }
+            }
+        }
+    }
+    vegEredmeny = vegEredmeny.toString().replace(/\.00$/, '');
+    const f = formatum.toUpperCase().trim();
+    if (f !== "" && vegEredmeny.includes('.') && vegEredmeny.split('.').length === 3) {
+        const p = vegEredmeny.split('.');
+        if (f === 'ÉÉÉÉ') return p[0]; if (f === 'HH') return p[1]; if (f === 'NN') return p[2];
+    }
+    return vegEredmeny.replace('.', ',');
+}
+
+function frissitHivatkozasElonezet() {
+    const oszlop = document.getElementById('hiv_sql_oszlop').value;
+    const tipus = document.getElementById('hiv_muvelet_tipus').value;
+    const logika = document.getElementById('hiv_logika').value;
+    const formatum = document.getElementById('hiv_formatum').value;
+    const kijelzo = document.getElementById('hiv_live_eredmeny');
+    if (kijelzo) kijelzo.innerText = "Élő eredmény: " + szamolHivatkozasErteket(oszlop, tipus, logika, formatum);
+}
+
+async function hivatkozasSorrend(id, irany) {
+    try {
+        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_hivatkozasok_lekerese.php');
+        const d = await r.json();
+        if (!d.success) return;
+        let lista = d.lista;
+        const index = lista.findIndex(i => i.id == id);
+        if (index === -1) return;
+        const ujIndex = index + irany;
+        if (ujIndex < 0 || ujIndex >= lista.length) return;
+        [lista[index], lista[ujIndex]] = [lista[ujIndex], lista[index]];
+        const sr = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_hivatkozasok_sorrendje.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lista }) });
+        const sd = await sr.json();
+        if (sd.success) hivatkozasokListazasa();
+    } catch (e) { console.error(e); }
+}
+
+function getHivatkozasModalHtml() {
+    return `
+        <div id="sztp-hivatkozas-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center;">
+            <div style="background: #1e1e1e; color: white; padding: 25px; border-radius: 12px; width: 600px; border: 1px solid #333;">
+                <h3 style="margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;">🔗 Hivatkozás létrehozása</h3>
+                <div style="display: flex; flex-direction: column; gap: 15px; margin: 20px 0;">
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 1;"><label style="display: block; font-size: 0.8em; color: #aaa;">Név:</label><input type="text" id="hiv_nev" style="width: 100%; padding: 8px; background: #252525; color: white; border: 1px solid #444; border-radius: 4px;"></div>
+                        <div style="flex: 1;"><label style="display: block; font-size: 0.8em; color: #aaa;">SQL Oszlop:</label><select id="hiv_sql_oszlop" onchange="frissitHivatkozasElonezet()" style="width: 100%; padding: 8px; background: #252525; color: white; border: 1px solid #444; border-radius: 4px;"></select></div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <div style="width: 140px;"><label style="display: block; font-size: 0.8em; color: #aaa;">Művelet:</label><select id="hiv_muvelet_tipus" onchange="frissitHivatkozasElonezet()" style="width: 100%; padding: 8px; background: #252525; color: white; border: 1px solid #444; border-radius: 4px;"><option value="add">+ Összeadás</option><option value="sub">- Kivonás</option><option value="mul">* Szorzás</option><option value="div">/ Osztás</option><option value="txt">Szöveg</option></select></div>
+                        <div style="flex: 1;"><label style="display: block; font-size: 0.8em; color: #aaa;">Logika:</label><input type="text" id="hiv_logika" oninput="frissitHivatkozasElonezet()" style="width: 100%; padding: 8px; background: #252525; color: white; border: 1px solid #444; border-radius: 4px;"></div>
+                    </div>
+                    <div id="hiv_live_eredmeny" style="padding: 10px; background: #121212; border-radius: 6px; text-align: center; color: #ffeb3b;">Élő eredmény: -</div>
+                    <button onclick="hivatkozasMentese()" style="width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer;">Hozzáadás</button>
+                </div>
+                <div style="max-height: 200px; overflow-y: auto; background: #121212; padding: 10px;"><table style="width: 100%; border-collapse: collapse;"><tbody id="hiv_lista_test"></tbody></table></div>
+                <div style="display: flex; justify-content: flex-end; margin-top: 20px;"><button onclick="document.getElementById('sztp-hivatkozas-modal').style.display='none'" style="padding: 8px 20px; background: #444; color: white; border: none; border-radius: 4px;">Bezárás</button></div>
+            </div>
+        </div>`;
+}
+function inicializalFeltoltot() {
+    const zona = document.getElementById('sztp-feltolto-zona');
+    if (!zona) return;
+
+    zona.onclick = (e) => {
+        if (e.target.tagName !== 'BUTTON') sztpTallozas(false);
+    };
+
+    zona.ondragover = e => { e.preventDefault(); zona.style.background = '#e1f0ff'; };
+    zona.ondragleave = () => { zona.style.background = '#f0f7ff'; };
+    zona.ondrop = async e => {
+        e.preventDefault();
+        zona.style.background = '#f0f7ff';
+        const items = e.dataTransfer.items;
+        let mindenFajl = [];
+        for (let i = 0; i < items.length; i++) {
+            const entry = items[i].webkitGetAsEntry();
+            if (entry) {
+                const fajlok = await rekurzivFajlOlvasas(entry);
+                mindenFajl = mindenFajl.concat(fajlok);
+            }
+        }
+        sztpFajlokFeltoltese(mindenFajl);
+    };
+}
+function sztpTallozas(mappaMod) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    // Az accept szűrő eltávolítva, hogy minden fájl látható legyen
+    input.multiple = true;
+    if (mappaMod) input.webkitdirectory = true;
+    input.onchange = e => sztpFajlokFeltoltese(Array.from(e.target.files));
+    input.click();
+}
+// 📂 Segédfüggvény a mappák mélyére ásáshoz
+async function rekurzivFajlOlvasas(entry, path = "") {
+    let fajlok = [];
+    if (entry.isFile) {
+        const fajl = await new Promise(resolve => entry.file(resolve));
+        fajl.relPath = path + fajl.name;
+        fajlok.push(fajl);
+    } else if (entry.isDirectory) {
+        const reader = entry.createReader();
+        const bejegyzesek = await new Promise(resolve => reader.readEntries(resolve));
+        for (const b of bejegyzesek) {
+            fajlok = fajlok.concat(await rekurzivFajlOlvasas(b, path + entry.name + "/"));
+        }
+    }
+    return fajlok;
+}
+function sztpFajlokFeltoltese(fajlok) {
+    if (!fajlok || fajlok.length === 0) return;
+    
+    // ✨ A kiválasztott fájlok behelyezése a sztp_fajtak.js-ben definiált pufferbe
+    kivalasztottFajlokBuffer = fajlok; 
+
+    const statusz = document.getElementById('sztp-modal-statusz');
+    const kontener = document.getElementById('sztp-modal-fajl-lista-kontener');
+    const lista = document.getElementById('sztp-modal-fajl-lista');
+
+    if (statusz) statusz.innerHTML = `✅ ${fajlok.length} fájl/mappa készen áll a feltöltésre.`;
+    if (kontener) kontener.style.display = 'block';
+    if (lista) {
+        // Az első 10 fájl megjelenítése a listában
+        lista.innerHTML = fajlok.slice(0, 10).map(f => `<li>📄 ${f.relPath || f.name}</li>`).join('') + 
+                         (fajlok.length > 10 ? `<li style="list-style: none; color: #888; margin-top: 5px;">... és még ${fajlok.length - 10} fájl</li>` : '');
+    }
+}
+
+function feltoltoModalMegnyitasa() {
+    const statusz = document.getElementById('sztp-modal-statusz');
+    const modalLista = document.getElementById('sztp-modal-fajl-lista');
+    const modalListaKontener = document.getElementById('sztp-modal-fajl-lista-kontener');
+    
+    if (statusz) statusz.innerHTML = ''; 
+    if (modalLista) modalLista.innerHTML = '';
+    if (modalListaKontener) modalListaKontener.style.display = 'none';
+    
+    document.getElementById('sztp-feltolto-modal').style.display = 'flex';
+}
+
+function feltoltoModalBezaras() {
+    const modal = document.getElementById('sztp-feltolto-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+async function generaltSzabalyokPopup() {
+    const id = document.getElementById('sztp_id')?.value;
+    if (!id) return alert("Hiba: Nincs kiválasztott kategória!");
+
+    // ✨ Lekérjük a kategória nap típusait és a mentett szabályokat
+    const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id);
+    const d = await r.json();
+    if (!d.success) return;
+
+    const extra = d.adat.extra_adatok ? JSON.parse(d.adat.extra_adatok) : {};
+    const napok = extra.napok || [];
+    const mentettSzabalyok = extra.generalo_szabalyok || {};
+
+    const modalBody = document.getElementById('generalo-szabalyok-lista');
+    modalBody.innerHTML = napok.map(n => `
+        <div style="background: #252525; padding: 12px; border-radius: 6px; border: 1px solid #444; margin-bottom: 10px;">
+            <div style="color: #ffeb3b; font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid #333;">📅 Munkanap típusa: ${n.nev} (${n.jel})</div>
+            <div style="display: flex; gap: 15px;">
+                <div style="flex: 1;">
+                    <label style="display: block; font-size: 0.75em; color: #aaa;">Egy nap esetén (fájlnév minta):</label>
+                    <input type="text" class="szabaly-input" data-tipus="${n.jel}" data-mod="egy" oninput="frissitSzabalyElonezet(this)" 
+                        value="${mentettSzabalyok[n.jel]?.egy || '{név} {dátum}'}" style="width: 100%; padding: 6px; background: #121212; color: white; border: 1px solid #444; border-radius: 4px;">
+                    <div class="elonezet-doboz" id="pre-${n.jel}-egy" style="font-size: 0.7em; color: #4CAF50; margin-top: 3px; font-family: monospace;">Élő: -</div>
+                </div>
+                <div style="flex: 1;">
+                    <label style="display: block; font-size: 0.75em; color: #aaa;">Több nap esetén (fájlnév minta):</label>
+                    <input type="text" class="szabaly-input" data-tipus="${n.jel}" data-mod="tobb" oninput="frissitSzabalyElonezet(this)" 
+                        value="${mentettSzabalyok[n.jel]?.tobb || '{név} {mettől}-{meddig}'}" style="width: 100%; padding: 6px; background: #121212; color: white; border: 1px solid #444; border-radius: 4px;">
+                    <div class="elonezet-doboz" id="pre-${n.jel}-tobb" style="font-size: 0.7em; color: #4CAF50; margin-top: 3px; font-family: monospace;">Élő: -</div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    document.getElementById('sztp-generalo-modal').style.display = 'flex';
+    // Kezdeti előnézet frissítés
+    document.querySelectorAll('.szabaly-input').forEach(i => frissitSzabalyElonezet(i));
+}
+
+function frissitSzabalyElonezet(input) {
+    const minta = input.value;
+    const kijelzo = document.getElementById('pre-' + input.dataset.tipus + '-' + input.dataset.mod);
+    if (!kijelzo) return;
+
+    // ✨ Itt a korábban megírt hivatkozás leképező logikát hívjuk
+    let eredmeny = minta;
+    // Példa regex a {kapcsos} hivatkozásokhoz
+    const matches = minta.match(/{([^}]+)}/g);
+    if (matches) {
+        matches.forEach(m => {
+            const hivNev = m.replace('{','').replace('}','');
+            // Megkeressük a hivatkozások között (minta adat rekordból)
+            // Itt a szamolHivatkozasErteket logikát kell alkalmazni ha kész van
+            eredmeny = eredmeny.replace(m, "[ÉRTÉK]"); 
+        });
+    }
+    kijelzo.innerText = "Minta: " + eredmeny + ".pdf";
+}
+
+async function generatSzabalyokMentese() {
+    const id = document.getElementById('sztp_id').value;
+    const inputok = document.querySelectorAll('.szabaly-input');
+    let szabalyok = {};
+    
+    inputok.forEach(i => {
+        if(!szabalyok[i.dataset.tipus]) szabalyok[i.dataset.tipus] = {};
+        szabalyok[i.dataset.tipus][i.dataset.mod] = i.value;
+    });
+
+    try {
+        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id);
+        const d = await r.json();
+        let extra = d.adat.extra_adatok ? JSON.parse(d.adat.extra_adatok) : {};
+        extra.generalo_szabalyok = szabalyok;
+
+        await fetch('Beallitasok/szabadsag_es_tappenz/sztp_mentes.php', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id, megnevezes: d.adat.megnevezes, kod: d.adat.kod, szin: d.adat.hex_szin, extra_adatok: extra })
+        });
+        alert("Generálási szabályok elmentve!");
+        document.getElementById('sztp-generalo-modal').style.display = 'none';
+    } catch (e) { alert("Hiba a mentéskor!"); }
+}
+
+function exportSzabalyokPopup() {
+    // Ezt majd a következő körben részletezzük, most csak megnyitjuk
+    alert("Export szabályok: Csoportosítás beállítása.");
+}

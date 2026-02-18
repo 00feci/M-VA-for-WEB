@@ -1,0 +1,1 @@
+<?php echo 'A jelenlegi PHP verzióm: ' . phpversion(); ?>
