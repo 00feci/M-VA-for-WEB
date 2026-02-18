@@ -32,7 +32,6 @@ if (!$adat || $adat['Beállítások'] !== 'OK') {
     <div class="header">
         <h2 id="panel-cim">⚙️ Beállítások</h2>
     </div>
-    <?php include 'vezer.php'; ?>
       <div class="utvonal-jelzo" id="breadcrumb">
             Iroda <span>&gt;</span> Beállítások
         </div>
@@ -47,3 +46,4 @@ if (!$adat || $adat['Beállítások'] !== 'OK') {
    
 </body>
 </html>
+
