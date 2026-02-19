@@ -8,11 +8,11 @@ include __DIR__ . '/munkanapok_popup_kod_szin.php'; ?>
             <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
                <div style="display: flex; gap: 10px;">
                     <?php include __DIR__ . '/munkanapok_popup_mentes.php'; ?>
-                    <button id="btn-sztp-feltoltes" onclick="feltoltoModalMegnyitasa()" disabled style="flex: 1; padding: 12px; background: #ccc; color: white; border: none; border-radius: 8px; cursor: not-allowed; font-weight: bold;">📁 Sablon feltöltése</button>
+                    <?php include __DIR__ . '/popup_sablon_feltoltese_vezer.php'; ?>
                 </div>
                <div style="display: flex; gap: 10px;">
                     <?php include __DIR__ . '/munkanapok_popup_torles.php'; ?>
-                    <button id="btn-sztp-kezeles" onclick="sablonKezeleseOldal()" disabled style="flex: 1; padding: 12px; background: #ccc; color: white; border: none; border-radius: 8px; cursor: not-allowed; font-weight: bold;">✏️ Sablon kezelése</button>
+                   <?php include __DIR__ . '/popup_sablon_kezelese_vezer.php'; ?>
                 </div>
                  <?php include __DIR__ . '/munkanapok_popup_nagy_rekord.php'; ?>
                     <?php include __DIR__ . '/munkanapok_popup_bezaras.php'; ?>
