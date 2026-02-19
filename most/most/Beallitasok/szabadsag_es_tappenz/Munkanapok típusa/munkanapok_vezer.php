@@ -1,8 +1,7 @@
 <?php
-// 1. Behúzzuk a felületi gombot
+// 1. Megjelenítjük a gombot a felületen
 include __DIR__ . '/munkanapok_gomb.php';
-// 2. Később ide jönnek a Popup HTML-ek és a JS fájlok include-jai
+
+// 2. Betöltjük a felugró ablak (popup) HTML-jét a memóriába (rejtve)
+include __DIR__ . '/munkanap_tipus_popup/munkanapok_popup_vezer.php';
 ?>
-
-
-
