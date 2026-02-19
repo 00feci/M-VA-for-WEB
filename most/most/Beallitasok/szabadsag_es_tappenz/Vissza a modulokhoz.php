@@ -1,9 +1,5 @@
-<?php
-// Ha a meghívó fájl nem adott meg saját linket, az alapértelmezett a beallitasok.php lesz
-$vissza_link = $vissza_link ?? 'beallitasok.php';
-?>
 <div class="sztp-vissza-kontener" style="margin-bottom: 15px;">
-    <button class="sztp-egyedi-vissza" type="button" onclick="window.location.href='<?php echo htmlspecialchars($vissza_link); ?>';" 
+    <button class="sztp-egyedi-vissza" type="button" onclick="window.location.href='beallitasok.php';" 
         style="padding: 10px 20px; background: #444; color: white; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold; transition: background 0.2s;">
         🔙 Vissza a modulokhoz
     </button>
