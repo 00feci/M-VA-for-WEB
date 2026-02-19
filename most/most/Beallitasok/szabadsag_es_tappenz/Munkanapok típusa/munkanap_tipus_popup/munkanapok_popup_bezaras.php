@@ -1,0 +1,1 @@
+<button onclick="document.getElementById('sztp-fajta-modal').style.display='none'" style="flex: 1; padding: 12px; background: #444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Bezárás</button>
