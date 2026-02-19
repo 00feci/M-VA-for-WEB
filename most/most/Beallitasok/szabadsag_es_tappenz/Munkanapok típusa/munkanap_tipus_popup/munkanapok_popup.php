@@ -22,10 +22,11 @@
                     <?php include __DIR__ . '/munkanapok_popup_bezaras.php'; ?>
                 </div>
             </div>
-      <?php include __DIR__ . '/munkanapok_popup_sablon_fajlok_listaja.php'; ?>
         </div>
+  <?php include __DIR__ . '/munkanapok_popup_sablon_fajlok_listaja.php'; ?>
     </div>
 </div>
+
 
 
 
