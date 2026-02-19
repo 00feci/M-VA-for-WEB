@@ -46,8 +46,8 @@
                     <?php include __DIR__ . '/munkanapok_popup_mentes.php'; ?>
                     <button id="btn-sztp-feltoltes" onclick="feltoltoModalMegnyitasa()" disabled style="flex: 1; padding: 12px; background: #ccc; color: white; border: none; border-radius: 8px; cursor: not-allowed; font-weight: bold;">📁 Sablon feltöltése</button>
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <button onclick="beallitasokTorlese()" style="flex: 1; padding: 12px; background: #f44336; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">🗑️ Törlés</button>
+               <div style="display: flex; gap: 10px;">
+                    <?php include __DIR__ . '/munkanapok_popup_torles.php'; ?>
                     <button id="btn-sztp-kezeles" onclick="sablonKezeleseOldal()" disabled style="flex: 1; padding: 12px; background: #ccc; color: white; border: none; border-radius: 8px; cursor: not-allowed; font-weight: bold;">✏️ Sablon kezelése</button>
                 </div>
                 <div style="display: flex; gap: 10px;">
@@ -71,3 +71,4 @@
         </div>
     </div>
 </div>
+
