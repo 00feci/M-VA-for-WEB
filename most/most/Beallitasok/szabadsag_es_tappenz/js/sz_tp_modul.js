@@ -119,3 +119,4 @@ function szTpModulBetoltese() {
         inicializalFeltoltot();
     }, 50);
 }
+
