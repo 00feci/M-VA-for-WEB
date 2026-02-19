@@ -22,16 +22,11 @@
                     <?php include __DIR__ . '/munkanapok_popup_bezaras.php'; ?>
                 </div>
             </div>
-        </div>
-
-        <div id="sztp-fajl-lista-kontener" style="flex: 1; background: #121212; border: 1px solid #333; border-radius: 8px; padding: 15px; overflow: auto; resize: both; min-height: 400px;">
-            <label style="display: block; font-size: 0.85em; color: #aaa; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px;">📄 Sablon fájlok listája</label>
-            <ul id="sztp-fajl-lista" style="list-style: none; padding: 0; margin: 0; font-size: 0.9em; color: #ddd; white-space: nowrap;">
-                <li>⏳ Nincs fájl kiválasztva</li>
-            </ul>
+      <?php include __DIR__ . '/munkanapok_popup_sablon_fajlok_listaja.php'; ?>
         </div>
     </div>
 </div>
+
 
 
 
