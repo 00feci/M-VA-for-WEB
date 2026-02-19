@@ -8,11 +8,11 @@ include __DIR__ . '/munkanapok_popup_kod_szin.php'; ?>
             <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
                <div style="display: flex; gap: 10px;">
                     <?php include __DIR__ . '/munkanapok_popup_mentes.php'; ?>
-                    <?php include __DIR__ . '/popup_sablon_feltoltese_vezer.php'; ?>
+                    <?php include __DIR__ . '/Sablon feltöltése/popup_sablon_feltoltese_vezer.php'; ?>
                 </div>
                <div style="display: flex; gap: 10px;">
                     <?php include __DIR__ . '/munkanapok_popup_torles.php'; ?>
-                   <?php include __DIR__ . '/popup_sablon_kezelese_vezer.php'; ?>
+                   <?php include __DIR__ . '/Sablon kezelése/popup_sablon_kezelese_vezer.php'; ?>
                 </div>
                  <?php include __DIR__ . '/munkanapok_popup_nagy_rekord.php'; ?>
                     <?php include __DIR__ . '/munkanapok_popup_bezaras.php'; ?>
