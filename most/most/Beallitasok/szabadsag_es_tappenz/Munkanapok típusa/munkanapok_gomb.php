@@ -4,7 +4,7 @@
             <h3 style="margin: 0 0 5px 0; color: #fffcfc;">Munkanapok típusa</h3>
             <p style="margin: 0; font-size: 13px; color: #fffcfc;">Itt állíthatod be a munkanapokhoz és naptípusokhoz tartozó szabályokat, színeket.</p>
         </div>
-        <button id="btn-munkanap-tipus" type="button" onclick="window.location.href='Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/munkanapok_popup_vezer.php';"  
+        <button id="btn-munkanap-tipus" type="button" onclick="fajtaBeallitasokMegnyitasa()"
             style="padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; transition: background 0.2s;">
             ⚙️ Beállítások megnyitása
         </button>
