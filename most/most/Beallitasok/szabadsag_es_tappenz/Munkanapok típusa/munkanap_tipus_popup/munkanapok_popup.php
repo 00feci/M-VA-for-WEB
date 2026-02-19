@@ -1,3 +1,4 @@
+
 <div id="sztp-fajta-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center;">
     <div style="background: #1e1e1e; color: white; padding: 25px; border-radius: 12px; border: 1px solid #333; display: flex; gap: 25px; width: 850px; max-height: 90vh;">
         
@@ -41,8 +42,8 @@
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
-                <div style="display: flex; gap: 10px;">
-                    <button onclick="beallitasokMentese()" style="flex: 1; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">💾 Mentés</button>
+               <div style="display: flex; gap: 10px;">
+                    <?php include __DIR__ . '/munkanapok_popup_mentes.php'; ?>
                     <button id="btn-sztp-feltoltes" onclick="feltoltoModalMegnyitasa()" disabled style="flex: 1; padding: 12px; background: #ccc; color: white; border: none; border-radius: 8px; cursor: not-allowed; font-weight: bold;">📁 Sablon feltöltése</button>
                 </div>
                 <div style="display: flex; gap: 10px;">
@@ -70,4 +71,3 @@
         </div>
     </div>
 </div>
-
