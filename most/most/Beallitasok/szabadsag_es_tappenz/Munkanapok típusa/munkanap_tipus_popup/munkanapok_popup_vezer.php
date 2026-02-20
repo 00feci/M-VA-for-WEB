@@ -3,6 +3,10 @@
 include __DIR__ . '/munkanapok_popup.php';
 // 2. Később ide jönnek a Popup HTML-ek és a JS fájlok include-jai
 include __DIR__ . '/munkanapok_popup_kod_szin.php'; 
+// JS Fájlok betöltése
+$scriptPath = 'most/Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/munkanapok_popup_mentes.js';
+echo "<script src='{$scriptPath}?v=" . time() . "'></script>";
+
 
 ?>
  </div>
