@@ -30,9 +30,6 @@ echo "<script src='{$scriptFajlok}?v=" . time() . "'></script>";
 $scriptAdat = 'Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/munkanapok_popup_nagy_rekord.js';
 echo "<script src='{$scriptAdat}?v=" . time() . "'></script>";
 
-$scriptAdat = 'Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/munkanapok_popup_adatok.js';
-echo "<script src='{$scriptAdat}?v=" . time() . "'></script>";
-
 // popup váz
 ?> 
  </div>
