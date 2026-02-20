@@ -1,1 +1,1 @@
-<button id="btn-sztp-kezeles" onclick="sablonKezeleseOldal()" disabled style="flex: 1; padding: 12px; background: #ccc; color: white; border: none; border-radius: 8px; cursor: not-allowed; font-weight: bold;">✏️ Sablon kezelése</button>
+<button id="btn-sztp-kezeles" type="button" onclick="sablonKezeleseOldal()" style="flex: 1; padding: 12px; color: white; border: none; border-radius: 8px; font-weight: bold; transition: background 0.2s;">✏️ Sablon kezelése</button>
