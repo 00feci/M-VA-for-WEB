@@ -6,6 +6,9 @@ include __DIR__ . '/munkanapok_popup_kod_szin.php';
 
 
 // JS Fájlok betöltése
+$scriptPath = 'Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/munkanapok_popup.js';
+echo "<script src='{$scriptPath}?v=" . time() . "'></script>"
+
 $scriptPath = 'Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/munkanapok_popup_mentes.js';
 echo "<script src='{$scriptPath}?v=" . time() . "'></script>";
 
