@@ -8,9 +8,15 @@ include __DIR__ . '/munkanapok_popup_kod_szin.php';
 // JS Fájlok betöltése
 $scriptPath = 'Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/munkanapok_popup_mentes.js';
 echo "<script src='{$scriptPath}?v=" . time() . "'></script>";
+
 $scriptPath = 'Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/munkanapok_popup_torles.js';
 echo "<script src='{$scriptPath}?v=" . time() . "'></script>";
 
+$scriptKodik = 'Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/munkanapok_popup_kod_szin.js';
+echo "<script src='{$scriptKodik}?v=" . time() . "'></script>";
+
+$scriptFajlok = 'Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/munkanapok_popup_sablon_fajlok_listaja.js';
+echo "<script src='{$scriptFajlok}?v=" . time() . "'></script>";
 
 // popup váz
 ?> 
