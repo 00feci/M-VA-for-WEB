@@ -18,6 +18,18 @@ echo "<script src='{$scriptKodik}?v=" . time() . "'></script>";
 $scriptFajlok = 'Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/munkanapok_popup_sablon_fajlok_listaja.js';
 echo "<script src='{$scriptFajlok}?v=" . time() . "'></script>";
 
+$scriptKodik = 'Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/munkanapok_popup_kod_szin.js';
+echo "<script src='{$scriptKodik}?v=" . time() . "'></script>";
+
+$scriptFajlok = 'Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/munkanapok_popup_sablon_fajlok_listaja.js';
+echo "<script src='{$scriptFajlok}?v=" . time() . "'></script>";
+
+$scriptAdat = 'Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/munkanapok_popup_nagy_rekord.js';
+echo "<script src='{$scriptAdat}?v=" . time() . "'></script>";
+
+$scriptAdat = 'Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/munkanapok_popup_adatok.js';
+echo "<script src='{$scriptAdat}?v=" . time() . "'></script>";
+
 // popup váz
 ?> 
  </div>
