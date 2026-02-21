@@ -1,7 +1,7 @@
 <?php
 // beallitasok.php teteje
 require_once $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php';
-require_once __DIR__ . '/most/jogosultsag.php'; // vagy ahogy nálad pontosan az útvonal van
+require_once __DIR__ . '/jogosultsag.php'; // vagy ahogy nálad pontosan az útvonal van
 // Ellenőrizzük a 'Beállítások' oszlopot. Mivel ez egy sima oldal, az isAjax paraméter marad false.
 ellenorizJogosultsag('Beállítások');
     // 🔙 Vissza gomb kezelése
