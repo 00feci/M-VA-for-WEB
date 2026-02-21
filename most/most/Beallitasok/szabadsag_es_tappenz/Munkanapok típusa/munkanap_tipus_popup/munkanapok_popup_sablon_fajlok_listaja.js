@@ -15,7 +15,12 @@ function sablonFajlokBetoltese(id, extraAdatok) {
                 const extra = extraAdatok ? JSON.parse(extraAdatok) : {};
                 const pdfSet = extra.pdf_beallitasok || { mind: false, fajlok: [] };
                 
-                // JAVÍTÁS: Mindig az éppen KIVÁLASZTOTT opció szövegét kérjük le!
+                // 🕵️ NYOMOZÓ KÓD: Ezt írja ki a böngésző konzoljába (F12)
+                console.log("----- PDF NYOMOZÁS -----");
+                console.log("Kapott extraAdatok a PHP-ból (SQL):", extraAdatok);
+                console.log("PDF Beállítások objektum:", pdfSet);
+                console.log("Kapott fájlok a szerverről:", fData.fajlok);
+
                 const selectElem = document.getElementById('sztp_edit_megnevezes') || document.getElementById('sztp_megnevezes');
                 let megnevezes = "";
                 if (selectElem) {
@@ -31,9 +36,13 @@ function sablonFajlokBetoltese(id, extraAdatok) {
                         const path = megnevezes + '/' + f;
                         const isDoc = f.toLowerCase().endsWith('.doc') || f.toLowerCase().endsWith('.docx');
                         
-                        // Itt történik a varázslat: ellenőrzi, hogy benne van-e a mentett tömbben a pontos útvonal
-                        const pipalva = isDoc && (pdfSet.mind || (pdfSet.fajlok && pdfSet.fajlok.includes(path)));
+                        // 🚀 JAVÍTÁS: Megnézzük mappával ÉS mappa nélkül is!
+                        const pipalva = isDoc && (pdfSet.mind || (pdfSet.fajlok && (pdfSet.fajlok.includes(path) || pdfSet.fajlok.includes(f))));
                         
+                        if(isDoc) {
+                             console.log(`Fájl: ${f} | Keresett útvonal: ${path} | Pipálva lesz? ${pipalva}`);
+                        }
+
                         return `<li>📄 ${f} ${pipalva ? '<span style="color: #4CAF50; font-size: 0.8em; margin-left: 8px;">[PDF ✅]</span>' : ''}</li>`;
                     }).join('')
                     : `<li>📄 Jelenleg nincs fájl</li>`;
