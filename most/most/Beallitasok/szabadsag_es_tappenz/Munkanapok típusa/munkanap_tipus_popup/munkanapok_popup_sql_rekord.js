@@ -1,6 +1,6 @@
 // Felelős a NAGY rekord legördülő beállításáért
 function nagyRekordBetoltese(extraAdatok) {
-    const nrSelect = document.getElementById('sztp_nagy_rekord');
+    const nrSelect = document.getElementById('sztp_sql_rekord');
     if (!nrSelect) return;
 
     if (!extraAdatok) {
