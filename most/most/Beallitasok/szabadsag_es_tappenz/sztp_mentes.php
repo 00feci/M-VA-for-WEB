@@ -1,19 +1,15 @@
 <?php
-// sztp_mentes.php - Szabadság és Táppénz beállítások mentése biztonsági ellenőrzéssel
-require_once $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php';
-session_start();
-require_once $_SERVER['DOCUMENT_ROOT'] . '/Iroda/sql_config.php';
-// PDO kapcsolat használata a felhasznalok_mentese mintájára
+
+// sztp_mentes.php teteje
+require_once __DIR__ . '/../../jogosultsag.php'; // a megfelelő relatív útvonallal
+
+// Ellenőrizzük a 'Szabadsag_es_tappenz' oszlopot! A MÁSODIK PARAMÉTER TRUE! 
+// Ez mondja meg neki, hogy dobjon JSON hibaüzenetet átirányítás helyett!
+ellenorizJogosultsag('Szabadság_és_Táppénz_kezelő', true);
+
+// ... innentől jöhet a mentési kódod ...
 $pdo = csatlakozasSzerver1();
-header('Content-Type: application/json');
-// 🔐 JOGOSULTSÁG ELLENŐRZÉSE
-$felhasznalo = $_SESSION['felhasznalo'] ?? '';
-$stmt_jog = $pdo->prepare("SELECT `Beállítások` FROM m_va_felhasznalok WHERE `felhasználónév` = :nev");
-$stmt_jog->execute(['nev' => $felhasznalo]);
-if ($stmt_jog->fetchColumn() !== 'OK') {
-    echo json_encode(['success' => false, 'message' => 'Nincs jogosultsága a beállítások módosításához!']);
-    exit;
-}
+
 // Adatok fogadása (most már JSON formátumban, mert a Fetch API-val így küldjük)
 $data = json_decode(file_get_contents('php://input'), true);
 $id = !empty($data['id']) ? intval($data['id']) : null;
