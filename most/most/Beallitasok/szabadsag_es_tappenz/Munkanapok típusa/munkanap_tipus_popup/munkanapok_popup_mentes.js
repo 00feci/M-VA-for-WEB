@@ -56,28 +56,18 @@ async function beallitasokMentese(modalbol = false, napModalbol = false) {
         if (elsoSor && !elsoSor.innerText.includes('Jelenleg nincs')) sablonNeve = adat.megnevezes;
     }
     adat.sablon_neve = sablonNeve;
-// ... (A fenti rész marad ugyanaz)
-        fetch('Beallitasok/szabadsag_es_tappenz/sztp_mentes.php', {
-            method: 'POST',
-            body: fd
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                munkanapTipusokBetoltese(data.id);
-                document.getElementById('sztp-overlay').style.display = 'none';
-            } else {
-                // ITT VAN A JAVÍTÁS:
-                // Megnézi mind a három kulcsszót, amit a PHP küldhet, és ha egyik sincs,
-                // csak akkor írja ki az általános hibaüzenetet!
-                const hibaUzenet = data.error || data.hiba || data.uzenet || data.message || "Ismeretlen hiba történt!";
-                alert("Hiba: " + hibaUzenet);
-            }
-        })
-        .catch(err => {
-            console.error("Mentés hiba:", err);
-            alert("Váratlan hiba történt a szerverrel való kommunikáció során!");
-        });
+    fetch('Beallitasok/szabadsag_es_tappenz/sztp_mentes.php', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(adat)
+    })
+    .then(r => r.json()).then(data => {
+        if (data.success) {
+            listaBetoltese();
+            if (adat.id && !napModalbol) adatokBetoltese(adat.id); 
+            if (modalbol) feltoltoModalBezaras();
+            if (napModalbol) { document.getElementById('sztp-nap-modal').style.display = 'none'; alert("Nap típusok mentve!"); }
+            else { alert(data.message); }
+        } else { alert("Hiba: " + data.message); }
+    });
 }
       function feltoltoModalBezaras() {
     const modal = document.getElementById('sztp-feltolto-modal');
