@@ -10,7 +10,7 @@ function nagyRekordBetoltese(extraAdatok) {
 
     try {
         const extra = JSON.parse(extraAdatok);
-        nrSelect.value = extra.nagy_rekord || 'nem';
+        nrSelect.value = extra.sql_rekord || 'nem';
     } catch (e) {
         console.error("JSON hiba a nagy rekordnál", e);
         nrSelect.value = 'nem';
