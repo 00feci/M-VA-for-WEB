@@ -1,22 +1,12 @@
 <?php
-// beallitasok.php
+// beallitasok.php teteje
 require_once $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php';
-session_start();
-require_once $_SERVER['DOCUMENT_ROOT'] .'/Iroda/sql_config.php';
-$pdo = csatlakozasSzerver1();
-// 🔙 Vissza gomb kezelése
+require_once __DIR__ . '/most/jogosultsag.php'; // vagy ahogy nálad pontosan az útvonal van
+// Ellenőrizzük a 'Beállítások' oszlopot. Mivel ez egy sima oldal, az isAjax paraméter marad false.
+ellenorizJogosultsag('Beállítások');
+    // 🔙 Vissza gomb kezelése
 if (isset($_POST['melyik']) && $_POST['melyik'] === 'vissza') {
     header("Location: /Iroda/eles_verziok/" . $_SESSION['verzio'] . "/m-va.php");
-    exit;
-}
-// 🔐 Jogosultság ellenőrzés (Ablak.php-ból átvéve)
-$felhasznalo = $_SESSION['felhasznalo'] ?? '';
-$stmt = $pdo->prepare("SELECT * FROM m_va_felhasznalok WHERE `felhasználónév` = :nev");
-$stmt->execute(['nev' => $felhasznalo]);
-$adat = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if (!$adat || $adat['Beállítások'] !== 'OK') {
-    header("Location: /Iroda/belepes.php?hiba=jogosultsag");
     exit;
 }
 ?>
@@ -46,4 +36,5 @@ if (!$adat || $adat['Beállítások'] !== 'OK') {
    
 </body>
 </html>
+
 
