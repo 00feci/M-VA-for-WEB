@@ -27,7 +27,7 @@ echo "<script src='{$scriptKodik}?v=" . time() . "'></script>";
 $scriptFajlok = 'Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/munkanapok_popup_sablon_fajlok_listaja.js';
 echo "<script src='{$scriptFajlok}?v=" . time() . "'></script>";
 
-$scriptAdat = 'Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/munkanapok_popup_nagy_rekord.js';
+$scriptAdat = 'Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/munkanapok_popup_sql_rekord.js';
 echo "<script src='{$scriptAdat}?v=" . time() . "'></script>";
 
 // popup váz
@@ -42,7 +42,7 @@ echo "<script src='{$scriptAdat}?v=" . time() . "'></script>";
                     <?php include __DIR__ . '/munkanapok_popup_torles.php'; ?>
                    <?php include __DIR__ . '/Sablon kezelése/popup_sablon_kezelese_vezer.php'; ?>
                 </div>
-                 <?php include __DIR__ . '/munkanapok_popup_nagy_rekord.php'; ?>
+                 <?php include __DIR__ . '/munkanapok_popup_sql_rekord.php'; ?>
                   <?php include __DIR__ . '/munkanapok_popup_bezaras.php'; ?>
                 </div>
             </div>
