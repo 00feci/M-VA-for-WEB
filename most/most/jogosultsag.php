@@ -37,7 +37,9 @@ function jogosultsagMegtagadva($isAjax) {
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode([
             'success' => false, 
-            'error' => 'Nincs jogosultságod ehhez a művelethez!'
+            'error'   => 'Nincs jogosultságod ehhez a művelethez!',
+            'hiba'    => 'Nincs jogosultságod ehhez a művelethez!',
+            'uzenet'  => 'Nincs jogosultságod ehhez a művelethez!'
         ]);
         exit;
     } else {
