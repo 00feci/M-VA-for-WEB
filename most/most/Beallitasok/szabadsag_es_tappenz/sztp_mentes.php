@@ -1,13 +1,15 @@
 <?php
+// --- JOGOSULTSÁG ELLENŐRZÉSE ---
+require_once $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php';
+// 1. Biztosítjuk, hogy a Session fusson, mielőtt kiolvassuk a verziót
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
-// sztp_mentes.php teteje
-require_once __DIR__ . '/../../jogosultsag.php'; // a megfelelő relatív útvonallal
+// 2. Összerakjuk a dinamikus, "telepítési" útvonalat
+$verzio = $_SESSION['verzio'] ?? ''; // Ha valamiért üres lenne, ne dőljön össze
+require_once $_SERVER['DOCUMENT_ROOT'] . '/Iroda/eles_verziok/' . $verzio . '/jogosultsag.php';
+// 3. Ellenőrzés
+ellenorizJogosultsag('Beállítások'); // Csak ezt a szót kell átírni!
 
-// Ellenőrizzük a 'Szabadsag_es_tappenz' oszlopot! A MÁSODIK PARAMÉTER TRUE! 
-// Ez mondja meg neki, hogy dobjon JSON hibaüzenetet átirányítás helyett!
-ellenorizJogosultsag('Szabadság_és_Táppénz_kezelő', true);
-
-// ... innentől jöhet a mentési kódod ...
 $pdo = csatlakozasSzerver1();
 
 // Adatok fogadása (most már JSON formátumban, mert a Fetch API-val így küldjük)
@@ -72,3 +74,4 @@ try {
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'message' => 'Adatbázis hiba: ' . $e->getMessage()]);
 }
+
