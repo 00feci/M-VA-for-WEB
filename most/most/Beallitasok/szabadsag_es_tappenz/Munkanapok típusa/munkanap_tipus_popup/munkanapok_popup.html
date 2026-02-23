@@ -1,16 +1,3 @@
-<?php
-// --- JOGOSULTSÁG ELLENŐRZÉSE ---
-require_once $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php';
-// 1. Biztosítjuk, hogy a Session fusson, mielőtt kiolvassuk a verziót
-if (session_status() === PHP_SESSION_NONE) { session_start(); }
-
-// 2. Összerakjuk a dinamikus, "telepítési" útvonalat
-$verzio = $_SESSION['verzio'] ?? ''; // Ha valamiért üres lenne, ne dőljön össze
-require_once $_SERVER['DOCUMENT_ROOT'] . '/Iroda/eles_verziok/' . $verzio . '/jogosultsag.php';
-// 3. Ellenőrzés
-ellenorizJogosultsag('Beállítások'); // Csak ezt a szót kell átírni!
-
-?>
 <div id="sztp-fajta-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center;">
     <div style="background: #1e1e1e; color: white; padding: 25px; border-radius: 12px; border: 1px solid #333; display: flex; gap: 25px; width: 850px; max-height: 90vh;">
         
