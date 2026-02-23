@@ -1,30 +1,35 @@
 <?php
 // jogosultsag.php - Központi jogosultság ellenőrző
 
-function ellenorizJogosultsag($szuksegesModul, $isAjax = false) {
-    // 1. Session ellenőrzése (ha még nincs elindítva, bárhol is vagyunk)
+function ellenorizJogosultsag($szuksegesModul) {
+    // ✨ 1. AUTOMATIKUS FELISMERÉS: JavaScript (fetch) hívta, vagy sima oldal?
+    $isAjax = false;
+    if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) { $isAjax = true; }
+    if (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) { $isAjax = true; }
+    if (isset($_SERVER['HTTP_SEC_FETCH_MODE']) && $_SERVER['HTTP_SEC_FETCH_MODE'] === 'cors') { $isAjax = true; }
+
+    // 2. Session ellenőrzése (ha még nincs elindítva)
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
 
-    // 2. Felhasználónév lekérése
+    // 3. Felhasználónév lekérése
     $felhasznalo = $_SESSION['felhasznalo'] ?? '';
     
     if (empty($felhasznalo)) {
         jogosultsagMegtagadva($isAjax);
     }
 
-    // 3. Adatbázis kapcsolat (Feltételezem, hogy itt be tudod húzni az sql_config.php-t)
-    // Ha nem innen húzod be, akkor a pdo-t globálisként kell átadni
+    // 4. Adatbázis kapcsolat
     require_once $_SERVER['DOCUMENT_ROOT'] .'/Iroda/sql_config.php';
     $pdo = csatlakozasSzerver1();
 
-    // 4. Jogosultság lekérdezése
+    // 5. Jogosultság lekérdezése
     $stmt = $pdo->prepare("SELECT * FROM m_va_felhasznalok WHERE `felhasználónév` = :nev");
     $stmt->execute(['nev' => $felhasznalo]);
     $adat = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // 5. Van-e ilyen oszlop, és 'OK'-e az értéke?
+    // 6. Van-e ilyen oszlop, és 'OK'-e az értéke?
     if (!$adat || !array_key_exists($szuksegesModul, $adat) || $adat[$szuksegesModul] !== 'OK') {
         jogosultsagMegtagadva($isAjax);
     }
@@ -39,7 +44,8 @@ function jogosultsagMegtagadva($isAjax) {
             'success' => false, 
             'error'   => 'Nincs jogosultságod ehhez a művelethez!',
             'hiba'    => 'Nincs jogosultságod ehhez a művelethez!',
-            'uzenet'  => 'Nincs jogosultságod ehhez a művelethez!'
+            'uzenet'  => 'Nincs jogosultságod ehhez a művelethez!',
+            'message' => 'Nincs jogosultságod ehhez a művelethez!' // Ezt a sort adtuk hozzá!
         ]);
         exit;
     } else {
