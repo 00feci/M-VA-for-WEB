@@ -1,16 +1,3 @@
-// --- 1. A Mentés Gomb "Kapcsolója" ---
-// Felelős KIZÁRÓLAG a Mentés gomb állapotáért és színéért
-function mentesGombAllapot(engedelyezve) {
-    const btn = document.getElementById('sztp_mentes_gomb');
-    if (!btn) return;
-
-    btn.disabled = !engedelyezve;
-    btn.style.cursor = engedelyezve ? 'pointer' : 'not-allowed';
-    btn.style.opacity = engedelyezve ? '1' : '0.5';
-    // Zöld ha aktív, Szürke ha nem
-    btn.style.background = engedelyezve ? '#4CAF50' : '#ccc';
-}
-
 // --- 2. A Mentés Logika (A te változatod) ---
 async function beallitasokMentese(modalbol = false, napModalbol = false) {
     const mainSelect = document.getElementById('sztp_megnevezes');
