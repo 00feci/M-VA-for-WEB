@@ -1,14 +1,11 @@
 <?php
 // beallitasok.php teteje
+// --- JOGOSULTSÁG ELLENŐRZÉSE ---
 require_once $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php';
-require_once __DIR__ . '/jogosultsag.php'; // vagy ahogy nálad pontosan az útvonal van
-// Ellenőrizzük a 'Beállítások' oszlopot. Mivel ez egy sima oldal, az isAjax paraméter marad false.
+require_once __DIR__.'/jogosultsag.php';
 ellenorizJogosultsag('Beállítások');
-    // 🔙 Vissza gomb kezelése
-if (isset($_POST['melyik']) && $_POST['melyik'] === 'vissza') {
-    header("Location: /Iroda/eles_verziok/" . $_SESSION['verzio'] . "/m-va.php");
-    exit;
-}
+// -------------------------------
+
 ?>
 
 <!DOCTYPE html>
@@ -36,5 +33,3 @@ if (isset($_POST['melyik']) && $_POST['melyik'] === 'vissza') {
    
 </body>
 </html>
-
-
