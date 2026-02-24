@@ -74,3 +74,27 @@ function listaBetoltese() {
             });
         });
 }
+// --- VEZÉRLÉS BEKÖTÉSE (Ez hiányzott!) ---
+
+// 1. Ha váltasz a listában, azonnal frissítjük a gombokat
+document.addEventListener('change', function(e) {
+    // Ha a fő választót vagy a szerkesztő választót állítják
+    if (e.target && (e.target.id === 'sztp_megnevezes' || e.target.id === 'sztp_edit_megnevezes')) {
+        
+        const val = e.target.value;
+        // Akkor aktív a gomb, ha VAN érték (tehát nem üres)
+        // (Mindegy, hogy "uj" vagy "létező ID", a lényeg, hogy nem az "-- Válassz --")
+        const legyenAktiv = (val && val !== "");
+
+        // Meghívjuk a Te függvényedet!
+        if (typeof mentesGombAllapot === "function") {
+            mentesGombAllapot(legyenAktiv);
+        }
+        
+        // Ha a törlés gombnak is van saját függvénye, azt is hívhatjuk:
+        if (typeof torlesGombAllapot === "function") {
+            // Törlés csak akkor aktív, ha NEM "uj" és NEM üres
+            torlesGombAllapot(val && val !== "" && val !== "uj");
+        }
+    }
+});
