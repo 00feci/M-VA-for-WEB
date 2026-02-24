@@ -74,3 +74,56 @@ function listaBetoltese() {
             });
         });
 }
+// --- GOMBOK FRISSÍTÉSE (Aktiválás / Tiltás) ---
+function gombokFrissitese() {
+    // 1. Megkeressük az elemeket
+    const select = document.getElementById('sztp_megnevezes');
+    const editSelect = document.getElementById('sztp_edit_megnevezes');
+    const mentesGomb = document.getElementById('sztp_mentes_gomb');
+    const torlesGomb = document.getElementById('sztp_torles_gomb');
+
+    // Ha még be sincs töltve a popup, ne fusson le
+    if (!mentesGomb || !torlesGomb) return;
+
+    // 2. Megnézzük, mi van kiválasztva
+    // A 'select' a fő lista, az 'editSelect' a szerkesztéshez használt lista (ha van ilyen logika)
+    // Általában a 'sztp_megnevezes' vagy a rejtett 'sztp_id' dönti el, hogy van-e kiválasztott elem.
+    
+    const idInput = document.getElementById('sztp_id');
+    const vanId = idInput && idInput.value && idInput.value !== "";
+    
+    // Ha "Új hozzáadása" van, vagy nincs ID, akkor a kiválasztás "üres"
+    const valasztottErtek = select ? select.value : "";
+    const ujElemMod = (valasztottErtek === "uj" || valasztottErtek === "");
+
+    // 3. Törlés gomb kezelése
+    // Csak akkor aktív, ha van ID (tehát létező elemet szerkesztünk) ÉS nem új elem
+    if (vanId && !ujElemMod) {
+        torlesGomb.disabled = false;
+        torlesGomb.style.opacity = "1";
+        torlesGomb.style.cursor = "pointer";
+    } else {
+        torlesGomb.disabled = true;
+        torlesGomb.style.opacity = "0.5";
+        torlesGomb.style.cursor = "not-allowed";
+    }
+
+    // 4. Mentés gomb kezelése
+    // Mindig aktív, ha a formhoz nyúltunk, vagy ha van kiválasztás.
+    // (Egyszerűsítve: legyen mindig aktív, ha nem tiltjuk le külön)
+    // De a te kérésedre: csak akkor, ha van mit menteni.
+    mentesGomb.disabled = false; 
+    mentesGomb.style.opacity = "1";
+    mentesGomb.style.cursor = "pointer";
+}
+
+// Figyelők beállítása, hogy kattintásra/változásra frissüljön
+document.addEventListener('change', function(e) {
+    if (e.target && (e.target.id === 'sztp_megnevezes' || e.target.id === 'sztp_edit_megnevezes')) {
+        // Egy pici késleltetés, hogy a mezők (pl. sztp_id) biztosan kitöltődjenek előtte
+        setTimeout(gombokFrissitese, 100);
+    }
+});
+
+// Amikor betöltődik az adat (az adatokBetoltese függvény végén is meg lehet hívni)
+// De ez a figyelő is elkapja a változásokat.
