@@ -1,18 +1,12 @@
 <?php
-
 // --- JOGOSULTSÁG ELLENŐRZÉSE ---
 require_once $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php';
-// 1. Biztosítjuk, hogy a Session fusson, mielőtt kiolvassuk a verziót
-if (session_status() === PHP_SESSION_NONE) { session_start(); }
+require_once __DIR__.'/../../jogosultsag.php';
+ellenorizJogosultsag('Beállítások');
+// -------------------------------
 
-// 2. Összerakjuk a dinamikus, "telepítési" útvonalat
-$verzio = $_SESSION['verzio'] ?? ''; // Ha valamiért üres lenne, ne dőljön össze
-require_once $_SERVER['DOCUMENT_ROOT'] . '/Iroda/eles_verziok/' . $verzio . '/jogosultsag.php';
-// 3. Ellenőrzés
-ellenorizJogosultsag('Beállítások'); // Csak ezt a szót kell átírni!
 
 // Beallitasok/szabadsag_es_tappenz/sztp_tomeges_mentes.php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php';
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/Iroda/sql_config.php';
 $pdo = csatlakozasSzerver1();
