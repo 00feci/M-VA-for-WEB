@@ -1,10 +1,16 @@
 function sztpTallozas(mappaMod) {
     const input = document.createElement('input');
     input.type = 'file';
-    // Az accept szűrő eltávolítva, hogy minden fájl látható legyen
     input.multiple = true;
     if (mappaMod) input.webkitdirectory = true;
-    input.onchange = e => sztpFajlokFeltoltese(Array.from(e.target.files));
+    input.onchange = e => {
+        const fajlok = Array.from(e.target.files);
+        // ✨ Ha mappát töltünk fel, a File objektumból kinyerjük és rögzítjük az útvonalat
+        fajlok.forEach(f => {
+            if (f.webkitRelativePath) f.relPath = f.webkitRelativePath;
+        });
+        sztpFajlokFeltoltese(fajlok);
+    };
     input.click();
 }
 // 📂 Segédfüggvény a mappák mélyére ásáshoz
