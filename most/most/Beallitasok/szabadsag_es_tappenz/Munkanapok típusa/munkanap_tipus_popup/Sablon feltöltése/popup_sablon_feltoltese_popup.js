@@ -45,3 +45,39 @@ function feltoltoModalBezaras() {
     const modal = document.getElementById('sztp-feltolto-modal');
     if (modal) modal.style.display = 'none';
 }
+function feltoltoModalMegnyitasa() {
+    const statusz = document.getElementById('sztp-modal-statusz');
+    const modalLista = document.getElementById('sztp-modal-fajl-lista');
+    const modalListaKontener = document.getElementById('sztp-modal-fajl-lista-kontener');
+    
+    if (statusz) statusz.innerHTML = ''; 
+    if (modalLista) modalLista.innerHTML = '';
+    if (modalListaKontener) modalListaKontener.style.display = 'none';
+    
+    document.getElementById('sztp-feltolto-modal').style.display = 'flex';
+}
+function inicializalFeltoltot() {
+    const zona = document.getElementById('sztp-feltolto-zona');
+    if (!zona) return;
+
+    zona.onclick = (e) => {
+        if (e.target.tagName !== 'BUTTON') sztpTallozas(false);
+    };
+
+    zona.ondragover = e => { e.preventDefault(); zona.style.background = '#e1f0ff'; };
+    zona.ondragleave = () => { zona.style.background = '#f0f7ff'; };
+    zona.ondrop = async e => {
+        e.preventDefault();
+        zona.style.background = '#f0f7ff';
+        const items = e.dataTransfer.items;
+        let mindenFajl = [];
+        for (let i = 0; i < items.length; i++) {
+            const entry = items[i].webkitGetAsEntry();
+            if (entry) {
+                const fajlok = await rekurzivFajlOlvasas(entry);
+                mindenFajl = mindenFajl.concat(fajlok);
+            }
+        }
+        sztpFajlokFeltoltese(mindenFajl);
+    };
+}
