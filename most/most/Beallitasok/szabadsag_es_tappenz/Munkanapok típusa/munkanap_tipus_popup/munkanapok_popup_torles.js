@@ -1,4 +1,4 @@
-function beallitasokTorlese() {
+function sztpTorles() {
     const id = document.getElementById('sztp_id').value;
     if (!id) return alert("Nincs kiválasztva mentett beállítás!");
     if (confirm("Biztosan törölni szeretnéd ezt a beállítást?")) {
