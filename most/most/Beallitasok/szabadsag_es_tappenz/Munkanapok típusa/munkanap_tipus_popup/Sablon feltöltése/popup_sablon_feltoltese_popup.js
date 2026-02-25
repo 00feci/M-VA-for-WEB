@@ -64,11 +64,10 @@ function inicializalFeltoltot() {
         if (e.target.tagName !== 'BUTTON') sztpTallozas(false);
     };
 
-    zona.ondragover = e => { e.preventDefault(); zona.style.background = '#e1f0ff'; };
-    zona.ondragleave = () => { zona.style.background = '#f0f7ff'; };
+   zona.ondragleave = () => { zona.style.background = '#1e1e1e'; }; // Visszaáll az eredeti sötét szín
     zona.ondrop = async e => {
         e.preventDefault();
-        zona.style.background = '#f0f7ff';
+        zona.style.background = '#1e1e1e'; // Visszaáll az eredeti sötét szín
         const items = e.dataTransfer.items;
         let mindenFajl = [];
         for (let i = 0; i < items.length; i++) {
