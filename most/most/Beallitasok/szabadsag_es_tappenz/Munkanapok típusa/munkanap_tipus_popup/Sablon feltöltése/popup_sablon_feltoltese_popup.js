@@ -70,10 +70,23 @@ function inicializalFeltoltot() {
         if (e.target.tagName !== 'BUTTON') sztpTallozas(false);
     };
 
-   zona.ondragleave = () => { zona.style.background = '#1e1e1e'; }; // Visszaáll az eredeti sötét szín
+    // ✨ Ezek az eseménykezelők kellettek a megfelelő működéshez:
+    zona.ondragover = e => {
+        e.preventDefault();
+        zona.style.background = '#252525'; // Kicsit világosabb jelzés, ha felette van a fájl
+        zona.style.borderColor = '#4CAF50';
+    };
+
+    zona.ondragleave = () => { 
+        zona.style.background = '#1e1e1e'; 
+        zona.style.borderColor = '#2196F3';
+    };
+
     zona.ondrop = async e => {
         e.preventDefault();
-        zona.style.background = '#1e1e1e'; // Visszaáll az eredeti sötét szín
+        zona.style.background = '#1e1e1e';
+        zona.style.borderColor = '#2196F3';
+        
         const items = e.dataTransfer.items;
         let mindenFajl = [];
         for (let i = 0; i < items.length; i++) {
