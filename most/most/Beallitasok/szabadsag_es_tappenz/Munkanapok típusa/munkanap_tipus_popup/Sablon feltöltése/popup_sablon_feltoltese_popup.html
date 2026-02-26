@@ -3,17 +3,17 @@
                 <h3 style="margin-top: 0;">📁 Sablon feltöltése</h3>
                 <div id="sztp-feltolto-zona" style="border: 3px dashed #2196F3; background: #1e1e1e; padding: 30px; text-align: center; border-radius: 12px; margin: 20px 0;">
                     <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
-                        <button onclick="sztpTallozas(false)" style="padding: 8px 16px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer;">📄 Fájlok</button>
-                        <button onclick="sztpTallozas(true)" style="padding: 8px 16px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer;">📂 Mappa</button>
+                      <?php include __DIR__ . '/popup_sablon_feltoltese_popup_fajl.html'; ?>
+                        <?php include __DIR__ . '/popup_sablon_feltoltese_popup_mappa.html'; ?>
                     </div>
-                    <span>Vagy húzd ide a tartalmat</span>
+                    <?php include __DIR__ . '/popup_sablon_feltoltese_popup_mező.html'; ?>
                 </div>
                 <div id="sztp-modal-statusz" style="margin-bottom: 10px; font-size: 0.85em; color: #81c784; text-align: center;"></div>
                 <div id="sztp-modal-fajl-lista-kontener" style="display: none;"><ul id="sztp-modal-fajl-lista"></ul></div>
 
                 <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                    <button onclick="feltoltoModalBezaras()" style="padding: 8px 15px; background: #424242; color: white; border: none; border-radius: 4px; cursor: pointer;">Mégse</button>
-                    <button onclick="beallitasokMentese(true)" style="padding: 8px 20px; background: #4CAF50; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer;">🚀 Feltöltés</button>
+                    <?php include __DIR__ . '/popup_sablon_feltoltese_popup_bezaras.html'; ?>
+                    <?php include __DIR__ . '/popup_sablon_feltoltese_popup_feltoltes.html'; ?>
                 </div>
             </div>
         </div>
