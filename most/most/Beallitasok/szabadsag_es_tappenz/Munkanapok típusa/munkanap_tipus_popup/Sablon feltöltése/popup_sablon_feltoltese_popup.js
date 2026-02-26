@@ -74,7 +74,7 @@ function inicializalFeltoltot() {
     zona.ondragover = e => {
         e.preventDefault();
         zona.style.background = '#252525'; // Kicsit világosabb jelzés, ha felette van a fájl
-        zona.style.borderColor = '#4CAF50';
+        zona.style.borderColor = '#4CAF50'; // felette van a fájl
     };
 
     zona.ondragleave = () => { 
