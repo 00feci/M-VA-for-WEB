@@ -48,27 +48,62 @@ async function beallitasokMentese(modalbol = false, napModalbol = false) {
         }
     }
 
-    let sablonNeve = null;
-    if (typeof kivalasztottFajlokBuffer !== 'undefined' && kivalasztottFajlokBuffer.length > 0) {
-        if (fajlLista) fajlLista.innerHTML = '<li>⏳ Feltöltés...</li>';
-        for (let fajl of kivalasztottFajlokBuffer) {
+   let sablonNeve = null;
+if (typeof kivalasztottFajlokBuffer !== 'undefined' && kivalasztottFajlokBuffer.length > 0) {
+const osszesFajl = kivalasztottFajlokBuffer.length;
+let feltoltve = 0;
+let hibas = 0;
+ // Megkeressük a popup-ban lévő valós státusz és lista elemeket
+    const aktivLista = document.getElementById('sztp-modal-fajl-lista') || fajlLista;
+    const statuszSzoveg = document.getElementById('sztp-modal-statusz');
+    
+    if (aktivLista) aktivLista.innerHTML = `<li><span style="color:#2196F3">⏳</span> Feltöltés indul (0 / ${osszesFajl})...</li>`;
+    if (statuszSzoveg) statuszSzoveg.innerHTML = `⏳ Feltöltés folyamatban: 0%`;
+
+    const batchSize = 5; 
+    
+    for (let i = 0; i < osszesFajl; i += batchSize) {
+        const batch = kivalasztottFajlokBuffer.slice(i, i + batchSize);
+        
+        const promises = batch.map(async (fajl) => {
             const formData = new FormData();
             formData.append('sablon', fajl); 
             formData.append('megnevezes', adat.megnevezes); 
             formData.append('relativ_utvonal', fajl.relPath || fajl.name);
+            
             try {
                 const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_feltoltes.php', { method: 'POST', body: formData });
                 const d = await r.json(); 
                 if (!d.success) throw new Error(d.message);
-            } catch (e) { alert("Hiba: " + e.message); return; }
+                feltoltve++;
+            } catch (e) { 
+                console.error("Hiba a fájlnál: " + fajl.name, e);
+                hibas++;
+            }
+        });
+
+        await Promise.all(promises);
+
+        // UI frissítése a csomag után
+        let szazalek = Math.round(((feltoltve + hibas) / osszesFajl) * 100);
+        if (aktivLista) {
+            aktivLista.innerHTML = `<li><span style="color:#4CAF50">🚀</span> Feltöltés: <b>${feltoltve + hibas} / ${osszesFajl}</b> fájl kész (${szazalek}%)</li>`;
         }
-        sablonNeve = adat.megnevezes; 
-        kivalasztottFajlokBuffer = [];
-    } else if (fajlLista) {
-        const elsoSor = fajlLista.querySelector('li');
-        if (elsoSor && !elsoSor.innerText.includes('Jelenleg nincs')) sablonNeve = adat.megnevezes;
+        if (statuszSzoveg) {
+            statuszSzoveg.innerHTML = `🚀 Feltöltés: ${szazalek}% kész`;
+        }
     }
     
+    if (hibas > 0) {
+        alert(`Figyelem: A feltöltés befejeződött, de ${hibas} fájlt hiba miatt nem sikerült menteni!`);
+    }
+    
+    sablonNeve = adat.megnevezes; 
+    kivalasztottFajlokBuffer = [];
+} else if (fajlLista) {
+    const elsoSor = fajlLista.querySelector('li');
+    if (elsoSor && !elsoSor.innerText.includes('Jelenleg nincs')) sablonNeve = adat.megnevezes;
+}
     adat.sablon_neve = sablonNeve;
 
     fetch('Beallitasok/szabadsag_es_tappenz/sztp_mentes.php', {
