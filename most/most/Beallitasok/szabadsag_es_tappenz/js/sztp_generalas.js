@@ -20,11 +20,10 @@ async function sablonKezeleseOldal(frissitendoMappa = null) {
     }
 
     try {
-        // ✨ HTML sablon betöltése külső fájlból
+        // ✨ HTML sablon betöltése
         const hR = await fetch('Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/Sablon kezelése/sablon_kezelese.html');
         kontener.innerHTML = await hR.text();
 
-        // Értékek behelyettesítése a betöltött HTML-be
         const idElem = document.getElementById('sztp_id');
         if (idElem) idElem.value = kategoriaId;
         
@@ -52,53 +51,6 @@ async function sablonKezeleseOldal(frissitendoMappa = null) {
         }
     } catch (e) { console.error("Hiba a sablon kezelésekor:", e); }
 }
-// kod
-    // ✨ UI bővítése a PDF kapcsolóval
-   kontener.innerHTML = `
-        <input type="hidden" id="sztp_id" value="${kategoriaId}">
-        <div style="padding: 10px; background: #121212; min-height: 500px; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="margin: 0; color: white; font-size: 1.1em;">📁 ${megjelenitettCim} mappaszerkezete</h3>
-              <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="display: flex; align-items: center; gap: 10px; background: #252525; padding: 5px 12px; border-radius: 6px; border: 1px solid #444;">
-                        <span style="font-size: 0.8em; color: #aaa;">PDF generálás (doc/docx):</span>
-                        <label class="sztp-switch">
-                            <input type="checkbox" id="pdf-all-toggle" onclick="sztpGlobalPdfToggle(this.checked)">
-                            <span class="sztp-slider"></span>
-                        </label>
-                    </div>
-                    <button onclick="sztpPdfMentese()" style="padding: 6px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85em;">💾 PDF mentése</button>
-                </div>
-            </div>
-<div id="sztp-fajl-fa-kontener" style="background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; overflow: auto; min-height: 300px;">
-<div id="sztp-fajl-fa" style="font-family: monospace;">⏳ Betöltés...</div>
-            </div>
-        </div>
-    `;
-
-  try {
-        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_mappa_tree.php?megnevezes=' + encodeURIComponent(megnevezesValue));
-        const d = await r.json();
-        
-        // ✨ Mentett PDF beállítások lekérése a korábban kimentett kategoriaId alapján
-        let pdfSettings = null;
-        if(kategoriaId) {
-            const res = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + kategoriaId);
-            const sData = await res.json();
-            if(sData.success && sData.adat.extra_adatok) {
-                pdfSettings = JSON.parse(sData.adat.extra_adatok).pdf_beallitasok || null;
-            }
-        }
-
-        if (d.success) {
-            document.getElementById('sztp-fajl-fa').innerHTML = renderelFa(d.tree, megnevezesValue, pdfSettings);
-            if(pdfSettings && pdfSettings.mind) {
-                const allCheck = document.getElementById('pdf-all-toggle');
-                if(allCheck) allCheck.checked = true;
-            }
-        }
-    } catch (e) { console.error(e); }
-} // ✨ EZ HIÁNYZOTT! Lezárjuk a sablonKezeleseOldal függvényt.
 
 function renderelFa(elemek, aktualisKategoria = "", pdfSettings = null) {
     if (!elemek || elemek.length === 0) return '<p style="color: #666;">A mappa üres.</p>';
@@ -112,7 +64,7 @@ function renderelFa(elemek, aktualisKategoria = "", pdfSettings = null) {
             <span style="cursor: default; font-weight: bold; min-width: 250px; display: inline-block;">${ikon} ${i.name}</span>
             <span style="display: inline-flex; gap: 12px; align-items: center; margin-left: 10px; vertical-align: middle;">
                 ${i.type === 'file' ? `<a href="/Iroda/Dokumentum_tar/Szabadsag_es_tappenz/Sablonok/${kodoltUtvonal}" download style="text-decoration: none; font-size: 1.25em;" title="Letöltés">📥</a>` : ''}
-${isDoc ? `<div style="display: inline-flex; align-items: center; gap: 4px; background: #121212; padding: 2px 6px; border-radius: 4px; border: 1px solid #333;" title="PDF készítés ebből a fájlból">
+                ${isDoc ? `<div style="display: inline-flex; align-items: center; gap: 4px; background: #121212; padding: 2px 6px; border-radius: 4px; border: 1px solid #333;" title="PDF készítés ebből a fájlból">
                     <span style="font-size: 0.7em; color: #888;">PDF</span>
                     <input type="checkbox" class="sztp-pdf-toggle" data-path="${tisztaUtvonal}" style="cursor:pointer;" onclick="sztpEgyediPdfToggle()" 
                     ${(pdfSettings && (pdfSettings.mind || (pdfSettings.fajlok && pdfSettings.fajlok.includes(tisztaUtvonal)))) ? 'checked' : ''}>
@@ -126,7 +78,7 @@ ${isDoc ? `<div style="display: inline-flex; align-items: center; gap: 4px; back
     });
     return html + '</ul>';
 }
-  // ✨ Új logikai függvények a Master-Slave működéshez
+
 function sztpGlobalPdfToggle(checked) {
     const egyediCheckek = document.querySelectorAll('.sztp-pdf-toggle');
     egyediCheckek.forEach(c => { c.checked = checked; });
@@ -135,7 +87,6 @@ function sztpGlobalPdfToggle(checked) {
 function sztpEgyediPdfToggle() {
     const osszes = document.querySelectorAll('.sztp-pdf-toggle');
     const globalCheck = document.getElementById('pdf-all-toggle');
-    // ✨ Ha bármelyik nincs kipipálva, a globális is kikapcsol
     const mindPipalva = osszes.length > 0 && Array.from(osszes).every(c => c.checked);
     if (globalCheck) globalCheck.checked = mindPipalva;
 }
@@ -148,7 +99,6 @@ async function sztpPdfMentese() {
         fajlok: Array.from(osszes).filter(c => c.checked).map(c => c.dataset.path)
     };
 
-    // ✨ Biztonságos lekérés: ellenőrizzük, hogy létezik-e az elem, mielőtt olvasnánk
     const idElem = document.getElementById('sztp_id');
     const id = idElem ? idElem.value : null;
 
@@ -158,7 +108,7 @@ async function sztpPdfMentese() {
         const d = await r.json();
         if (!d.success) throw new Error(d.message);
         let extra = d.adat.extra_adatok ? JSON.parse(d.adat.extra_adatok) : {};
-        extra.pdf_beallitasok = beallitasok; // ✨ Frissítjük a PDF beállításokat
+        extra.pdf_beallitasok = beallitasok;
         const mentR = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_mentes.php', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: id, megnevezes: d.adat.megnevezes, kod: d.adat.kod, szin: d.adat.hex_szin, extra_adatok: extra })
@@ -204,3 +154,4 @@ function sztpGyorsFeltoltesInditasa(utvonal, mappaE, kategoria) {
     };
     input.click();
 }
+// kod
