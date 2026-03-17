@@ -1,6 +1,5 @@
 async function sablonKezeleseOldal(frissitendoMappa = null) {
     const kontener = document.getElementById('modul-tartalom');
-    // ✨ Kimentjük az ID-t, mielőtt az innerHTML törlése miatt elveszne!
     const kategoriaId = document.getElementById('sztp_id')?.value || ""; 
     
     const sel = document.getElementById('sztp_megnevezes') || document.getElementById('sztp_edit_megnevezes');
@@ -18,6 +17,40 @@ async function sablonKezeleseOldal(frissitendoMappa = null) {
     if (gombSor) {
         gombSor.innerHTML = `<div class="dashboard-gomb" style="flex: 1; background: #607d8b; color: white;" onclick="szTpModulBetoltese(); setTimeout(() => fajtaBeallitasokMegnyitasa(), 100);">🔙 Vissza a beállításokhoz</div>`;
     }
+
+    try {
+        // ✨ HTML sablon betöltése külső fájlból
+        const hR = await fetch('Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/Sablon kezelése/sablon_kezelese.html');
+        kontener.innerHTML = await hR.text();
+
+        // Értékek behelyettesítése a betöltött HTML-be
+        const idElem = document.getElementById('sztp_id');
+        if (idElem) idElem.value = kategoriaId;
+        
+        const cimElem = document.getElementById('sztp-mappa-cim');
+        if (cimElem) cimElem.innerText = `📁 ${megjelenitettCim} mappaszerkezete`;
+
+        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_mappa_tree.php?megnevezes=' + encodeURIComponent(megnevezesValue));
+        const d = await r.json();
+        
+        let pdfSettings = null;
+        if(kategoriaId) {
+            const res = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + kategoriaId);
+            const sData = await res.json();
+            if(sData.success && sData.adat.extra_adatok) {
+                pdfSettings = JSON.parse(sData.adat.extra_adatok).pdf_beallitasok || null;
+            }
+        }
+
+        if (d.success) {
+            document.getElementById('sztp-fajl-fa').innerHTML = renderelFa(d.tree, megnevezesValue, pdfSettings);
+            if(pdfSettings && pdfSettings.mind) {
+                const allCheck = document.getElementById('pdf-all-toggle');
+                if(allCheck) allCheck.checked = true;
+            }
+        }
+    } catch (e) { console.error("Hiba a sablon kezelésekor:", e); }
+}
 
     // ✨ UI bővítése a PDF kapcsolóval
    kontener.innerHTML = `
