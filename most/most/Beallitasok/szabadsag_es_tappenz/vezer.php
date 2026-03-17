@@ -21,5 +21,7 @@ include __DIR__ . '/Munkanapok típusa/munkanapok_vezer.php';
 <script src="Beallitasok/szabadsag_es_tappenz/js/sztp_generalas.js?v=<?php echo filemtime(__DIR__ . '/js/sztp_generalas.js'); ?>"></script>
 <script src="Beallitasok/szabadsag_es_tappenz/js/sztp_export.js?v=<?php echo filemtime(__DIR__ . '/js/sztp_export.js'); ?>"></script>
 <script src="Beallitasok/szabadsag_es_tappenz/js/sz_tp_modul.js?v=<?php echo filemtime(__DIR__ . '/js/sz_tp_modul.js'); ?>"></script>
+<script src="Beallitasok/szabadsag_es_tappenz/js/sztp_hivatkozasok.js?v=<?php echo filemtime(__DIR__ . '/js/sztp_hivatkozasok.js'); ?>"></script>
+<script src="Beallitasok/szabadsag_es_tappenz/js/sztp_szabalyok.js?v=<?php echo filemtime(__DIR__ . '/js/sztp_szabalyok.js'); ?>"></script>
 <div id="sz-tp-modul-root"></div>
 
