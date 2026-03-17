@@ -86,10 +86,11 @@ $kategoriaId = isset($_GET['id']) ? htmlspecialchars($_GET['id']) : '';
 ?>
 <input type="hidden" id="sztp_id" value="<?php echo $kategoriaId; ?>">
 
-<div style="padding: 10px; background: #121212; min-height: 500px; border-radius: 8px;">
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-    <h3 style="margin: 0; color: white; font-size: 1.1em;">📁 <?php echo $megjelenitettCim; ?> mappaszerkezete</h3>
-<?php
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <button onclick="szTpModulBetoltese()" style="padding: 6px 15px; background: #444; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85em;">🔙 Vissza a beállításokhoz</button>
+        <h3 style="margin: 0; color: white; font-size: 1.1em;">📁 <?php echo $megjelenitettCim; ?> mappaszerkezete</h3>
+    </div>
     <div style="display: flex; align-items: center; gap: 15px;">
       <div style="display: flex; align-items: center; gap: 10px; background: #252525; padding: 5px 12px; border-radius: 6px; border: 1px solid #444;">
         <span style="font-size: 0.8em; color: #aaa;">PDF generálás (doc/docx):</span>
