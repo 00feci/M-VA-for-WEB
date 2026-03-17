@@ -1,3 +1,4 @@
+// xcxxx kód, ezt a blokot cseréld
 async function sablonKezeleseOldal(frissitendoMappa = null) {
     const kontener = document.getElementById('modul-tartalom');
     const kategoriaId = document.getElementById('sztp_id')?.value || ""; 
@@ -51,7 +52,7 @@ async function sablonKezeleseOldal(frissitendoMappa = null) {
         }
     } catch (e) { console.error("Hiba a sablon kezelésekor:", e); }
 }
-
+// kod
     // ✨ UI bővítése a PDF kapcsolóval
    kontener.innerHTML = `
         <input type="hidden" id="sztp_id" value="${kategoriaId}">
