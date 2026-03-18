@@ -21,14 +21,6 @@ function szTpModulBetoltese() {
                     <button onclick="fajtaBeallitasokMegnyitasa()" style="width: 100%; padding: 12px; background: #2196F3; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 8px;">
                         Munkanapok típusa ⚙️
                     </button>
-                    
-                    <div style="border-top: 1px solid #333; padding-top: 15px;">
-                        <button onclick="napTipusSzerkesztoMegnyitasa()" style="width: 100%; padding: 10px; background: #252525; color: #ffeb3b; border: 1px solid #444; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                            Napok típusa ⚙️
-                        </button>
-                        <select id="sztp_nap_tipusa" style="display: none;"></select>
-                        <div id="nap-tipus-minta" style="display: none;">-</div>
-                    </div>
                 </div>
             </div>
             
