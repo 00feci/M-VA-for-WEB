@@ -68,18 +68,19 @@ function szTpModulBetoltese() {
                 </div>
             </div>
         </div>
+       <div id="sztp-nap-modal-kontener"></div>
         ${getHivatkozasModalHtml()}
     `;
 
-    setTimeout(() => {
+   setTimeout(() => {
         listaBetoltese();
         inicializalFeltoltot();
-
-        // Betöltjük a külső nézetfájlt a helyére
-        fetch('Beallitasok/szabadsag_es_tappenz/Napok típusa/napok_nezet.html')
-            .then(valasz => valasz.text())
+        
+        // Betöltjük az átnevezett nézetfájlt a létrehozott konténerbe
+        fetch('Beallitasok/szabadsag_es_tappenz/Napok típusa/nap_tipusok_kezelese.html')
+            .then(v => v.text())
             .then(html => {
-                const napModalKontener = document.getElementById('sztp-nap-modal-kontener');
-                if (napModalKontener) napModalKontener.innerHTML = html;
+                const k = document.getElementById('sztp-nap-modal-kontener');
+                if (k) k.innerHTML = html;
             });
     }, 50);
