@@ -84,3 +84,4 @@ function szTpModulBetoltese() {
                 if (k) k.innerHTML = html;
             });
     }, 50);
+}
