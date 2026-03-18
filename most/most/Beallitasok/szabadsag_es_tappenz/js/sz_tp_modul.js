@@ -56,6 +56,7 @@ function szTpModulBetoltese() {
         </div>
         
         <div id="sztp-feltolto-modal-kontener"></div>
+        <div id="sztp-nap-modal-kontener"></div>
         
         <div id="sztp-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10002; align-items: center; justify-content: center;">
             <div style="background: white; padding: 25px; border-radius: 8px; width: 450px;">
@@ -73,5 +74,12 @@ function szTpModulBetoltese() {
     setTimeout(() => {
         listaBetoltese();
         inicializalFeltoltot();
+
+        // Betöltjük a külső nézetfájlt a helyére
+        fetch('Beallitasok/szabadsag_es_tappenz/Napok típusa/napok_nezet.html')
+            .then(valasz => valasz.text())
+            .then(html => {
+                const napModalKontener = document.getElementById('sztp-nap-modal-kontener');
+                if (napModalKontener) napModalKontener.innerHTML = html;
+            });
     }, 50);
-}
