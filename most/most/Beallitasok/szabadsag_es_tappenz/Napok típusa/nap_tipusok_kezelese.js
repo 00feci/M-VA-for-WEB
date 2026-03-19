@@ -123,57 +123,68 @@ function frissitNapTipusElonezet() {
 /**
  * JAVÍTOTT MENTÉSI MECHANIKA
  */
-async function beallitasokMentese() {
-    let napok = [];
+/**
+ * Mentés funkció: Elküldi a beállított nap típusokat a szerverre
+ */
+async function beallitasokMentese(valami, isGlobal = false) {
     const select = document.getElementById('sztp_nap_tipusa');
-    
-    // Elsődleges adatgyűjtés a select elemből
-    if (select && select.options.length > 0) {
-        napok = Array.from(select.options).map(opt => {
-            const reszek = opt.text.match(/(.*) \((.*)\)/);
-            return { nev: reszek ? reszek[1] : opt.text, jel: opt.value };
-        });
-    } else {
-        // Fallback: Ha a select nem elérhető, közvetlenül a táblázatból olvassuk ki az adatokat
-        const rows = document.querySelectorAll('#sztp_nap_lista_test tr');
-        rows.forEach(row => {
-            const cells = row.querySelectorAll('td');
-            if (cells.length >= 2) {
-                const nev = cells[0].innerText.trim();
-                const jelElem = cells[1].querySelector('b');
-                const jel = jelElem ? jelElem.innerText.trim() : cells[1].innerText.trim();
-                if (nev && jel) napok.push({ nev, jel });
-            }
+    if (!select) return;
+
+    let napok = [];
+    for (let i = 0; i < select.options.length; i++) {
+        const opt = select.options[i];
+        if (!opt.value) continue;
+        const reszek = opt.text.match(/(.*) \((.*)\)/);
+        napok.push({
+            nev: reszek ? reszek[1] : opt.text,
+            jel: opt.value
         });
     }
 
-    if (napok.length === 0 && !confirm("Nincs rögzített naptípus. Biztosan üres listát akarsz menteni?")) return;
-
     try {
-        // Mentés küldése: A PHP oldal (sztp_mentes.php) a megnevezés alapján automatikusan
-        // kikeresi vagy létrehozza a rekordot, nem kell külön ID-vel bajlódni.
+        const rList = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php');
+        const dList = await rList.json();
+        
+        // Javítás: ellenőrizzük a lista meglétét, hogy ne szálljon el a kód
+        const lista = dList.lista || [];
+        const globalRecord = lista.find(item => item.megnevezes === "GLOBAL_NAP_TIPUSOK");
+
+        let currentId = globalRecord ? globalRecord.id : null;
+        let extra = {};
+
+        if (currentId) {
+            const rDetail = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + currentId);
+            const dDetail = await rDetail.json();
+            if (dDetail.success && dDetail.adat && dDetail.adat.extra_adatok) {
+                // Javítás: kezeljük, ha az extra_adatok már objektumként érkezik
+                extra = typeof dDetail.adat.extra_adatok === 'string' ? JSON.parse(dDetail.adat.extra_adatok) : dDetail.adat.extra_adatok;
+            }
+        }
+
+        extra.napok = napok;
+
         const response = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_mentes.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+                id: currentId,
                 megnevezes: "GLOBAL_NAP_TIPUSOK",
-                extra_adatok: { napok: napok, nagy_rekord: "nem" }
+                extra_adatok: extra
             })
         });
 
         const result = await response.json();
         if (result.success) {
-            alert("Sikeres mentés!");
+            alert("Nap típusok sikeresen mentve!");
             const modal = document.getElementById('sztp-nap-modal');
             if (modal) modal.style.display = 'none';
-            // A globális lista frissítése a vezérlőben
             if (typeof listaBetoltese === 'function') listaBetoltese();
         } else {
-            alert("Hiba a mentés során: " + result.message);
+            alert("Mentési hiba: " + result.message);
         }
     } catch (e) {
-        console.error("Mentési hiba:", e);
-        alert("Hálózati hiba történt!");
+        console.error(e);
+        alert("Hiba történt a hálózati kommunikáció során!");
     }
 }
 
