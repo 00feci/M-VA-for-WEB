@@ -60,20 +60,20 @@ function szTpModulBetoltese() {
                 </div>
             </div>
         </div>
-       <div id="sztp-nap-modal-kontener"></div>
         ${getHivatkozasModalHtml()}
     `;
 
    setTimeout(() => {
-        listaBetoltese();
-        inicializalFeltoltot();
+        // Hibatűrőbb betöltés: ha valamelyik függvény hiányzik, ne álljon meg a többi
+        if (typeof listaBetoltese === 'function') try { listaBetoltese(); } catch(e) { console.error(e); }
+        if (typeof inicializalFeltoltot === 'function') try { inicializalFeltoltot(); } catch(e) { console.error(e); }
         
-        // Betöltjük az átnevezett nézetfájlt a létrehozott konténerbe
-        fetch('Beallitasok/szabadsag_es_tappenz/Napok típusa/nap_tipusok_kezelese.html')
+        // Fontos: a szóközöket az URL-ben kódolni kell (%20)
+        fetch('Beallitasok/szabadsag_es_tappenz/Napok%20típusa/nap_tipusok_kezelese.html')
             .then(v => v.text())
             .then(html => {
                 const k = document.getElementById('sztp-nap-modal-kontener');
                 if (k) k.innerHTML = html;
-            });
-    }, 50);
+            }).catch(err => console.error("Hiba a naptípus HTML betöltésekor:", err));
+    }, 150);
 }
