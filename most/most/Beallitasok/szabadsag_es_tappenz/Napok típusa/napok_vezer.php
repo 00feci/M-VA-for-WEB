@@ -12,33 +12,38 @@ include __DIR__ . '/nap_tipusok_kezelese.html';
 <script src="Beallitasok/szabadsag_es_tappenz/Napok típusa/nap_tipusok_kezelese.js?v=<?php echo filemtime(__DIR__ . '/nap_tipusok_kezelese.js'); ?>"></script>
 <script>
 (function() {
-    // 1. Megkeressük a GLOBAL_NAP_TIPUSOK kategória ID-ját
+    // 1. Megkeressük a GLOBAL_NAP_TIPUSOK kategóriát
     fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php')
     .then(r => r.json())
     .then(data => {
         if (!data.success) return;
-        const kategoria = data.lista.find(i => i.megnevezes === "GLOBAL_NAP_TIPUSOK");
+        const napTipusAdat = data.lista.find(i => i.megnevezes === "GLOBAL_NAP_TIPUSOK");
         
-        if (kategoria) {
-            // 2. Lekérjük a konkrét típusokat (Munkanap, Szabadság stb.) az adatbázisból
-            fetch('Beallitasok/szabadsag_es_tappenz/sztp_adatok_lekerese.php?id=' + kategoria.id)
+        if (napTipusAdat) {
+            // ✨ KRITIKUS JAVÍTÁS: Beállítjuk a rejtett ID mezőt! 
+            // Enélkül a mentés nem tudja, mit kell frissíteni.
+            const idMezo = document.getElementById('sztp_id');
+            if (idMezo) idMezo.value = napTipusAdat.id;
+
+            // 2. Lekérjük a konkrét napokat (Munkanap, SZ, stb.)
+            fetch('Beallitasok/szabadsag_es_tappenz/sztp_adatok_lekerese.php?id=' + napTipusAdat.id)
             .then(r => r.json())
-            .then(tipusok => {
+            .then(res => {
                 const select = document.getElementById('sztp_nap_tipusa');
                 if (!select) return;
                 
-                select.innerHTML = ''; // Ürítjük a rejtett listát
-                
-                if (tipusok.success && tipusok.adatok) {
-                    tipusok.adatok.forEach(t => {
+                select.innerHTML = '';
+                if (res.success && res.adatok && res.adatok.extra_adatok && res.adatok.extra_adatok.napok) {
+                    // Feltöltjük a rejtett select-et az elmentett napokkal
+                    res.adatok.extra_adatok.napok.forEach(n => {
                         const opt = document.createElement('option');
-                        opt.value = t.betujel;
-                        opt.text = t.nev + ' (' + t.betujel + ')';
+                        opt.value = n.jel;
+                        opt.text = `${n.nev} (${n.jel})`;
                         select.appendChild(opt);
                     });
                 }
                 
-                // 3. Most, hogy a rejtett select feltöltődött, meghívjuk a JS fájlodban lévő frissítőt
+                // 3. Kirajzoljuk a táblázatot (a fekete csíkot)
                 if (typeof napTipusListaFrissitese === 'function') {
                     napTipusListaFrissitese();
                 }
