@@ -118,62 +118,78 @@ function frissitNapTipusElonezet() {
         m.innerText = (s.selectedIndex >= 0) ? s.options[s.selectedIndex].text : "-";
     }
 }
+// xcxxx kód, ezt a blokot cseréld
 
 /**
- * Mentés funkció: Közvetlenül küldi a naptípusokat a szervernek.
- * Kihasználja a sztp_mentes.php intelligens rekord-kereső logikáját.
+ * JAVÍTOTT MENTÉSI MECHANIKA
  */
 async function beallitasokMentese() {
+    let napok = [];
     const select = document.getElementById('sztp_nap_tipusa');
-    if (!select) return alert("Hiba: Az adattároló elem nem található!");
+    
+    // Elsődleges adatgyűjtés a select elemből
+    if (select && select.options.length > 0) {
+        napok = Array.from(select.options).map(opt => {
+            const reszek = opt.text.match(/(.*) \((.*)\)/);
+            return { nev: reszek ? reszek[1] : opt.text, jel: opt.value };
+        });
+    } else {
+        // Fallback: Ha a select nem elérhető, közvetlenül a táblázatból olvassuk ki az adatokat
+        const rows = document.querySelectorAll('#sztp_nap_lista_test tr');
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length >= 2) {
+                const nev = cells[0].innerText.trim();
+                const jelElem = cells[1].querySelector('b');
+                const jel = jelElem ? jelElem.innerText.trim() : cells[1].innerText.trim();
+                if (nev && jel) napok.push({ nev, jel });
+            }
+        });
+    }
 
-    // Összegyűjtjük a típusokat a select-ből
-    const napok = Array.from(select.options).map(opt => {
-        const reszek = opt.text.match(/(.*) \((.*)\)/);
-        return {
-            nev: reszek ? reszek[1] : opt.text,
-            jel: opt.value
-        };
-    });
+    if (napok.length === 0 && !confirm("Nincs rögzített naptípus. Biztosan üres listát akarsz menteni?")) return;
 
     try {
+        // Mentés küldése: A PHP oldal (sztp_mentes.php) a megnevezés alapján automatikusan
+        // kikeresi vagy létrehozza a rekordot, nem kell külön ID-vel bajlódni.
         const response = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_mentes.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                megnevezes: "GLOBAL_NAP_TIPUSOK", // Ez alapján azonosítja a PHP a rekordot
-                extra_adatok: { napok: napok }
+                megnevezes: "GLOBAL_NAP_TIPUSOK",
+                extra_adatok: { napok: napok, nagy_rekord: "nem" }
             })
         });
 
         const result = await response.json();
         if (result.success) {
             alert("Sikeres mentés!");
-            document.getElementById('sztp-nap-modal').style.display = 'none';
-            // Ha a globális lista frissült, töltsük újra a vezérlőt is
+            const modal = document.getElementById('sztp-nap-modal');
+            if (modal) modal.style.display = 'none';
+            // A globális lista frissítése a vezérlőben
             if (typeof listaBetoltese === 'function') listaBetoltese();
         } else {
-            alert("Hiba: " + result.message);
+            alert("Hiba a mentés során: " + result.message);
         }
     } catch (e) {
         console.error("Mentési hiba:", e);
-        alert("Hálózati hiba történt a mentés során!");
+        alert("Hálózati hiba történt!");
     }
 }
 
 /**
- * Adatok betöltése: Beolvassa a naptípusokat a szerverről
+ * JAVÍTOTT BETÖLTÉSI MECHANIKA
  */
 async function adatokBetoltese(id) {
     if (!id) return;
     try {
-        const r = await fetch(`Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=${id}&v=${new Date().getTime()}`);
-        const d = await r.json();
+        const response = await fetch(`Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=${id}&v=${new Date().getTime()}`);
+        const data = await response.json();
         
-        if (!d.success || !d.adat) return;
+        if (!data.success || !data.adat) return;
 
-        // Kezeljük, ha az extra_adatok már objektumként vagy stringként érkezik
-        const extra = typeof d.adat.extra_adatok === 'string' ? JSON.parse(d.adat.extra_adatok) : d.adat.extra_adatok;
+        // Az extra_adatok JSON-ból való kibontása (stringként vagy objektumként is kezeljük)
+        const extra = typeof data.adat.extra_adatok === 'string' ? JSON.parse(data.adat.extra_adatok) : data.adat.extra_adatok;
         const select = document.getElementById('sztp_nap_tipusa');
         
         if (select && extra && extra.napok) {
@@ -184,9 +200,11 @@ async function adatokBetoltese(id) {
                 opt.text = `${n.nev} (${n.jel})`;
                 select.appendChild(opt);
             });
-            napTipusListaFrissitese();
+            // A látható lista frissítése a betöltött adatok alapján
+            if (typeof napTipusListaFrissitese === 'function') napTipusListaFrissitese();
         }
     } catch (e) {
         console.error("Betöltési hiba:", e);
     }
 }
+// kod
