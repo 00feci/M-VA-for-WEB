@@ -120,89 +120,73 @@ function frissitNapTipusElonezet() {
 }
 
 /**
- * Mentés funkció: Elküldi a beállított nap típusokat a szerverre
+ * Mentés funkció: Közvetlenül küldi a naptípusokat a szervernek.
+ * Kihasználja a sztp_mentes.php intelligens rekord-kereső logikáját.
  */
-async function beallitasokMentese(valami, isGlobal = false) {
+async function beallitasokMentese() {
     const select = document.getElementById('sztp_nap_tipusa');
-    if (!select) return;
+    if (!select) return alert("Hiba: Az adattároló elem nem található!");
 
-    let napok = [];
-    for (let i = 0; i < select.options.length; i++) {
-        const opt = select.options[i];
-        if (!opt.value) continue;
+    // Összegyűjtjük a típusokat a select-ből
+    const napok = Array.from(select.options).map(opt => {
         const reszek = opt.text.match(/(.*) \((.*)\)/);
-        napok.push({
+        return {
             nev: reszek ? reszek[1] : opt.text,
             jel: opt.value
-        });
-    }
+        };
+    });
 
     try {
-        // Keressük meg a globális rekordot a név alapján
-        const rList = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php');
-        const dList = await rList.json();
-        const globalRecord = dList.lista.find(item => item.megnevezes === "GLOBAL_NAP_TIPUSOK");
-
-        let currentId = globalRecord ? globalRecord.id : null;
-        let extra = {};
-
-        if (currentId) {
-            const rDetail = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + currentId);
-            const dDetail = await rDetail.json();
-            if (dDetail.success && dDetail.adat.extra_adatok) {
-                extra = JSON.parse(dDetail.adat.extra_adatok);
-            }
-        }
-
-        // Napok frissítése az extra_adatok JSON mezőben
-        extra.napok = napok;
-
         const response = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_mentes.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                id: currentId,
-                megnevezes: "GLOBAL_NAP_TIPUSOK",
-                extra_adatok: extra
+                megnevezes: "GLOBAL_NAP_TIPUSOK", // Ez alapján azonosítja a PHP a rekordot
+                extra_adatok: { napok: napok }
             })
         });
 
         const result = await response.json();
         if (result.success) {
-            alert("Nap típusok sikeresen mentve!");
+            alert("Sikeres mentés!");
             document.getElementById('sztp-nap-modal').style.display = 'none';
+            // Ha a globális lista frissült, töltsük újra a vezérlőt is
             if (typeof listaBetoltese === 'function') listaBetoltese();
         } else {
-            alert("Mentési hiba: " + result.message);
+            alert("Hiba: " + result.message);
         }
     } catch (e) {
-        console.error(e);
-        alert("Hiba történt a hálózati kommunikáció során!");
+        console.error("Mentési hiba:", e);
+        alert("Hálózati hiba történt a mentés során!");
     }
 }
 
 /**
- * Adatok betöltése: Feltölti a select listát az adatbázisból
+ * Adatok betöltése: Beolvassa a naptípusokat a szerverről
  */
-async function adatokBetoltese(id, isGlobal = false) {
+async function adatokBetoltese(id) {
     if (!id) return;
     try {
-        const r = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + id);
+        const r = await fetch(`Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=${id}&v=${new Date().getTime()}`);
         const d = await r.json();
-        if (!d.success || !d.adat.extra_adatok) return;
-
-        const extra = JSON.parse(d.adat.extra_adatok);
-        const select = document.getElementById('sztp_nap_tipusa');
-        if (!select || !extra.napok) return;
-
-        select.innerHTML = '';
-        extra.napok.forEach(n => {
-            const opt = document.createElement('option');
-            opt.value = n.jel;
-            opt.text = `${n.nev} (${n.jel})`;
-            select.appendChild(opt);
-        });
         
-        napTipusListaFrissitese();
-    } catch (e) { console.error("Betöltési hiba:", e); }
+        if (!d.success || !d.adat) return;
+
+        // Kezeljük, ha az extra_adatok már objektumként vagy stringként érkezik
+        const extra = typeof d.adat.extra_adatok === 'string' ? JSON.parse(d.adat.extra_adatok) : d.adat.extra_adatok;
+        const select = document.getElementById('sztp_nap_tipusa');
+        
+        if (select && extra && extra.napok) {
+            select.innerHTML = '';
+            extra.napok.forEach(n => {
+                const opt = document.createElement('option');
+                opt.value = n.jel;
+                opt.text = `${n.nev} (${n.jel})`;
+                select.appendChild(opt);
+            });
+            napTipusListaFrissitese();
+        }
+    } catch (e) {
+        console.error("Betöltési hiba:", e);
+    }
 }
