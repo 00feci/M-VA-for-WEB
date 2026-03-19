@@ -118,14 +118,6 @@ function frissitNapTipusElonezet() {
         m.innerText = (s.selectedIndex >= 0) ? s.options[s.selectedIndex].text : "-";
     }
 }
-// xcxxx kód, ezt a blokot cseréld
-
-/**
- * JAVÍTOTT MENTÉSI MECHANIKA
- */
-/**
- * Mentés funkció: Elküldi a beállított nap típusokat a szerverre
- */
 async function beallitasokMentese(valami, isGlobal = false) {
     const select = document.getElementById('sztp_nap_tipusa');
     if (!select) return;
@@ -144,8 +136,6 @@ async function beallitasokMentese(valami, isGlobal = false) {
     try {
         const rList = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php');
         const dList = await rList.json();
-        
-        // Javítás: ellenőrizzük a lista meglétét, hogy ne szálljon el a kód
         const lista = dList.lista || [];
         const globalRecord = lista.find(item => item.megnevezes === "GLOBAL_NAP_TIPUSOK");
 
@@ -156,7 +146,6 @@ async function beallitasokMentese(valami, isGlobal = false) {
             const rDetail = await fetch('Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=' + currentId);
             const dDetail = await rDetail.json();
             if (dDetail.success && dDetail.adat && dDetail.adat.extra_adatok) {
-                // Javítás: kezeljük, ha az extra_adatok már objektumként érkezik
                 extra = typeof dDetail.adat.extra_adatok === 'string' ? JSON.parse(dDetail.adat.extra_adatok) : dDetail.adat.extra_adatok;
             }
         }
@@ -189,7 +178,7 @@ async function beallitasokMentese(valami, isGlobal = false) {
 }
 
 /**
- * JAVÍTOTT BETÖLTÉSI MECHANIKA
+ * Adatok betöltése: Feltölti a select listát az adatbázisból
  */
 async function adatokBetoltese(id) {
     if (!id) return;
@@ -199,7 +188,6 @@ async function adatokBetoltese(id) {
         
         if (!data.success || !data.adat) return;
 
-        // Az extra_adatok JSON-ból való kibontása (stringként vagy objektumként is kezeljük)
         const extra = typeof data.adat.extra_adatok === 'string' ? JSON.parse(data.adat.extra_adatok) : data.adat.extra_adatok;
         const select = document.getElementById('sztp_nap_tipusa');
         
@@ -211,11 +199,9 @@ async function adatokBetoltese(id) {
                 opt.text = `${n.nev} (${n.jel})`;
                 select.appendChild(opt);
             });
-            // A látható lista frissítése a betöltött adatok alapján
             if (typeof napTipusListaFrissitese === 'function') napTipusListaFrissitese();
         }
     } catch (e) {
         console.error("Betöltési hiba:", e);
     }
 }
-// kod
