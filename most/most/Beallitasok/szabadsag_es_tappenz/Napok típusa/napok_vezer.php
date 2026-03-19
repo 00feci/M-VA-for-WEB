@@ -16,22 +16,20 @@ function listaBetoltese() {
         .then(data => {
             if (!data.success || !data.lista) return;
 
-            // 1. Globális naptípusok betöltése a táblázatba (függetlenül a dropdownoktól)
+            // 1. Globális naptípusok kérése (függetlenül a dropdownoktól)
             const globalRecord = data.lista.find(i => i.megnevezes === "GLOBAL_NAP_TIPUSOK");
             if (globalRecord && typeof adatokBetoltese === 'function') {
                 adatokBetoltese(globalRecord.id);
             }
 
-            // 2. Dropdown listák (sztp_megnevezes stb.) frissítése a többi rekorddal
+            // 2. A többi választólista frissítése
             const selects = [document.getElementById('sztp_megnevezes'), document.getElementById('sztp_edit_megnevezes')];
             selects.forEach(select => {
                 if (!select) return;
                 const mentettId = select.value;
                 select.innerHTML = '<option value="">-- Kiválasztás --</option>';
                 data.lista.forEach(i => {
-                    // A globális rekordot nem tesszük bele a "Fajták" listájába
-                    if (i.megnevezes === "GLOBAL_NAP_TIPUSOK") return; 
-                    
+                    if (i.megnevezes === "GLOBAL_NAP_TIPUSOK") return;
                     const opt = document.createElement('option');
                     opt.value = i.id;
                     opt.textContent = i.megnevezes;
