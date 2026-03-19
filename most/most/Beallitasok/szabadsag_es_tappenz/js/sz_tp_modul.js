@@ -64,15 +64,17 @@ function szTpModulBetoltese() {
     `;
 
  setTimeout(() => {
-        if (typeof listaBetoltese === 'function') listaBetoltese();
-        if (typeof inicializalFeltoltot === 'function') inicializalFeltoltot();
-        
-        // Javítás: a szóköz kódolása az URL-ben (%20 és %C3%AD)
+        // Előbb beolvassuk a HTML-t
         fetch('Beallitasok/szabadsag_es_tappenz/Napok%20t%C3%ADpusa/nap_tipusok_kezelese.html')
             .then(v => v.text())
             .then(html => {
                 const k = document.getElementById('sztp-nap-modal-kontener');
-                if (k) k.innerHTML = html;
+                if (k) {
+                    k.innerHTML = html;
+                    // CSAK MIUTÁN benne van a DOM-ban a HTML, utána töltjük az adatokat
+                    if (typeof listaBetoltese === 'function') listaBetoltese();
+                    if (typeof inicializalFeltoltot === 'function') inicializalFeltoltot();
+                }
             }).catch(err => console.error("Hiba a HTML betöltésekor:", err));
     }, 150);
 }
