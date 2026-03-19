@@ -47,7 +47,7 @@ function szTpModulBetoltese() {
             </div>
         </div>
         
-        <div id="sztp-feltolto-modal-kontener"></div>
+       <<div id="sztp-feltolto-modal-kontener"></div>
         <div id="sztp-nap-modal-kontener"></div>
         
         <div id="sztp-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10002; align-items: center; justify-content: center;">
@@ -63,17 +63,16 @@ function szTpModulBetoltese() {
         ${getHivatkozasModalHtml()}
     `;
 
-   setTimeout(() => {
-        // Hibatűrőbb betöltés: ha valamelyik függvény hiányzik, ne álljon meg a többi
-        if (typeof listaBetoltese === 'function') try { listaBetoltese(); } catch(e) { console.error(e); }
-        if (typeof inicializalFeltoltot === 'function') try { inicializalFeltoltot(); } catch(e) { console.error(e); }
+ setTimeout(() => {
+        if (typeof listaBetoltese === 'function') listaBetoltese();
+        if (typeof inicializalFeltoltot === 'function') inicializalFeltoltot();
         
-        // Fontos: a szóközöket az URL-ben kódolni kell (%20)
-        fetch('Beallitasok/szabadsag_es_tappenz/Napok%20típusa/nap_tipusok_kezelese.html')
+        // Javítás: a szóköz kódolása az URL-ben (%20 és %C3%AD)
+        fetch('Beallitasok/szabadsag_es_tappenz/Napok%20t%C3%ADpusa/nap_tipusok_kezelese.html')
             .then(v => v.text())
             .then(html => {
                 const k = document.getElementById('sztp-nap-modal-kontener');
                 if (k) k.innerHTML = html;
-            }).catch(err => console.error("Hiba a naptípus HTML betöltésekor:", err));
+            }).catch(err => console.error("Hiba a HTML betöltésekor:", err));
     }, 150);
 }
