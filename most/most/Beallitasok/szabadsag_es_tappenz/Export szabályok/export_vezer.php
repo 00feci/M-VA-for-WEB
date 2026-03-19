@@ -8,4 +8,4 @@ ellenorizJogosultsag('Beállítások');
 // 1. Megjelenítjük a gombot a felületen
 include __DIR__ . '/export_gomb.html';
 ?>
-<!--<script src="Beallitasok/szabadsag_es_tappenz/Napok típusa/nap_tipusok_kezelese.js?v=<php// echo filemtime(__DIR__ . '/nap_tipusok_kezelese.js'); ?>"</script>-->
+<!--<script src="Beallitasok/szabadsag_es_tappenz/Napok típusa/nap_tipusok_kezelese.js?v=<php// echo filemtime(__DIR__ . '/nap_tipusok_kezelese.js'); ?>"></script>-->
