@@ -176,22 +176,23 @@ async function beallitasokMentese(valami, isGlobal = false) {
         alert("Hiba történt a hálózati kommunikáció során!");
     }
 }
-
-/**
- * Adatok betöltése: Feltölti a select listát az adatbázisból
- */
 async function adatokBetoltese(id) {
     if (!id) return;
+    const select = document.getElementById('sztp_nap_tipusa');
+    if (!select) return; // Ha még nincs kész a HTML, nem csinálunk semmit
+
     try {
         const response = await fetch(`Beallitasok/szabadsag_es_tappenz/sztp_lekerese.php?id=${id}&v=${new Date().getTime()}`);
         const data = await response.json();
         
         if (!data.success || !data.adat) return;
 
-        const extra = typeof data.adat.extra_adatok === 'string' ? JSON.parse(data.adat.extra_adatok) : data.adat.extra_adatok;
-        const select = document.getElementById('sztp_nap_tipusa');
+        let extra = data.adat.extra_adatok;
+        if (typeof extra === 'string') {
+            try { extra = JSON.parse(extra); } catch(e) { console.error("JSON parse hiba", e); return; }
+        }
         
-        if (select && extra && extra.napok) {
+        if (extra && Array.isArray(extra.napok)) {
             select.innerHTML = '';
             extra.napok.forEach(n => {
                 const opt = document.createElement('option');
@@ -199,7 +200,8 @@ async function adatokBetoltese(id) {
                 opt.text = `${n.nev} (${n.jel})`;
                 select.appendChild(opt);
             });
-            if (typeof napTipusListaFrissitese === 'function') napTipusListaFrissitese();
+            // Itt frissítjük a látható táblázatot is!
+            napTipusListaFrissitese();
         }
     } catch (e) {
         console.error("Betöltési hiba:", e);
