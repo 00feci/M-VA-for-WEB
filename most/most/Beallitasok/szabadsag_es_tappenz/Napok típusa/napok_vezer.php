@@ -7,7 +7,6 @@ ellenorizJogosultsag('Beállítások');
 
 // 1. Megjelenítjük a gombot a felületen
 include __DIR__ . '/napok_típusa.html';
-include __DIR__ . '/nap_tipusok_kezelese.html';
 ?>
 <script src="Beallitasok/szabadsag_es_tappenz/Napok típusa/nap_tipusok_kezelese.js?v=<?php echo filemtime(__DIR__ . '/nap_tipusok_kezelese.js'); ?>"></script>
 <script>
