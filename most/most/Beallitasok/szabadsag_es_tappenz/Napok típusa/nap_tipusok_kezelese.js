@@ -11,7 +11,14 @@ function napTipusSzerkesztoMegnyitasa() {
     const modal = document.getElementById('sztp-nap-modal');
     if (modal) {
         modal.style.display = 'flex';
-        napTipusListaFrissitese();
+        
+        // Frissítjük az adatokat nyitáskor (ha átnevezted a függvényt az előző lépésben)
+        if (typeof napTipusListaBetoltese === 'function') {
+            napTipusListaBetoltese();
+        } else {
+            napTipusListaFrissitese(); // Fallback
+        }
+        
         const input = document.getElementById('uj_nap_nev');
         if (input) input.focus();
     }
