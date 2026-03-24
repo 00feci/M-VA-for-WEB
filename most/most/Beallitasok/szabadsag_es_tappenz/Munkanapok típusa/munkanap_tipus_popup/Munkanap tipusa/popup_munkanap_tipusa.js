@@ -1,42 +1,31 @@
 function szTpModulBetoltese() {
-    // Szigorúan a vezer.php-ban definiált root div-et keressük, 
-    // hogy ne írjuk felül a felette lévő PHP-s Vissza gombot!
     const kontener = document.getElementById('sz-tp-modul-root');
-    
-    if (!kontener) {
-        console.warn("Az 'sz-tp-modul-root' nem található, próbálkozás a 'modul-tartalom' elemmel...");
-        const tartalmiKontener = document.getElementById('modul-tartalom');
-        if (!tartalmiKontener) return;
-        // Ha nincs root div, de van tartalmi konténer, létrehozzuk a helyet
-        tartalmiKontener.innerHTML = '<div id="sz-tp-modul-root"></div>';
-        return szTpModulBetoltese();
-    }
-
-kontener.innerHTML = `
-<div id="sztp-feltolto-modal-kontener"></div>
+    // Csak a konténereket hozzuk létre, a tartalom fájlból jön majd
+    kontener.innerHTML = `
+        <div id="sztp-feltolto-modal-kontener"></div>
         <div id="sztp-nap-modal-kontener"></div>
-        
-        <div id="sztp-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10002; align-items: center; justify-content: center;">
-            <div style="background: white; padding: 25px; border-radius: 8px; width: 450px;">
-                <h3 style="margin: 0; color: #333;">Megnevezések hozzáadása</h3>
-                <textarea id="sztp_tomeges_bevitel" placeholder="Példa:&#10;Szabadság&#10;Táppénz" style="width: 100%; height: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin: 15px 0; font-family: sans-serif; color: #333;"></textarea>
-                <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                    <button onclick="modalBezaras()" style="padding: 8px 15px; background: #eee; border: 1px solid #ccc; border-radius: 4px; color: #333; cursor: pointer;">Mégse</button>
-                    <button onclick="megnevezesekMentese()" style="padding: 8px 20px; background: #4CAF50; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer;">Frissítés</button>
-                </div>
-            </div>
-        </div>
-        ${getHivatkozasModalHtml()}
+        <div id="sztp-plusz-popup-helye"></div> ${getHivatkozasModalHtml()}
     `;
- setTimeout(() => {
-        // Előbb beolvassuk a HTML-t
+
+    // A popup_munkanap_tipusa_plusz_popup.html betöltése
+    fetch('Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/Munkanap tipusa/popup_munkanap_tipusa_plusz_popup.html')
+        .then(response => response.text())
+        .then(html => {
+            const hely = document.getElementById('sztp-plusz-popup-helye');
+            if (hely) {
+                hely.innerHTML = html;
+            }
+        })
+        .catch(err => console.error("Hiba a plusz popup betöltésekor:", err));
+
+    // A többi modul betöltése (meglévő kód)
+    setTimeout(() => {
         fetch('Beallitasok/szabadsag_es_tappenz/Napok%20t%C3%ADpusa/nap_tipusok_kezelese.html')
             .then(v => v.text())
             .then(html => {
                 const k = document.getElementById('sztp-nap-modal-kontener');
                 if (k) {
                     k.innerHTML = html;
-                    // CSAK MIUTÁN benne van a DOM-ban a HTML, utána töltjük az adatokat
                     if (typeof listaBetoltese === 'function') listaBetoltese();
                     if (typeof inicializalFeltoltot === 'function') inicializalFeltoltot();
                 }
