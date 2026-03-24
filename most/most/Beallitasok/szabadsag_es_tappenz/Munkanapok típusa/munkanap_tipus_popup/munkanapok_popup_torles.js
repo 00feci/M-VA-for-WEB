@@ -11,7 +11,7 @@ function sztpTorles() {
         .then(data => {
             alert(data.message);
             if (data.success) {
-                adatokBetoltese(''); 
+                munkanapAdatokBetoltese(''); // Itt is írd át az új névre!
                 listaBetoltese();   
             }
         });
