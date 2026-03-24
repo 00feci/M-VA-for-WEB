@@ -1,3 +1,4 @@
+kontener.innerHTML = `
 <div id="sztp-feltolto-modal-kontener"></div>
         <div id="sztp-nap-modal-kontener"></div>
         
