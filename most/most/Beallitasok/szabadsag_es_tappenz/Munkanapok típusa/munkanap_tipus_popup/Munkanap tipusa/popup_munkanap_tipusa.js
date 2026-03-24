@@ -1,5 +1,5 @@
 function szTpModulBetoltese() {
-    // A fő konténer keresése a vezer.php-ból
+    // A vezer.php-ban definiált root div keresése
     const kontener = document.getElementById('sz-tp-modul-root');
     
     if (!kontener) {
@@ -10,15 +10,16 @@ function szTpModulBetoltese() {
         return szTpModulBetoltese();
     }
 
-    // Itt megszüntettük a hardkódolt HTML-t, helyette üres tárolókat (placeholder) hozunk létre
+    // A beágyazott HTML eltávolítva, csak a konténerek maradnak
     kontener.innerHTML = `
         <div id="sztp-feltolto-modal-kontener"></div>
         <div id="sztp-nap-modal-kontener"></div>
-        <div id="sztp-plusz-modal-helye"></div> ${getHivatkozasModalHtml()}
+        <div id="sztp-plusz-modal-helye"></div>
+        ${getHivatkozasModalHtml()}
     `;
 
-    // 1. A popup_munkanap_tipusa_plusz_popup.html betöltése
-    fetch('Beallitasok/szabadsag_es_tappenz/Munkanapok%20t%C3%ADpusa/munkanap_tipus_popup/Munkanap%20tipusa/popup_munkanap_tipusa_plusz_popup.html')
+    // A külső HTML betöltése a pontos, szóközös elérési úttal
+    fetch('Beallitasok/szabadsag_es_tappenz/Munkanapok típusa/munkanap_tipus_popup/Munkanap tipusa/popup_munkanap_tipusa_plusz_popup.html')
         .then(response => response.text())
         .then(html => {
             const pluszHely = document.getElementById('sztp-plusz-modal-helye');
@@ -28,9 +29,9 @@ function szTpModulBetoltese() {
         })
         .catch(err => console.error("Hiba a plusz popup betöltésekor:", err));
 
-    // 2. A többi már meglévő HTML betöltése (példa a fájlból)
+    // A többi tartalom betöltése
     setTimeout(() => {
-        fetch('Beallitasok/szabadsag_es_tappenz/Napok%20t%C3%ADpusa/nap_tipusok_kezelese.html')
+        fetch('Beallitasok/szabadsag_es_tappenz/Napok típusa/nap_tipusok_kezelese.html')
             .then(v => v.text())
             .then(html => {
                 const k = document.getElementById('sztp-nap-modal-kontener');
