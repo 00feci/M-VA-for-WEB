@@ -6,7 +6,7 @@ async function beallitasokMentese(modalbol = false, napModalbol = false) {
     
     const fajlLista = document.getElementById('sztp-fajl-lista');
     const napTipusSelect = document.getElementById('sztp_nap_tipusa');
-    const id = document.getElementById('sztp_id')?.value || "";
+    const id = document.getElementById('sztp_munkanap_id')?.value || "";
 
     // Alapértelmezett új adatok
     let ujAdatok = { 
