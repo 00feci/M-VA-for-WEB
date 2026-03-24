@@ -7,6 +7,7 @@ ellenorizJogosultsag('Beállítások');
 
 // 1. Behúzzuk a felületi gombot
 include __DIR__ . '/munkanapok_popup.html';
+echo '<input type="hidden" id="sztp_id" value="">'; // Add hozzá ezt a sort!
 // 2. Később ide jönnek a Popup HTML-ek és a JS fájlok include-jai
  include __DIR__ . '/Munkanap tipusa/popup_munkanap_tipusa_vezer.php';
 include __DIR__ . '/munkanapok_popup_kod_szin.html'; 
