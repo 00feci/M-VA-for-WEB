@@ -16,13 +16,7 @@ function szTpModulBetoltese() {
         <div class="sztp-keret" style="display: flex; gap: 40px; padding: 20px; align-items: flex-start;">
             <input type="hidden" id="sztp_id" value=""> 
             
-           <div style="width: 360px; display: flex; flex-direction: column; gap: 15px;">
-                <div style="background: #1e1e1e; padding: 20px; border-radius: 12px; border: 1px solid #333;">
-                    <button onclick="fajtaBeallitasokMegnyitasa()" style="width: 100%; padding: 12px; background: #2196F3; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                        Munkanapok típusa ⚙️
-                    </button>
-                </div>
-            </div>
+          
             
             <div style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
                 <div style="background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; color: white;">
@@ -47,7 +41,7 @@ function szTpModulBetoltese() {
             </div>
         </div>
         
-       <<div id="sztp-feltolto-modal-kontener"></div>
+       <div id="sztp-feltolto-modal-kontener"></div>
         <div id="sztp-nap-modal-kontener"></div>
         
         <div id="sztp-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10002; align-items: center; justify-content: center;">
@@ -62,7 +56,7 @@ function szTpModulBetoltese() {
         </div>
         ${getHivatkozasModalHtml()}
     `;
-
+/*
  setTimeout(() => {
         // Előbb beolvassuk a HTML-t
         fetch('Beallitasok/szabadsag_es_tappenz/Napok%20t%C3%ADpusa/nap_tipusok_kezelese.html')
@@ -76,5 +70,5 @@ function szTpModulBetoltese() {
                     if (typeof inicializalFeltoltot === 'function') inicializalFeltoltot();
                 }
             }).catch(err => console.error("Hiba a HTML betöltésekor:", err));
-    }, 150);
+    }, 150);*/
 }
