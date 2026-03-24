@@ -1,6 +1,6 @@
 // munkanapok_popup.js 
-function adatokBetoltese(id, globalisBetoltes = false) {
-    const idInput = document.getElementById('sztp_id');
+function munkanapAdatokBetoltese(id, globalisBetoltes = false) {
+const idInput = document.getElementById('sztp_munkanap_id'); // Itt az új ID-t használjuk!
     const editSelect = document.getElementById('sztp_edit_megnevezes');
     if (!idInput) return;
 
